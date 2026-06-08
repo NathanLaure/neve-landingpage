@@ -247,12 +247,12 @@ export default function HeroHome() {
         style={{ backgroundImage: `url('/images/hero-bg.jpg')` }}
       />
       {/* Semi-translucent overlay to ensure text contrast and match the warm crème theme */}
-      <div className="absolute inset-0 bg-black/45 pointer-events-none" />
+      <div className="absolute inset-0 bg-black/35 pointer-events-none" />
 
       
       <PageIllustration />
       
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 relative z-10 w-full">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 relative z-10 w-full mb-16 md:mb-50">
         {/* Hero content */}
         <div>
           {/* Section header */}

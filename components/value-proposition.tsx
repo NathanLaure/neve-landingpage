@@ -7,9 +7,6 @@ export default function ValueProposition() {
         
         {/* Header */}
         <div className="mx-auto max-w-3xl text-center pb-16">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-neve-forest text-xs font-bold uppercase tracking-wider mb-4 border border-emerald-200 shadow-2xs">
-            🌟 Plus-value express
-          </div>
           <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900 leading-tight">
             Comment Névé réinvente <br className="max-sm:hidden" />
             <span className="text-neve-forest">l'aventure sans voiture</span>
