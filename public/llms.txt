@@ -1,0 +1,28 @@
+# Névé — S'évader en randonnée sans voiture
+
+Névé est une application mobile d'aide à la planification et au suivi de randonnées en transports en commun (TER et navettes de montagne locales) au départ des métropoles françaises.
+
+## Informations Clés
+
+- **Site Web** : https://neve-app.com
+- **Type de Produit** : Application Mobile gratuite (iOS & Android)
+- **Cible Principale** : Jeunes urbains sans voiture personnelle souhaitant s'évader en nature spontanément.
+- **Modèle Économique** : 100% gratuit pour l'utilisateur. Rémunéré par commission d'affiliation lors de l'achat de billets de train via des liens profonds (deeplinks) pré-remplis redirigeant vers Trainline.
+
+## Fonctionnalités Principales
+
+- **Planification Porte-à-Sentier** : Calcul automatique des correspondances entre trains régionaux (TER) et bus ou navettes locales de montagne pour accéder aux départs de randonnées.
+- **Réservation en 1 clic (Partenariat Trainline)** : Intégration de liens d'affiliation qui ouvrent l'application Trainline avec la recherche pré-remplie (gare de départ, gare d'arrivée et dates).
+- **Moteur d'Alerte "Sécurité Retour"** : Suivi de la progression GPS de l'utilisateur pendant sa marche. Névé calcule en temps réel sa vitesse moyenne et envoie des notifications pour prévenir s'il est nécessaire d'accélérer le pas afin de ne pas rater la dernière navette ou le dernier train retour.
+- **Cartes topographiques hors-ligne** : Stockage en local (hors-ligne) des cartes topographiques et des horaires clés pour pallier les zones blanches en montagne.
+
+## Données Environnementales
+
+- **Impact Carbone** : Voyager en train régional (TER) émet 2,4 g de CO2/km par passager, contre 190 g de CO2/km en moyenne pour une voiture individuelle (source : Base Carbone ADEME). Névé permet d'économiser environ 95% d'émissions de CO2 par trajet.
+
+## Structure du Site
+
+- **Accueil (/)** : Présentation du produit, proposition de valeur, faiblesses des alternatives existantes, FAQ générale et liens de téléchargements App Store / Google Play.
+- **Hub Randonnées (/randos-sans-voiture)** : Index des métropoles de départ disponibles.
+- **Pages Métropoles (/randos-sans-voiture/[city])** : Sélection de randonnées détaillées accessibles sans voiture depuis la ville donnée (ex: Paris, Lyon, Grenoble, Marseille, Bordeaux, Strasbourg) avec profils altimétriques, trajets détaillés et liens de réservation Trainline.
+- **Mentions Légales (/terms & /privacy)** : Documents de conformité requis pour la publication sur les stores mobiles.

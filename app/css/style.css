@@ -12,6 +12,12 @@
   --font-inter: Inter, sans-serif;
   --font-mono: Roboto Mono, monospace;
 
+  --color-brand-orange: #ff6b35;
+  --color-brand-orange-hover: #e0531f;
+  --color-brand-orange-light: #fff5f0;
+  --color-brand-dark: #0f172a;
+  --color-brand-light: #ffffff;
+
   --text-xs: 0.75rem;
   --text-xs--line-height: 1.5;
   --text-sm: 0.875rem;

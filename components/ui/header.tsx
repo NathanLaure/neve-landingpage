@@ -11,22 +11,14 @@ export default function Header() {
             <Logo />
           </div>
 
-          {/* Desktop sign in links */}
-          <ul className="flex flex-1 items-center justify-end gap-3">
+          {/* Primary Action Button */}
+          <ul className="flex flex-1 items-center justify-end">
             <li>
               <Link
-                href="/signin"
-                className="btn-sm bg-white text-gray-800 shadow-sm hover:bg-gray-50"
+                href="#download-ios"
+                className="btn-sm bg-[color:var(--color-brand-orange)] hover:bg-[color:var(--color-brand-orange-hover)] text-white shadow-sm rounded-lg px-4 py-1.5 font-semibold text-xs transition duration-150"
               >
-                Login
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/signup"
-                className="btn-sm bg-gray-800 text-gray-200 shadow-sm hover:bg-gray-900"
-              >
-                Register
+                Télécharger l'app
               </Link>
             </li>
           </ul>

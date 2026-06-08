@@ -29,18 +29,15 @@ export default function LargeTestimonial() {
                 alt="Large testimonial"
               />
             </div>
-            <p className="text-2xl font-bold text-gray-900">
-              “Simple has simplified my life in more ways than one. From
-              managing my sites to{" "}
-              <em className="italic text-gray-500">keeping track of tasks</em>,
-              it's become my go-to tool for everything.”
+            <p className="text-xl font-bold text-gray-900 leading-relaxed md:text-2xl">
+              « Névé a totalement changé mes week-ends. Plus besoin de louer de voiture ni de passer des heures à synchroniser les TER et les bus. Je choisis ma rando, j'achète mes billets en 1 clic sur Trainline et je pars l'esprit tranquille grâce à l'alerte sécurité retour. »
             </p>
             <div className="text-sm font-medium text-gray-500">
-              <span className="text-gray-700">Mary Sullivan</span>{" "}
+              <span className="text-gray-700">Maxime, 26 ans (Lyon)</span>{" "}
               <span className="text-gray-400">/</span>{" "}
-              <a className="text-blue-500" href="#0">
-                CTO at Microsoft
-              </a>
+              <span className="text-[color:var(--color-brand-orange)] font-semibold">
+                Randonneur sans voiture
+              </span>
             </div>
           </div>
         </div>
