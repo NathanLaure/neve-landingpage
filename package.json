@@ -10,10 +10,13 @@
   },
   "dependencies": {
     "@headlessui/react": "^2.2.0",
+    "@types/mapbox-gl": "^3.5.0",
     "@types/node": "^22.13.0",
     "@types/react": "19.0.8",
     "@types/react-dom": "19.0.3",
     "aos": "3.0.0-beta.6",
+    "lucide-react": "^1.17.0",
+    "mapbox-gl": "^3.24.0",
     "next": "^15.1.11",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "react": "19.2.3",

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import CityPageContent, { Hike } from "@/components/city-page-content";
 
 const HIKES_DATABASE: Record<string, Hike[]> = {
@@ -14,6 +15,8 @@ const HIKES_DATABASE: Record<string, Hike[]> = {
       svgPath: "M 0 50 Q 80 15 160 40 T 240 20 T 320 42 T 400 50",
       co2Saved: "22",
       destinationStation: "Fontainebleau-Avon",
+      lat: 48.4116,
+      lng: 2.6288,
     },
     {
       name: "La Vallée de la Chevreuse",
@@ -27,6 +30,8 @@ const HIKES_DATABASE: Record<string, Hike[]> = {
       svgPath: "M 0 50 Q 60 20 120 45 T 240 25 T 360 45 T 400 50",
       co2Saved: "18",
       destinationStation: "Saint-Rémy-lès-Chevreuse",
+      lat: 48.7056,
+      lng: 2.0673,
     },
     {
       name: "Les Étangs de Hollande (Rambouillet)",
@@ -40,6 +45,8 @@ const HIKES_DATABASE: Record<string, Hike[]> = {
       svgPath: "M 0 50 Q 100 45 200 48 T 300 45 T 400 50",
       co2Saved: "25",
       destinationStation: "Rambouillet",
+      lat: 48.6366,
+      lng: 1.8385,
     },
   ],
   lyon: [
@@ -55,6 +62,8 @@ const HIKES_DATABASE: Record<string, Hike[]> = {
       svgPath: "M 0 50 L 150 15 L 200 10 L 250 15 L 400 50",
       co2Saved: "24",
       destinationStation: "Saint-Chamond",
+      lat: 45.3712,
+      lng: 4.5772,
     },
     {
       name: "Balcon de la Chartreuse (Passage de la Clé)",
@@ -68,6 +77,8 @@ const HIKES_DATABASE: Record<string, Hike[]> = {
       svgPath: "M 0 50 L 120 20 L 150 15 L 240 8 L 400 50",
       co2Saved: "38",
       destinationStation: "Grenoble",
+      lat: 45.2447,
+      lng: 5.6297,
     },
     {
       name: "Le Sentier des Monts d'Or",
@@ -81,6 +92,8 @@ const HIKES_DATABASE: Record<string, Hike[]> = {
       svgPath: "M 0 50 Q 60 20 120 40 T 240 25 T 360 45 T 400 50",
       co2Saved: "12",
       destinationStation: "Couzon-au-Mont-d'Or",
+      lat: 45.8458,
+      lng: 4.8116,
     },
   ],
   grenoble: [
@@ -96,6 +109,8 @@ const HIKES_DATABASE: Record<string, Hike[]> = {
       svgPath: "M 0 50 L 180 12 L 220 12 L 400 50",
       co2Saved: "26",
       destinationStation: "Grenoble",
+      lat: 45.1553,
+      lng: 5.6375,
     },
     {
       name: "Le Lac Achard (Belledonne)",
@@ -109,6 +124,8 @@ const HIKES_DATABASE: Record<string, Hike[]> = {
       svgPath: "M 0 50 L 150 25 L 250 25 L 400 50",
       co2Saved: "28",
       destinationStation: "Grenoble",
+      lat: 45.1114,
+      lng: 5.8753,
     },
     {
       name: "La Dent de Crolles (Chartreuse)",
@@ -122,6 +139,8 @@ const HIKES_DATABASE: Record<string, Hike[]> = {
       svgPath: "M 0 50 L 140 15 L 220 5 L 400 50",
       co2Saved: "29",
       destinationStation: "Grenoble",
+      lat: 45.3125,
+      lng: 5.8547,
     },
   ],
   marseille: [
@@ -137,6 +156,8 @@ const HIKES_DATABASE: Record<string, Hike[]> = {
       svgPath: "M 0 50 Q 80 15 160 40 T 240 20 T 320 42 T 400 50",
       co2Saved: "31",
       destinationStation: "Cassis",
+      lat: 43.2025,
+      lng: 5.5186,
     },
     {
       name: "La Montagne Sainte-Victoire (Prieuré)",
@@ -150,6 +171,8 @@ const HIKES_DATABASE: Record<string, Hike[]> = {
       svgPath: "M 0 50 L 160 10 L 240 15 L 400 50",
       co2Saved: "22",
       destinationStation: "Aix-en-Provence",
+      lat: 43.5325,
+      lng: 5.6120,
     },
     {
       name: "Le Cap Canaille",
@@ -163,6 +186,8 @@ const HIKES_DATABASE: Record<string, Hike[]> = {
       svgPath: "M 0 50 Q 100 10 200 15 T 400 50",
       co2Saved: "32",
       destinationStation: "Cassis",
+      lat: 43.1979,
+      lng: 5.5539,
     },
   ],
   bordeaux: [
@@ -178,6 +203,8 @@ const HIKES_DATABASE: Record<string, Hike[]> = {
       svgPath: "M 0 50 L 150 20 L 250 15 L 400 50",
       co2Saved: "28",
       destinationStation: "Arcachon",
+      lat: 44.5902,
+      lng: -1.2131,
     },
     {
       name: "Le Tour du Lac de Lacanau",
@@ -191,6 +218,8 @@ const HIKES_DATABASE: Record<string, Hike[]> = {
       svgPath: "M 0 50 Q 200 42 400 50",
       co2Saved: "32",
       destinationStation: "Lacanau-Océan",
+      lat: 44.9782,
+      lng: -1.0805,
     },
   ],
   strasbourg: [
@@ -206,6 +235,8 @@ const HIKES_DATABASE: Record<string, Hike[]> = {
       svgPath: "M 0 50 Q 80 15 160 40 T 240 20 T 320 42 T 400 50",
       co2Saved: "18",
       destinationStation: "Obernai",
+      lat: 48.4608,
+      lng: 7.4089,
     },
     {
       name: "Le Mont Sainte-Odile (Sentier des Merveilles)",
@@ -219,6 +250,8 @@ const HIKES_DATABASE: Record<string, Hike[]> = {
       svgPath: "M 0 50 L 160 12 L 240 10 L 400 50",
       co2Saved: "24",
       destinationStation: "Barr",
+      lat: 48.4375,
+      lng: 7.4045,
     },
   ],
 };
@@ -236,6 +269,8 @@ const DEFAULT_HIKES = (cityName: string): Hike[] => [
     svgPath: "M 0 50 Q 100 25 200 40 T 400 50",
     co2Saved: "20",
     destinationStation: cityName,
+    lat: 48.8566,
+    lng: 2.3522,
   },
   {
     name: "La Traversée de la Crête Verte",
@@ -249,6 +284,8 @@ const DEFAULT_HIKES = (cityName: string): Hike[] => [
     svgPath: "M 0 50 L 160 15 L 240 10 L 400 50",
     co2Saved: "25",
     destinationStation: cityName,
+    lat: 48.8566,
+    lng: 2.3522,
   },
 ];
 
@@ -359,7 +396,9 @@ export default async function CityPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
       />
-      <CityPageContent cityName={cityName} hikes={hikes} />
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-brand-light text-brand-dark">Chargement...</div>}>
+        <CityPageContent cityName={cityName} hikes={hikes} />
+      </Suspense>
     </>
   );
 }

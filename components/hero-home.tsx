@@ -1,3 +1,7 @@
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import PageIllustration from "@/components/page-illustration";
 import Avatar01 from "@/public/images/avatar-01.jpg";
@@ -6,16 +10,254 @@ import Avatar03 from "@/public/images/avatar-03.jpg";
 import Avatar04 from "@/public/images/avatar-04.jpg";
 import Avatar05 from "@/public/images/avatar-05.jpg";
 import Avatar06 from "@/public/images/avatar-06.jpg";
+import { Trees, Mountain, Waves, Compass, MapPin } from "lucide-react";
+
+type Place = {
+  name: string;
+  city: string;
+  type: "foret" | "sommet" | "lac" | "mer" | "plaine";
+  typeName: string;
+  icon: string;
+  lat: number;
+  lng: number;
+};
+
+const PLACES: Place[] = [
+  {
+    name: "Les Gorges de Franchard (Fontainebleau)",
+    city: "paris",
+    type: "foret",
+    typeName: "Forêt",
+    icon: "🌲",
+    lat: 48.4116,
+    lng: 2.6288,
+  },
+  {
+    name: "La Vallée de la Chevreuse",
+    city: "paris",
+    type: "foret",
+    typeName: "Forêt",
+    icon: "🌲",
+    lat: 48.7056,
+    lng: 2.0673,
+  },
+  {
+    name: "Les Étangs de Hollande (Rambouillet)",
+    city: "paris",
+    type: "lac",
+    typeName: "Lac",
+    icon: "🌊",
+    lat: 48.6366,
+    lng: 1.8385,
+  },
+  {
+    name: "Le Crêt de la Perdrix (Pilat)",
+    city: "lyon",
+    type: "sommet",
+    typeName: "Sommet",
+    icon: "🏔️",
+    lat: 45.3712,
+    lng: 4.5772,
+  },
+  {
+    name: "Balcon de la Chartreuse (Passage de la Clé)",
+    city: "lyon",
+    type: "sommet",
+    typeName: "Sommet",
+    icon: "🏔️",
+    lat: 45.2447,
+    lng: 5.6297,
+  },
+  {
+    name: "Le Sentier des Monts d'Or",
+    city: "lyon",
+    type: "foret",
+    typeName: "Forêt",
+    icon: "🌲",
+    lat: 45.8458,
+    lng: 4.8116,
+  },
+  {
+    name: "Le Moucherotte (Massif du Vercors)",
+    city: "grenoble",
+    type: "sommet",
+    typeName: "Sommet",
+    icon: "🏔️",
+    lat: 45.1553,
+    lng: 5.6375,
+  },
+  {
+    name: "Le Lac Achard (Belledonne)",
+    city: "grenoble",
+    type: "lac",
+    typeName: "Lac",
+    icon: "🌊",
+    lat: 45.1114,
+    lng: 5.8753,
+  },
+  {
+    name: "La Dent de Crolles (Chartreuse)",
+    city: "grenoble",
+    type: "sommet",
+    typeName: "Sommet",
+    icon: "🏔️",
+    lat: 45.3125,
+    lng: 5.8547,
+  },
+  {
+    name: "Les Calanques de Port-Pin et d'En-Vau",
+    city: "marseille",
+    type: "mer",
+    typeName: "Mer / Calanques",
+    icon: "🌊",
+    lat: 43.2025,
+    lng: 5.5186,
+  },
+  {
+    name: "La Montagne Sainte-Victoire (Prieuré)",
+    city: "marseille",
+    type: "sommet",
+    typeName: "Sommet",
+    icon: "🏔️",
+    lat: 43.5325,
+    lng: 5.6120,
+  },
+  {
+    name: "Le Cap Canaille",
+    city: "marseille",
+    type: "sommet",
+    typeName: "Sommet / Falaise",
+    icon: "🏔️",
+    lat: 43.1979,
+    lng: 5.5539,
+  },
+  {
+    name: "La Dune du Pilat et forêt landaise",
+    city: "bordeaux",
+    type: "lac",
+    typeName: "Dune / Océan",
+    icon: "🌊",
+    lat: 44.5902,
+    lng: -1.2131,
+  },
+  {
+    name: "Le Tour du Lac de Lacanau",
+    city: "bordeaux",
+    type: "lac",
+    typeName: "Lac",
+    icon: "🌊",
+    lat: 44.9782,
+    lng: -1.0805,
+  },
+  {
+    name: "Les Trois Châteaux d'Ottrott",
+    city: "strasbourg",
+    type: "foret",
+    typeName: "Forêt / Château",
+    icon: "🌲",
+    lat: 48.4608,
+    lng: 7.4089,
+  },
+  {
+    name: "Le Mont Sainte-Odile (Sentier des Merveilles)",
+    city: "strasbourg",
+    type: "sommet",
+    typeName: "Sommet",
+    icon: "🏔️",
+    lat: 48.4375,
+    lng: 7.4045,
+  },
+];
+
+const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+  const R = 6371; // Earth's radius in km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Math.round(R * c);
+};
 
 export default function HeroHome() {
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [userCoords, setUserCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserCoords({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+        },
+        (error) => {
+          console.log("Geolocation blocked or failed", error);
+        }
+      );
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleSelectPlace = (place: Place) => {
+    setSearchQuery(place.name);
+    setIsDropdownOpen(false);
+    router.push(`/randos-sans-voiture/${place.city}?hike=${encodeURIComponent(place.name)}`);
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const filtered = PLACES.filter((place) =>
+      place.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    if (filtered.length > 0) {
+      const topPlace = userCoords
+        ? [...filtered].sort((a, b) => {
+            const distA = getDistance(userCoords.lat, userCoords.lng, a.lat, a.lng);
+            const distB = getDistance(userCoords.lat, userCoords.lng, b.lat, b.lng);
+            return distA - distB;
+          })[0]
+        : filtered[0];
+      handleSelectPlace(topPlace);
+    }
+  };
+
   return (
-    <section id="about" className="relative">
+    <section id="about" className="relative overflow-hidden border-b border-gray-100 h-[100vh] flex items-center justify-center">
+      {/* Background Image of Hiking Shoes at shoe-level */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center" 
+        style={{ backgroundImage: `url('/images/hero-bg.jpg')` }}
+      />
+      {/* Semi-translucent overlay to ensure text contrast and match the warm crème theme */}
+      <div className="absolute inset-0 bg-black/45 pointer-events-none" />
+
+      
       <PageIllustration />
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+      
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 relative z-10 w-full">
         {/* Hero content */}
-        <div className="pb-12 pt-32 md:pb-20 md:pt-40">
+        <div>
           {/* Section header */}
-          <div className="pb-12 text-center md:pb-16">
+          <div className="text-center">
+            {/* Avatars & Trust proof */}
             <div
               className="mb-6"
               data-aos="zoom-y-out"
@@ -65,84 +307,148 @@ export default function HeroHome() {
                     alt="Utilisateur de Névé"
                   />
                 </div>
-                <div className="text-sm text-gray-500 font-medium">
-                  Recommandé par <span className="text-[color:var(--color-brand-orange)] font-bold">10 000+</span> citadins randonneurs
+                <div className="text-xs text-brand-light/80 font-bold tracking-wider">
+                  Recommandé par <span className="text-brand-orange font-bold">10 000+</span> randonneurs sans voiture
                 </div>
               </div>
             </div>
+
+            {/* Premium Title */}
             <h1
-              className="mb-6 border-y text-5xl font-bold [border-image:linear-gradient(to_right,transparent,var(--color-brand-orange-light),transparent)1] md:text-6xl text-gray-900 leading-tight"
+              className="mb-6 text-4xl font-bold text-brand-light md:text-6xl tracking-tight leading-normal"
               data-aos="zoom-y-out"
               data-aos-delay={150}
             >
-              Pas de voiture ? <br className="max-lg:hidden" />
-              Partez randonner <span className="text-[color:var(--color-brand-orange)] font-extrabold">sur un coup de tête.</span>
+              <span className="text-brand-orange-light">Explorez</span>, à portée de train.
             </h1>
-            <div className="mx-auto max-w-3xl">
+
+            {/* Description */}
+            <div className="mx-auto max-w-xl">
               <p
-                className="mb-8 text-lg text-gray-600"
+                className="mb-12 text-lg text-brand-light/90 leading-relaxed"
                 data-aos="zoom-y-out"
                 data-aos-delay={300}
               >
-                Névé combine automatiquement les TER, les bus locaux et les tracés GPS de montagne. Marchez l'esprit libre : l'application surveille vos correspondances et vous alerte en direct s'il est temps de faire demi-tour.
+                Marchez l'esprit libre : planifiez toute votre aventure transport inclus et évadez-vous plus loin, plus souvent.
               </p>
-              <div id="download-ios" className="relative before:absolute before:inset-0 before:border-y before:[border-image:linear-gradient(to_right,transparent,var(--color-brand-orange-light),transparent)1] py-4">
-                <div
-                  className="mx-auto max-w-xs sm:flex sm:max-w-none sm:justify-center items-center gap-4"
-                  data-aos="zoom-y-out"
-                  data-aos-delay={450}
-                >
-                  {/* App Store button */}
-                  <a
-                    className="btn flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-gray-900 hover:bg-gray-800 text-white shadow-md transition duration-150 ease-in-out w-full sm:w-auto"
-                    href="#download-ios"
-                  >
-                    <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                      <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-1 .04-2.2.67-2.92 1.49-.62.71-1.16 1.85-1.01 2.96 1.11.09 2.24-.55 2.94-1.39z"/>
+
+              {/* Interactive Search Bar (AllTrails & Decathlon style) */}
+              <div 
+                className="mx-auto max-w-xl mb-8 relative"
+                data-aos="zoom-y-out"
+                data-aos-delay={400}
+                ref={dropdownRef}
+              >
+                <form onSubmit={handleSearchSubmit} className="relative flex items-center bg-brand-light p-3 rounded-full border border-brand-dark/15 shadow-lg transition">
+                  <div className="flex items-center pl-3 text-brand-dark/95">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
-                    <div className="text-left leading-none">
-                      <p className="text-[9px] text-gray-400">Télécharger sur l'</p>
-                      <p className="text-xs font-semibold font-sans">App Store</p>
-                    </div>
-                  </a>
-                  {/* Google Play button */}
-                  <a
-                    className="btn flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-gray-900 hover:bg-gray-800 text-white shadow-md transition duration-150 ease-in-out w-full sm:w-auto"
-                    href="#download-android"
-                  >
-                    <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                      <path d="M3 5.27v13.46c0 .87.69 1.45 1.5 1.45.28 0 .54-.08.79-.24l11.16-6.45-3.12-3.12L3 5.27zm18.23 5.8L17.76 8.9l-2.78 2.78 2.78 2.78 3.47-2.01c.75-.43.75-1.13 0-1.58zM4.53 3.53C4.28 3.37 4.02 3.3 3.75 3.3c-.81 0-1.5.58-1.5 1.45l9.28 9.28 3.09-3.09L4.53 3.53zm9.09 11.23l-3.09-3.09L1.25 20.95c.25.16.51.24.78.24.81 0 1.5-.58 1.5-1.45l10.09-5.83-2.18-2.18z"/>
-                    </svg>
-                    <div className="text-left leading-none">
-                      <p className="text-[9px] text-gray-400">Disponible sur</p>
-                      <p className="text-xs font-semibold font-sans">Google Play</p>
-                    </div>
-                  </a>
-                </div>
-                {/* Micro social proof under buttons */}
-                <div className="mt-4 text-xs text-gray-500 flex justify-center items-center gap-1.5">
-                  <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                  Plus de 2 500 randonnées sans voiture planifiées ce mois-ci
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* Hero mockup */}
-          <div
-            className="mx-auto max-w-3xl flex justify-center"
-            data-aos="zoom-y-out"
-            data-aos-delay={600}
-          >
-            <div className="relative rounded-3xl p-1.5 bg-linear-to-b from-gray-200 to-gray-50 shadow-2xl max-w-[340px] sm:max-w-[380px] border border-gray-100">
-              <div className="relative overflow-hidden rounded-[2.2rem] bg-slate-900 border-[6px] border-slate-900">
-                <Image
-                  src="/images/neve-app-mockup.png"
-                  width={380}
-                  height={380}
-                  alt="Interface de l'application mobile Névé"
-                  className="w-full h-auto object-cover object-top hover:scale-[1.02] transition-transform duration-500 ease-in-out"
-                  priority
-                />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Rechercher une destination (ex: Fontainebleau, Vercors...)"
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      setIsDropdownOpen(true);
+                    }}
+                    onFocus={() => setIsDropdownOpen(true)}
+                    className="w-full text-brand-dark placeholder-brand-dark/95 text-base px-4 py-1.5 bg-transparent border-none focus:outline-none focus:ring-0"
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchQuery("");
+                        setIsDropdownOpen(true);
+                      }}
+                      className="p-1.5 mr-2 text-brand-dark/40 hover:text-brand-dark transition rounded-full hover:bg-brand-dark/5 cursor-pointer"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  )}
+                </form>
+
+                {/* Autocomplete Dropdown */}
+                {isDropdownOpen && (
+                  <div className="absolute left-0 right-0 mt-2 bg-brand-light rounded-2xl border border-brand-dark/10 shadow-2xl overflow-hidden z-50 max-h-72 overflow-y-auto no-scrollbar">
+                    {(() => {
+                      const filtered = PLACES.filter((place) =>
+                        place.name.toLowerCase().includes(searchQuery.toLowerCase())
+                      );
+                      const sorted = userCoords
+                        ? [...filtered].sort((a, b) => {
+                            const distA = getDistance(userCoords.lat, userCoords.lng, a.lat, a.lng);
+                            const distB = getDistance(userCoords.lat, userCoords.lng, b.lat, b.lng);
+                            return distA - distB;
+                          })
+                        : [...filtered].sort((a, b) => a.name.localeCompare(b.name));
+
+                      if (sorted.length === 0) {
+                        return (
+                          <div className="px-5 py-4 text-sm text-brand-dark/50 text-center">
+                            Aucune destination trouvée
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <div>
+                          <div className="px-4 py-2 text-sm font-semibold text-brand-dark tracking-wider text-left">
+                            {searchQuery ? "Résultats de recherche" : userCoords ? "Destinations les plus proches" : "Destinations proposées"}
+                          </div>
+                          <div className="divide-y divide-brand-dark/5">
+                            {sorted.map((place) => {
+                              const distance = userCoords
+                                ? getDistance(userCoords.lat, userCoords.lng, place.lat, place.lng)
+                                : null;
+
+                              return (
+                                <button
+                                  key={place.name}
+                                  type="button"
+                                  onClick={() => handleSelectPlace(place)}
+                                  className="flex items-center justify-between w-full px-4 py-3 text-left transition hover:bg-slate-50 cursor-pointer"
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-neve-gray border border-brand-dark/5 flex items-center justify-center transition">
+                                      {place.type === "foret" && <Trees className="w-4 h-4 text-emerald-600" />}
+                                      {place.type === "sommet" && <Mountain className="w-4 h-4 text-amber-600" />}
+                                      {(place.type === "lac" || place.type === "mer") && <Waves className="w-4 h-4 text-sky-500" />}
+                                      {place.type !== "foret" && place.type !== "sommet" && place.type !== "lac" && place.type !== "mer" && <Compass className="w-4 h-4 text-slate-400" />}
+                                    </span>
+                                    <div>
+                                      <span className="font-bold text-brand-dark text-sm block">
+                                        {place.name}
+                                      </span>
+                                      <span className="text-xs text-brand-dark/50 block">
+                                        Gare de départ : {place.city.charAt(0).toUpperCase() + place.city.slice(1)} • {place.typeName}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="flex-shrink-0 ml-4">
+                                    {distance !== null ? (
+                                      <span className="inline-flex items-center gap-1 text-xs font-mono font-bold text-brand-orange bg-brand-orange/10 px-2.5 py-1 rounded-lg">
+                                        <MapPin className="w-3.5 h-3.5" /> {distance} km
+                                      </span>
+                                    ) : (
+                                      <span className="inline-flex items-center gap-1 text-xs font-mono font-semibold text-brand-dark/30 bg-brand-dark/5 px-2.5 py-1 rounded-lg">
+                                        <MapPin className="w-3.5 h-3.5 opacity-60" /> -- km
+                                      </span>
+                                    )}
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -151,4 +457,3 @@ export default function HeroHome() {
     </section>
   );
 }
-

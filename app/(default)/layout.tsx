@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 import AOS from "aos";
 import "aos/dist/aos.css";
@@ -13,6 +14,8 @@ export default function DefaultLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+
   useEffect(() => {
     AOS.init({
       once: true,
@@ -22,13 +25,15 @@ export default function DefaultLayout({
     });
   }, []);
 
+  const isCityPage = pathname ? /^\/randos-sans-voiture\/[^/]+$/.test(pathname) : false;
+
   return (
     <>
       <Header />
 
       <main className="grow">{children}</main>
 
-      <Footer border={true} />
+      {!isCityPage && <Footer border={true} />}
     </>
   );
 }

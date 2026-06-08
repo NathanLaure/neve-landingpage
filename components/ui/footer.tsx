@@ -1,136 +1,208 @@
+"use client";
+
 import Link from "next/link";
 import Logo from "./logo";
 
 export default function Footer({ border = false }: { border?: boolean }) {
   return (
-    <footer>
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        {/* Top area: Blocks */}
-        <div
-          className={`grid gap-10 py-8 sm:grid-cols-12 md:py-12 ${border ? "border-t [border-image:linear-gradient(to_right,transparent,var(--color-slate-200),transparent)1]" : ""}`}
-        >
-          {/* 1st block */}
-          <div className="space-y-2 sm:col-span-12 lg:col-span-4">
+    <footer className="w-full relative overflow-hidden flex flex-col">
+      
+      {/* 1. TOP TRANSITION BANNER (Style Summit Banner) */}
+      <div className="relative w-full h-64 md:h-72 flex items-center justify-center overflow-hidden">
+        {/* Background Image of Hiker/Outdoor */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center" 
+          style={{ backgroundImage: `url('https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=1200&auto=format&fit=crop')` }}
+        />
+        {/* Translucent Olive Green Overlay */}
+        <div className="absolute inset-0 bg-neve-forest/85 z-10" />
+
+        {/* Content Centered */}
+        <div className="relative z-20 text-center px-4 max-w-2xl flex flex-col items-center">
+          {/* Pictogram Row */}
+          <div className="flex gap-6 text-white/75 text-3xl mb-4 select-none">
+            <span>🏔️</span>
+            <span>🏕️</span>
+            <span>🏰</span>
+          </div>
+
+          {/* Heading */}
+          <h3 className="text-xl md:text-3xl font-extrabold text-white tracking-tight mb-6 leading-tight">
+            Préparez-vous à conquérir <br />
+            de nouveaux sommets
+          </h3>
+
+          {/* Cream Pill Button */}
+          <a
+            href="#download-ios"
+            className="px-6 py-2.5 rounded-full bg-[#faf8f2] hover:bg-white text-neve-forest font-black text-xs shadow-md transition duration-150 cursor-pointer"
+          >
+            Inscrivez-vous gratuitement
+          </a>
+        </div>
+      </div>
+
+      {/* 2. MAIN FOOTER (Dark Olive-Black) */}
+      <div className="bg-[#1c2414] text-slate-300 py-12 md:py-16 border-t border-slate-800/50">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="grid gap-10 sm:grid-cols-12 mb-12">
+            
+            {/* 1st column: Logo & Description */}
+            <div className="space-y-4 sm:col-span-12 lg:col-span-4 pr-0 lg:pr-8">
+              <div className="flex items-center gap-2 text-white">
+                <Logo />
+                <span className="font-extrabold text-xl tracking-tight font-sans">Névé</span>
+              </div>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Névé réinvente les sorties outdoor en combinant les TER et les navettes locales. Planifiez, réservez vos billets via Trainline et randonnez l'esprit libre grâce à la Sécurité Retour.
+              </p>
+              <div className="text-[11px] text-slate-500 font-bold">
+                &copy; {new Date().getFullYear()} Névé. Tous droits réservés.
+              </div>
+            </div>
+
+            {/* 2nd column: Explorer */}
+            <div className="space-y-3 sm:col-span-6 md:col-span-3 lg:col-span-2">
+              <h4 className="text-white font-extrabold text-xs uppercase tracking-wider">Explorer</h4>
+              <ul className="space-y-2 text-xs font-semibold">
+                <li>
+                  <Link className="hover:text-white transition" href="/#hike-explorer">
+                    Itinéraires
+                  </Link>
+                </li>
+                <li>
+                  <Link className="hover:text-white transition" href="/#hike-explorer">
+                    Planificateur TER
+                  </Link>
+                </li>
+                <li>
+                  <Link className="hover:text-white transition" href="/#features">
+                    Fonctionnalités
+                  </Link>
+                </li>
+                <li>
+                  <Link className="hover:text-white transition" href="/randos-sans-voiture">
+                    Randonnées
+                  </Link>
+                </li>
+                <li>
+                  <Link className="hover:text-white transition" href="/randos-sans-voiture">
+                    Gares de départ
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* 3rd column: Partenaires */}
+            <div className="space-y-3 sm:col-span-6 md:col-span-3 lg:col-span-2">
+              <h4 className="text-white font-extrabold text-xs uppercase tracking-wider">Partenaires</h4>
+              <ul className="space-y-2 text-xs font-semibold">
+                <li>
+                  <Link className="hover:text-white transition" href="https://www.trainline.fr" target="_blank">
+                    Trainline API
+                  </Link>
+                </li>
+                <li>
+                  <Link className="hover:text-white transition" href="#0">
+                    Régions TER
+                  </Link>
+                </li>
+                <li>
+                  <Link className="hover:text-white transition" href="#0">
+                    SNCF Connect
+                  </Link>
+                </li>
+                <li>
+                  <Link className="hover:text-white transition" href="#0">
+                    Offices de Tourisme
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* 4th column: Entreprise */}
+            <div className="space-y-3 sm:col-span-6 md:col-span-3 lg:col-span-2">
+              <h4 className="text-white font-extrabold text-xs uppercase tracking-wider">Entreprise</h4>
+              <ul className="space-y-2 text-xs font-semibold">
+                <li>
+                  <Link className="hover:text-white transition" href="#about">
+                    À propos
+                  </Link>
+                </li>
+                <li>
+                  <Link className="hover:text-white transition" href="#0">
+                    Recrutement
+                  </Link>
+                </li>
+                <li>
+                  <Link className="hover:text-white transition" href="#0">
+                    Presse
+                  </Link>
+                </li>
+                <li>
+                  <Link className="hover:text-white transition" href="/privacy">
+                    Politique
+                  </Link>
+                </li>
+                <li>
+                  <Link className="hover:text-white transition" href="/terms">
+                    CGU
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* 5th column: Communauté */}
+            <div className="space-y-3 sm:col-span-6 md:col-span-3 lg:col-span-2">
+              <h4 className="text-white font-extrabold text-xs uppercase tracking-wider">Communauté</h4>
+              <ul className="space-y-2 text-xs font-semibold">
+                <li>
+                  <Link className="hover:text-white transition" href="#0">
+                    Guides pratiques
+                  </Link>
+                </li>
+                <li>
+                  <Link className="hover:text-white transition" href="#0">
+                    Support & Contact
+                  </Link>
+                </li>
+                <li>
+                  <Link className="hover:text-white transition" href="#0">
+                    Outil de tracé GPX
+                  </Link>
+                </li>
+                <li>
+                  <Link className="hover:text-white transition" href="#0">
+                    Live Tracking
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+          </div>
+
+          {/* Bottom Area: Social Icons & Legal */}
+          <div className="pt-8 border-t border-slate-800/30 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-slate-400 font-bold">
             <div>
-              <Logo />
+              Designed with 💚 for car-free outdoor exploration.
             </div>
-            <div className="text-sm text-gray-600">
-              &copy; Névé - Tous droits réservés.
+            
+            {/* Social Links */}
+            <div className="flex gap-4">
+              <a href="#0" className="hover:text-white transition" aria-label="Instagram">
+                Instagram
+              </a>
+              <a href="#0" className="hover:text-white transition" aria-label="Strava">
+                Strava Club
+              </a>
+              <a href="#0" className="hover:text-white transition" aria-label="LinkedIn">
+                LinkedIn
+              </a>
             </div>
-          </div>
-
-          {/* 2nd block */}
-          <div className="space-y-2 sm:col-span-6 md:col-span-3 lg:col-span-2">
-            <h3 className="text-sm font-medium">Produit</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link
-                  className="text-gray-600 transition hover:text-gray-900"
-                  href="/#features"
-                >
-                  Fonctionnalités
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className="text-gray-600 transition hover:text-gray-900"
-                  href="/randos-sans-voiture"
-                >
-                  Randonnées sans voiture
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className="text-gray-600 transition hover:text-gray-900"
-                  href="/#how-it-works"
-                >
-                  Partenariat Trainline
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* 3rd block */}
-          <div className="space-y-2 sm:col-span-6 md:col-span-3 lg:col-span-2">
-            <h3 className="text-sm font-medium">L'entreprise</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link
-                  className="text-gray-600 transition hover:text-gray-900"
-                  href="/#about"
-                >
-                  À propos
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className="text-gray-600 transition hover:text-gray-900"
-                  href="#0"
-                >
-                  Blog
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* 4th block */}
-          <div className="space-y-2 sm:col-span-6 md:col-span-3 lg:col-span-2">
-            <h3 className="text-sm font-medium">Légal</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link
-                  className="text-gray-600 transition hover:text-gray-900"
-                  href="/terms"
-                >
-                  CGU
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className="text-gray-600 transition hover:text-gray-900"
-                  href="/privacy"
-                >
-                  Politique de confidentialité
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* 5th block */}
-          <div className="space-y-2 sm:col-span-6 md:col-span-3 lg:col-span-2">
-            <h3 className="text-sm font-medium">Réseaux</h3>
-            <ul className="flex gap-1">
-              <li>
-                <Link
-                  className="flex items-center justify-center text-gray-700 transition hover:text-[color:var(--color-brand-orange)]"
-                  href="#0"
-                  aria-label="Twitter"
-                >
-                  <svg
-                    className="h-8 w-8 fill-current"
-                    viewBox="0 0 32 32"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="m13.063 9 3.495 4.475L20.601 9h2.454l-5.359 5.931L24 23h-4.938l-3.866-4.893L10.771 23H8.316l5.735-6.342L8 9h5.063Zm-.74 1.347h-1.457l8.875 11.232h1.36l-8.778-11.232Z"></path>
-                  </svg>
-                </Link>
-              </li>
-            </ul>
           </div>
         </div>
       </div>
 
-      {/* Big text */}
-      <div className="relative -mt-16 h-60 w-full overflow-hidden" aria-hidden="true">
-        <div className="pointer-events-none absolute left-1/2 -z-10 -translate-x-1/2 text-center text-[300px] font-black leading-none before:bg-linear-to-b before:from-gray-200 before:to-gray-100/30 before:to-80% before:bg-clip-text before:text-transparent before:content-['Névé'] after:absolute after:inset-0 after:bg-gray-300/40 after:bg-clip-text after:text-transparent after:mix-blend-darken after:content-['Névé'] after:[text-shadow:0_1px_0_white]"></div>
-        {/* Glow */}
-        <div
-          className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-2/3"
-          aria-hidden="true"
-        >
-          <div className="h-56 w-56 rounded-full border-[20px] border-[color:var(--color-brand-orange)] blur-[80px] opacity-20"></div>
-        </div>
-      </div>
     </footer>
   );
 }

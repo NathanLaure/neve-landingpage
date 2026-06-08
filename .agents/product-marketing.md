@@ -75,3 +75,8 @@
 ## Goals
 **Business goal:** Accroître les téléchargements de l'application mobile et générer des clics d'affiliation vers Trainline.
 **Conversion action:** Clic sur "Télécharger l'app" (App Store & Google Play).
+
+## Technical & Design Rules
+- **Variables de couleurs obligatoires** : Utiliser impérativement des variables de couleurs (ex: `text-[color:var(--color-brand-green)]` ou `text-[color:var(--color-brand-orange)]`) et proscrire les couleurs Tailwind en dur dans le code (comme `text-emerald-400`, `text-slate-500`, `bg-emerald-50`).
+- **Typographie** : Appliquer la police de marque `Bricolage Grotesque` (`font-bricolage`) pour tous les éléments textuels.
+

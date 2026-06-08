@@ -9,12 +9,20 @@
 }
 
 @theme {
-  --font-inter: Inter, sans-serif;
+  --font-inter: var(--font-inter), sans-serif;
+  --font-bricolage: var(--font-bricolage), sans-serif;
   --font-mono: Roboto Mono, monospace;
 
   --color-brand-orange: #ff6b35;
   --color-brand-orange-hover: #e0531f;
-  --color-brand-orange-light: #fff5f0;
+  --color-brand-orange-light: #f78963;
+  --color-brand-green: #15803d;
+  --color-brand-green-hover: #166534;
+  --color-brand-green-light: #f0fdf4;
+  --color-neve-beige: #fbfaf7;
+  --color-neve-forest: #4c6a17;
+  --color-neve-forest-hover: #374e13;
+  --color-neve-gray: #f5f3ec;
   --color-brand-dark: #0f172a;
   --color-brand-light: #ffffff;
 
@@ -59,135 +67,171 @@
   --animate-breath: breath;
   --animate-float: float;
   --animate-line: line;
-  --animate-infinite-scroll: infinite-scroll;  
+  --animate-infinite-scroll: infinite-scroll;
 
   @keyframes code-1 {
     0% {
       opacity: 0;
     }
+
     2.5% {
       opacity: 1;
     }
+
     97.5% {
       opacity: 1;
     }
+
     100% {
       opacity: 0;
     }
   }
+
   @keyframes code-2 {
     16.2% {
       opacity: 0;
     }
+
     18.75% {
       opacity: 1;
     }
+
     97.5% {
       opacity: 1;
     }
+
     100% {
       opacity: 0;
     }
   }
+
   @keyframes code-3 {
     32.5% {
       opacity: 0;
     }
+
     35% {
       opacity: 1;
     }
+
     97.5% {
       opacity: 1;
     }
+
     100% {
       opacity: 0;
     }
   }
+
   @keyframes code-4 {
     48.75% {
       opacity: 0;
     }
+
     51.25% {
       opacity: 1;
     }
+
     97.5% {
       opacity: 1;
     }
+
     100% {
       opacity: 0;
     }
   }
+
   @keyframes code-5 {
     65% {
       opacity: 0;
     }
+
     72.5% {
       opacity: 1;
     }
+
     97.5% {
       opacity: 1;
     }
+
     100% {
       opacity: 0;
     }
   }
+
   @keyframes code-6 {
     81.25% {
       opacity: 0;
     }
+
     83.75% {
       opacity: 1;
     }
+
     97.5% {
       opacity: 1;
     }
+
     100% {
       opacity: 0;
     }
   }
+
   @keyframes breath {
+
     0%,
     100% {
       transform: scale(0.95);
     }
+
     50% {
       transform: scale(1.1);
     }
   }
+
   @keyframes float {
+
     0%,
     100% {
       transform: translateY(0);
     }
+
     50% {
       transform: translateY(-5%);
     }
   }
+
   @keyframes line {
+
     0%,
     100% {
       left: 0;
       opacity: 0;
     }
+
     50% {
       left: 100%;
       transform: translateX(-100%);
     }
+
     10%,
     40%,
     60%,
     90% {
       opacity: 0;
     }
+
     25%,
     75% {
       opacity: 1;
     }
   }
+
   @keyframes infinite-scroll {
     from {
       transform: translateX(0);
     }
+
     to {
       transform: translateX(-100%);
     }
@@ -203,11 +247,20 @@
   color utility to any element that depends on these defaults.
 */
 @layer base {
+
   *,
   ::after,
   ::before,
   ::backdrop,
   ::file-selector-button {
     border-color: var(--color-gray-200, currentColor);
+  }
+}
+
+@utility no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+  &::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
   }
 }
