@@ -240,7 +240,7 @@ export default function HeroHome() {
   };
 
   return (
-    <section id="about" className="relative overflow-hidden border-b border-gray-100 h-[100vh] flex items-center justify-center">
+    <section id="about" className="relative overflow-hidden border-b border-gray-100 h-[101vh] flex items-center justify-center">
       {/* Background Image of Hiking Shoes at shoe-level */}
       <div 
         className="absolute inset-0 bg-cover bg-center" 
