@@ -71,7 +71,7 @@ export default function CuratedCollections() {
       <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
 
       {/* Header — centered in the max-w grid */}
-      <div className="mx-auto max-w-[1232px] px-4 sm:px-6 md:px-8 xl:px-0 relative z-10">
+      <div className="mx-auto max-w-[1232px] px-6 sm:px-10 md:px-16 xl:px-0 relative z-10">
         <div className="grid gap-6 md:grid-cols-12 items-end mb-12 border-b border-[#525252]/50 pb-8">
           <div className="md:col-span-5">
             <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white leading-tight font-bricolage">
@@ -81,7 +81,7 @@ export default function CuratedCollections() {
           </div>
 
           <div className="md:col-span-5">
-            <p className="text-[#989898] text-xs md:text-sm leading-relaxed max-w-lg font-medium font-bricolage tracking-[-0.4px]">
+            <p className="text-[#989898] text-[18px] leading-relaxed max-w-lg font-medium font-satoshi tracking-[-0.4px]">
               Parcourez les meilleures aventures prêtes pour l'extérieur : sélectionnées, organisées et validées par l'équipe Névé et sa communauté. Votre propre carnet de voyage incluant les plannings de transport, tracés GPX et votre envie de découvrir le monde.
             </p>
           </div>
@@ -118,8 +118,8 @@ export default function CuratedCollections() {
         style={{
           scrollbarWidth: "none",
           msOverflowStyle: "none",
-          paddingLeft: "max(1rem, calc((100vw - 1232px) / 2))",
-          scrollPaddingLeft: "max(1rem, calc((100vw - 1232px) / 2))",
+          paddingLeft: "max(1.5rem, calc((100vw - 1232px) / 2))",
+          scrollPaddingLeft: "max(1.5rem, calc((100vw - 1232px) / 2))",
           paddingRight: "3rem"
         }}
       >

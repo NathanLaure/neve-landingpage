@@ -4,7 +4,7 @@ export default function ProblemSection() {
       {/* Background decoration */}
       <div className="absolute inset-0 bg-[radial-gradient(#05966904_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none" />
       
-      <div className="mx-auto max-w-[1600px] px-4 sm:px-6 relative z-10">
+      <div className="mx-auto max-w-[1400px] px-6 sm:px-10 md:px-16 relative z-10">
         {/* Section Header */}
         <div className="mx-auto max-w-3xl text-center pb-12 md:pb-16">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 text-[color:var(--color-brand-orange)] text-xs font-bold uppercase tracking-wider mb-4 border border-orange-100 shadow-2xs">
@@ -14,7 +14,7 @@ export default function ProblemSection() {
             S'évader sans voiture : <br />
             <span className="text-[color:var(--color-brand-orange)]">une logistique infernale.</span>
           </h2>
-          <p className="mt-4 text-slate-600 text-base max-w-xl mx-auto leading-relaxed">
+          <p className="mt-4 text-[#525252] text-[18px] font-medium max-w-xl mx-auto leading-relaxed font-satoshi">
             Vous rêvez de grand air pour couper du rythme de la ville. Mais sans voiture personnelle, chaque sortie ressemble à un casse-tête organisationnel.
           </p>
         </div>
@@ -31,7 +31,7 @@ export default function ProblemSection() {
             <h3 className="text-lg font-bold text-slate-900 mb-3">
               Bloqué en ville le week-end ?
             </h3>
-            <p className="text-slate-500 text-xs leading-relaxed">
+            <p className="text-[#525252] text-[18px] font-medium leading-relaxed font-satoshi">
               La location de voiture est hors de prix, l'autopartage saturé, et vos proches véhiculés ne sont pas toujours libres. Résultat : vous passez vos dimanches sur le béton au lieu des sommets sauvages.
             </p>
           </div>
@@ -46,7 +46,7 @@ export default function ProblemSection() {
             <h3 className="text-lg font-bold text-slate-900 mb-3">
               L'enfer des correspondances
             </h3>
-            <p className="text-slate-500 text-xs leading-relaxed">
+            <p className="text-[#525252] text-[18px] font-medium leading-relaxed font-satoshi">
               Trouver le bon TER, dénicher la fiche horaire introuvable du bus régional, et faire concorder le tout avec le début du sentier... Vous y passez des heures d'organisation fastidieuses sur 4 sites différents.
             </p>
           </div>
@@ -61,7 +61,7 @@ export default function ProblemSection() {
             <h3 className="text-lg font-bold text-slate-900 mb-3">
               Le nez rivé sur votre montre
             </h3>
-            <p className="text-slate-500 text-xs leading-relaxed">
+            <p className="text-[#525252] text-[18px] font-medium leading-relaxed font-satoshi">
               Difficile de déconnecter quand on stresse en marchant de peur de louper l'unique bus de retour du dimanche soir. Si vous le ratez, vous restez coincé au pied de la montagne sans solution.
             </p>
           </div>

@@ -91,7 +91,7 @@ export default function CommunityFeed() {
 
   return (
     <section className="bg-gray-50 py-16 md:py-24">
-      <div className="mx-auto max-w-[1600px] px-4 sm:px-6">
+      <div className="mx-auto max-w-[1400px] px-6 sm:px-10 md:px-16">
         {/* Header */}
         <div className="mx-auto max-w-3xl text-center pb-12">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold uppercase tracking-wider mb-4 border border-emerald-100 shadow-xs">
@@ -101,7 +101,7 @@ export default function CommunityFeed() {
             Rejoignez le mouvement <br className="max-sm:hidden" />
             <span className="text-[color:var(--color-brand-green)]">Rando Zéro Carbone</span>
           </h2>
-          <p className="mt-4 text-slate-500 text-base max-w-xl mx-auto leading-relaxed">
+          <p className="mt-4 text-[#525252] text-[18px] font-medium max-w-xl mx-auto leading-relaxed font-satoshi">
             Découvrez les dernières sorties partagées par nos utilisateurs et mesurez notre impact écologique commun en direct.
           </p>
         </div>
@@ -193,7 +193,7 @@ export default function CommunityFeed() {
                   {/* Kudos button */}
                   <button
                     onClick={() => handleKudos(act.id)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer ${
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[16px] font-bold transition-all duration-150 cursor-pointer ${
                       hasClapped
                         ? "bg-orange-50 text-[color:var(--color-brand-orange)] font-bold scale-[1.02]"
                         : "bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900"

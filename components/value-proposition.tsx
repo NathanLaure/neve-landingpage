@@ -3,7 +3,7 @@
 export default function ValueProposition() {
   return (
     <section className="bg-neve-beige py-16 md:py-24 text-slate-900 relative">
-      <div className="mx-auto max-w-[1600px] px-4 sm:px-6">
+      <div className="mx-auto max-w-[1400px] px-6 sm:px-10 md:px-16">
         
         {/* Header */}
         <div className="mx-auto max-w-3xl text-center pb-16">
@@ -11,7 +11,7 @@ export default function ValueProposition() {
             Comment Névé réinvente <br className="max-sm:hidden" />
             <span className="text-neve-forest">l'aventure sans voiture</span>
           </h2>
-          <p className="mt-4 text-slate-500 text-sm md:text-base max-w-xl mx-auto leading-relaxed">
+          <p className="mt-4 text-[#525252] text-[18px] font-medium max-w-xl mx-auto leading-relaxed font-satoshi">
             Névé lève tous les obstacles de logistique pour vous reconnecter au grand air en quelques clics.
           </p>
         </div>
@@ -35,7 +35,7 @@ export default function ValueProposition() {
                 Accès Gare-à-Sentier
               </h3>
               
-              <p className="text-slate-500 text-xs md:text-sm leading-relaxed">
+              <p className="text-[#525252] text-[18px] font-medium leading-relaxed font-satoshi">
                 Névé ne s'arrête pas à la gare. L'application calcule instantanément les correspondances optimales entre les TER régionaux et les réseaux de navettes locales pour vous déposer au plus près du départ des sentiers.
               </p>
             </div>
@@ -70,7 +70,7 @@ export default function ValueProposition() {
                 Sécurité Retour Active
               </h3>
               
-              <p className="text-slate-500 text-xs md:text-sm leading-relaxed">
+              <p className="text-[#525252] text-[18px] font-medium leading-relaxed font-satoshi">
                 Marchez l'esprit 100% libre. L'algorithme Névé surveille votre vitesse de progression par GPS. S'il détecte un retard important menaçant votre correspondance de train, l'app vous alerte pour presser le pas ou faire demi-tour.
               </p>
             </div>
@@ -103,7 +103,7 @@ export default function ValueProposition() {
                 Traversées de Gare à Gare
               </h3>
               
-              <p className="text-slate-500 text-xs md:text-sm leading-relaxed">
+              <p className="text-[#525252] text-[18px] font-medium leading-relaxed font-satoshi">
                 Ne soyez plus obligé de boucler votre tracé pour revenir à votre voiture garée. Avec Névé et le train, partez d'une Gare A, franchissez le sommet et redescendez tranquillement vers une Gare B. Multipliez vos panoramas par deux !
               </p>
             </div>

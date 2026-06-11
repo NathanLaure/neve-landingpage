@@ -6,7 +6,7 @@ export const metadata = {
 export default function TermsPage() {
   return (
     <section className="bg-white py-24 md:py-32">
-      <div className="mx-auto max-w-3xl px-4 sm:px-6">
+      <div className="mx-auto max-w-3xl px-6 sm:px-10 md:px-16">
         <h1 className="text-3xl font-extrabold text-slate-900 md:text-4xl mb-8">
           Conditions Générales d'Utilisation
         </h1>

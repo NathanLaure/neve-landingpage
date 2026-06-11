@@ -257,7 +257,7 @@ export default function HikeExplorer() {
 
   return (
     <section className="bg-neve-beige py-16 md:py-24 text-slate-900">
-      <div className="mx-auto max-w-[1600px] px-4 sm:px-6">
+      <div className="mx-auto max-w-[1400px] px-6 sm:px-10 md:px-16">
         {/* Header section */}
         <div className="mx-auto max-w-3xl text-center pb-12">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-neve-gray text-neve-forest text-xs font-bold uppercase tracking-wider mb-4 border border-gray-200">
@@ -266,7 +266,7 @@ export default function HikeExplorer() {
           <h2 className="text-3xl font-extrabold text-gray-900 md:text-4xl tracking-tight leading-tight">
             Trouvez la bonne inspiration
           </h2>
-          <p className="mt-4 text-slate-500 text-sm max-w-xl mx-auto leading-relaxed">
+          <p className="mt-4 text-[#525252] text-[18px] font-medium max-w-xl mx-auto leading-relaxed font-satoshi">
             Sélectionnez votre gare de départ, votre discipline favorite et découvrez la composition du sol et les temps d'accès TER en temps réel.
           </p>
         </div>
@@ -287,7 +287,7 @@ export default function HikeExplorer() {
                     setSelectedCity(city.slug);
                     setDifficultyFilter("Tous");
                   }}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition duration-150 flex items-center gap-2 cursor-pointer ${
+                  className={`px-4 py-2 rounded-xl text-[16px] font-bold transition duration-150 flex items-center gap-2 cursor-pointer ${
                     selectedCity === city.slug
                       ? "bg-neve-forest text-white shadow-md"
                       : "bg-slate-800 hover:bg-slate-750 text-slate-350"
@@ -316,7 +316,7 @@ export default function HikeExplorer() {
                     <button
                       key={s.id}
                       onClick={() => setActiveSport(s.id as SportType)}
-                      className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                      className={`px-3.5 py-1.5 rounded-lg text-[16px] font-bold transition cursor-pointer ${
                         activeSport === s.id
                           ? "bg-neve-forest text-white shadow-xs"
                           : "text-slate-550 hover:text-slate-800"
@@ -336,7 +336,7 @@ export default function HikeExplorer() {
                     <button
                       key={level}
                       onClick={() => setDifficultyFilter(level)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                      className={`px-3 py-1.5 rounded-lg text-[16px] font-semibold transition cursor-pointer ${
                         difficultyFilter === level
                           ? "bg-slate-100 text-slate-800 font-bold"
                           : "text-slate-500 hover:text-slate-700"
@@ -366,7 +366,7 @@ export default function HikeExplorer() {
                     setDifficultyFilter("Tous");
                     setActiveSport("rando");
                   }}
-                  className="px-4 py-2 bg-neve-gray text-neve-forest border border-gray-300 rounded-xl font-bold text-xs hover:bg-slate-200 transition cursor-pointer"
+                  className="px-4 py-2 bg-neve-gray text-neve-forest border border-gray-300 rounded-xl font-bold text-[16px] hover:bg-slate-200 transition cursor-pointer"
                 >
                   Réinitialiser
                 </button>
@@ -505,7 +505,7 @@ export default function HikeExplorer() {
                         href={`https://www.trainline.fr/search/${selectedCity}/${hike.destinationStation.toLowerCase()}?utm_source=neve&utm_medium=affiliate`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xs hover:shadow-md transition-all duration-150 text-center cursor-pointer"
+                        className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-[16px] font-bold shadow-xs hover:shadow-md transition-all duration-150 text-center cursor-pointer"
                       >
                         Planifier sur Trainline
                         <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">

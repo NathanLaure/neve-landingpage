@@ -181,7 +181,7 @@ export default function RouteProfileViewer() {
       {/* Decorative background grid */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#05966905_1px,transparent_1px),linear-gradient(to_bottom,#05966905_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
 
-      <div className="mx-auto max-w-[1600px] px-4 sm:px-6 relative z-10">
+      <div className="mx-auto max-w-[1400px] px-6 sm:px-10 md:px-16 relative z-10">
         
         {/* Header */}
         <div className="mx-auto max-w-3xl text-center pb-12">
@@ -191,7 +191,7 @@ export default function RouteProfileViewer() {
           <h2 className="text-3xl font-extrabold text-slate-900 md:text-4xl tracking-tight leading-tight">
             Sécurité Retour & Suivi
           </h2>
-          <p className="mt-4 text-slate-500 text-sm max-w-xl mx-auto leading-relaxed">
+          <p className="mt-4 text-[#525252] text-[18px] font-medium max-w-xl mx-auto leading-relaxed font-satoshi">
             Grâce à notre alerte anti-retard, Névé suit votre rythme GPS et l'ajuste aux horaires du dernier train ou bus pour vous assurer un retour serein.
           </p>
         </div>
@@ -222,7 +222,7 @@ export default function RouteProfileViewer() {
                     }`}
                   >
                     <div>
-                      <div className="text-xs font-bold text-slate-800">{route.name}</div>
+                      <div className="text-[16px] font-bold text-slate-800">{route.name}</div>
                       <div className="text-[10px] text-slate-500 mt-1 flex items-center gap-1.5 font-semibold">
                         <span>📍 {route.location}</span>
                         <span>•</span>

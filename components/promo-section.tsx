@@ -68,7 +68,7 @@ export default function PromoSection() {
       ref={sectionRef} 
       className="bg-neve-beige py-20 md:py-28 relative overflow-visible w-full"
     >
-      <div className="mx-auto max-w-[1600px] px-4 sm:px-6 md:px-8">
+      <div className="mx-auto max-w-[1400px] px-6 sm:px-10 md:px-16">
         
         {/* Main Card Container */}
         <div className="bg-[#fff6ed] border border-[#989898] rounded-[24px] p-8 md:p-12 lg:px-20 lg:py-0 lg:h-[600px] flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-8 overflow-hidden relative">
@@ -81,7 +81,7 @@ export default function PromoSection() {
             </h2>
             
             {/* Description */}
-            <p className="font-inter text-[#525252] text-sm md:text-base lg:text-xl leading-relaxed max-w-xl">
+            <p className="font-satoshi text-[#525252] text-[18px] lg:text-[20px] font-medium leading-relaxed max-w-xl">
               Avec votre <span className="font-semibold text-slate-800">compte gratuit</span>, vous pouvez trouver et planifier les plus belles randos. Il ne reste plus qu’à sauter dans vos chaussures de rando !
             </p>
             

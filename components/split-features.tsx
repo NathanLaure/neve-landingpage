@@ -1,31 +1,28 @@
-"use client";
+import Button from "@/components/ui/button";
 
 export default function SplitFeatures() {
   return (
-    <div className="bg-neve-beige text-slate-900 w-full overflow-hidden">
+    <div id="features" className="bg-neve-beige text-slate-900 w-full overflow-hidden">
       
       {/* SECTION 1: Planifier l'itinéraire parfait */}
       <section className="py-16 md:py-24 relative">
         <div className="absolute inset-0 bg-[radial-gradient(#4c6a1705_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
         
-        <div className="mx-auto max-w-[1600px] px-4 sm:px-6 relative z-10">
+        <div className="mx-auto max-w-[1400px] px-6 sm:px-10 md:px-16 relative z-10">
           <div className="grid gap-12 md:grid-cols-2 items-center">
             {/* Left side: Text & CTA */}
             <div className="max-w-xl pr-0 md:pr-8">
               <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-6 leading-tight font-bricolage">
                 Le premier planificateur porte-à-porte
               </h2>
-              <p className="text-slate-600 text-xs md:text-sm leading-relaxed mb-8">
+              <p className="font-satoshi text-[#525252] text-[18px] font-medium leading-relaxed mb-8">
                 Entrez votre gare de départ, nous calculons le reste. Névé combine instantanément le train, la navette locale et l'itinéraire de marche pour un trajet fluide du pas de votre porte jusqu'au sommet.
               </p>
               
               <div className="flex flex-wrap items-center gap-4">
-                <a
-                  href="#download-ios"
-                  className="px-6 py-3 rounded-full bg-brand-orange hover:bg-brand-orange-hover text-white font-bold text-xs shadow-md transition duration-150 cursor-pointer"
-                >
+                <Button href="#download-ios">
                   Inscrivez-vous gratuitement
-                </a>
+                </Button>
               </div>
             </div>
 
@@ -98,7 +95,7 @@ export default function SplitFeatures() {
       <section className="py-16 md:py-24 relative overflow-hidden bg-neve-beige">
         <div className="absolute inset-0 bg-[radial-gradient(#05966904_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
         
-        <div className="mx-auto max-w-[1600px] px-4 sm:px-6 relative z-10">
+        <div className="mx-auto max-w-[1400px] px-6 sm:px-10 md:px-16 relative z-10">
           <div className="grid gap-12 md:grid-cols-2 items-center">
             {/* Left side: Scrapbook Card Composition */}
             <div className="relative flex items-center justify-center min-h-[380px] order-last md:order-first">
@@ -125,17 +122,14 @@ export default function SplitFeatures() {
               <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-6 leading-tight font-bricolage">
                 La liberté du tracé linéaire
               </h2>
-              <p className="text-slate-600 text-xs md:text-sm leading-relaxed mb-8">
+              <p className="font-satoshi text-[#525252] text-[18px] font-medium leading-relaxed mb-8">
                 Ne faites plus demi-tour. Partez d'une gare A, traversez un massif complet, et reprenez votre train dans une gare B. Névé conçoit des itinéraires impossibles à faire en voiture individuelle.
               </p>
               
               <div className="flex flex-wrap items-center gap-4">
-                <a
-                  href="#download-ios"
-                  className="px-6 py-3 rounded-full bg-brand-orange hover:bg-brand-orange-hover text-white font-bold text-xs shadow-md transition duration-150 cursor-pointer"
-                >
+                <Button href="#download-ios">
                   Inscrivez-vous gratuitement
-                </a>
+                </Button>
               </div>
             </div>
           </div>
@@ -146,24 +140,21 @@ export default function SplitFeatures() {
       <section className="py-16 md:py-24 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(#4c6a1705_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
         
-        <div className="mx-auto max-w-[1600px] px-4 sm:px-6 relative z-10">
+        <div className="mx-auto max-w-[1400px] px-6 sm:px-10 md:px-16 relative z-10">
           <div className="grid gap-12 md:grid-cols-2 items-center">
             {/* Left side: Text & CTA */}
             <div className="max-w-xl pr-0 md:pr-8">
               <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-6 leading-tight font-bricolage">
                 Marchez serein avec la Sécurité Retour Active
               </h2>
-              <p className="text-slate-600 text-xs md:text-sm leading-relaxed mb-8">
+              <p className="font-satoshi text-[#525252] text-[18px] font-medium leading-relaxed mb-8">
                 Notre GPS intelligent analyse votre rythme de marche en temps réel. Si vous traînez en route, l'application vous alerte et vous propose une alternative pour être certain d'arriver avant le dernier train.
               </p>
               
               <div className="flex flex-wrap items-center gap-4">
-                <a
-                  href="#download-ios"
-                  className="px-6 py-3 rounded-full bg-brand-orange hover:bg-brand-orange-hover text-white font-bold text-xs shadow-md transition duration-150 cursor-pointer"
-                >
+                <Button href="#download-ios">
                   Inscrivez-vous gratuitement
-                </a>
+                </Button>
               </div>
             </div>
 

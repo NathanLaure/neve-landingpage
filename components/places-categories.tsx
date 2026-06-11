@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Button from "@/components/ui/button";
 
 type PlaceType = {
   id: string;
@@ -62,7 +63,7 @@ export default function PlacesCategories() {
 
   return (
     <section className="bg-neve-beige py-16 md:py-24 text-slate-900 relative w-full">
-      <div className="mx-auto max-w-[1600px] px-4 sm:px-6">
+      <div className="mx-auto max-w-[1400px] px-6 sm:px-10 md:px-16">
         
         {/* Section Title */}
         <div className="flex justify-between items-center mb-10">
@@ -120,18 +121,19 @@ export default function PlacesCategories() {
                   {activePlace.accessibleCount} en train
                 </span>
               </h4>
-              <p className="text-slate-500 text-xs md:text-sm mt-1.5 leading-relaxed max-w-xl">
+              <p className="text-[#525252] text-[18px] font-medium mt-1.5 leading-relaxed max-w-xl font-satoshi">
                 {activePlace.description}
               </p>
             </div>
           </div>
           
-          <a
+          <Button
             href="/randos-sans-voiture"
-            className="flex-none px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-xs transition duration-150 cursor-pointer text-center"
+            variant="secondary"
+            className="flex-none"
           >
             Explorer la carte
-          </a>
+          </Button>
         </div>
       </div>
     </section>

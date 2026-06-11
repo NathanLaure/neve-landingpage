@@ -98,7 +98,7 @@ export default function HowItWorks() {
         {/* Background radial pattern */}
         <div className="absolute inset-0 bg-[radial-gradient(#eb490b03_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
 
-        <div className="mx-auto max-w-[1600px] px-4 sm:px-6 md:px-8 w-full z-10">
+        <div className="mx-auto max-w-[1400px] px-6 sm:px-10 md:px-16 w-full z-10">
           
           {/* Main centered container */}
           <div className="max-w-[1232px] mx-auto flex flex-col gap-12 md:gap-16">
@@ -194,13 +194,13 @@ export default function HowItWorks() {
                           <div className="overflow-hidden">
                             
                             {/* Desktop description */}
-                            <p className="hidden md:block text-slate-500 text-base md:text-lg leading-relaxed font-medium">
+                            <p className="hidden md:block font-satoshi text-[#525252] text-[18px] leading-relaxed font-medium">
                               {step.description}
                             </p>
 
                             {/* Mobile description & inline image */}
                             <div className="block md:hidden">
-                              <p className="text-slate-500 text-sm leading-relaxed font-medium">
+                              <p className="font-satoshi text-[#525252] text-[18px] leading-relaxed font-medium">
                                 {step.description}
                               </p>
                               

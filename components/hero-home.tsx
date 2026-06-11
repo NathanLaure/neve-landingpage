@@ -275,7 +275,7 @@ export default function HeroHome() {
       <div className="absolute inset-0 bg-black/5 pointer-events-none" />
 
 
-      <div className="mx-auto max-w-[1600px] px-4 sm:px-6 relative z-10 w-full mb-16">
+      <div className="mx-auto max-w-[1400px] px-6 sm:px-10 md:px-16 relative z-10 w-full mb-16">
         {/* Hero content */}
         <div>
           {/* Section header */}
@@ -348,7 +348,7 @@ export default function HeroHome() {
             {/* Description */}
             <div className="mx-auto max-w-xl">
               <p
-                className="mb-12 text-lg text-brand-light/90 leading-relaxed"
+                className="mb-12 text-[18px] text-brand-light/90 leading-relaxed font-satoshi font-medium"
                 data-aos="zoom-y-out"
                 data-aos-delay={300}
               >
@@ -362,7 +362,7 @@ export default function HeroHome() {
                 data-aos-delay={400}
                 ref={dropdownRef}
               >
-                <form onSubmit={handleSearchSubmit} className="relative flex items-center bg-brand-light p-3 rounded-full border border-slate-900 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] transition">
+                <form onSubmit={handleSearchSubmit} className="relative flex items-center bg-brand-light p-3 rounded-full border border-slate-900 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] transition-all duration-150 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] focus-within:!translate-x-[4px] focus-within:!translate-y-[4px] focus-within:!shadow-none">
                   <div className="flex items-center pl-3 text-brand-dark/95">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />

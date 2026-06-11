@@ -16,7 +16,7 @@ export default function EcoComparison() {
 
   return (
     <section className="bg-white py-16 md:py-24 relative">
-      <div className="mx-auto max-w-[1600px] px-4 sm:px-6 relative z-10">
+      <div className="mx-auto max-w-[1400px] px-6 sm:px-10 md:px-16 relative z-10">
         {/* Header */}
         <div className="mx-auto max-w-3xl text-center pb-12">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold uppercase tracking-wider mb-4 border border-emerald-100 shadow-xs">
@@ -26,7 +26,7 @@ export default function EcoComparison() {
             Train vs Voiture : <br className="max-sm:hidden" />
             <span className="text-[color:var(--color-brand-green)]">Le comparatif sans filtre</span>
           </h2>
-          <p className="mt-4 text-slate-500 text-base max-w-xl mx-auto leading-relaxed">
+          <p className="mt-4 text-[#525252] text-[18px] font-medium max-w-xl mx-auto leading-relaxed font-satoshi">
             Randonner en train n'est pas seulement écologique. C'est plus économique, infiniment moins stressant et cela offre une liberté de tracé inégalée.
           </p>
         </div>

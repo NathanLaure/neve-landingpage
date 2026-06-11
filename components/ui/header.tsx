@@ -1,36 +1,110 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Logo from "./logo";
+import Button from "./button";
 
 export default function Header() {
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const heroHeight = window.innerHeight;
+      if (window.scrollY > heroHeight - 80) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    // Initialize state on mount
+    handleScroll();
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <header className="fixed top-2 z-30 w-full md:top-6">
-      <div className="mx-auto max-w-[1600px] px-4 sm:px-6">
-        <div className="relative flex h-14 items-center justify-between gap-3 rounded-2xl bg-white/90 px-3 shadow-lg shadow-black/[0.03] backdrop-blur-xs before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:border before:border-transparent before:[background:linear-gradient(var(--color-gray-100),var(--color-gray-200))_border-box] before:[mask-composite:exclude_!important] before:[mask:linear-gradient(white_0_0)_padding-box,_linear-gradient(white_0_0)]">
-          {/* Site branding */}
-          <div className="flex flex-1 items-center">
-            <Logo />
+    <header 
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled 
+          ? "bg-white border-b border-slate-200/80 shadow-xs" 
+          : "bg-transparent border-b border-transparent"
+      }`}
+    >
+      <div className="w-full px-6 sm:px-10 md:px-10">
+        <div 
+          className={`flex items-center justify-between gap-3 transition-all duration-300 ${
+            isScrolled ? "h-16" : "h-20"
+          }`}
+        >
+          {/* Logo */}
+          <div className="flex items-center">
+            <Logo light={!isScrolled} />
           </div>
 
-          {/* Primary & Secondary Action Buttons */}
-          <ul className="flex flex-1 items-center justify-end gap-2.5 md:gap-3">
-            <li className="hidden sm:block">
-              <Link
-                href="#download-ios"
-                className="text-slate-700 hover:text-slate-900 hover:bg-slate-50 border border-slate-200/80 hover:border-slate-300 shadow-xs rounded-xl px-3 py-1.5 font-bold text-xs transition duration-150 block text-center"
+          {/* Right Group: Nav Links + Action Buttons */}
+          <div className="flex items-center gap-8">
+            {/* Navigation Links (Anchors) */}
+            <nav className="hidden md:flex items-center gap-8">
+              <a 
+                href="#about" 
+                className={`font-satoshi font-bold text-[16px] transition-colors duration-200 ${
+                  isScrolled ? "text-slate-700 hover:text-slate-900" : "text-white/80 hover:text-white"
+                }`}
               >
-                Télécharger l'application
-              </Link>
-            </li>
-            <li>
+                À propos
+              </a>
+              <a 
+                href="#how-it-works" 
+                className={`font-satoshi font-bold text-[16px] transition-colors duration-200 ${
+                  isScrolled ? "text-slate-700 hover:text-slate-900" : "text-white/80 hover:text-white"
+                }`}
+              >
+                Comment ça marche
+              </a>
+              <a 
+                href="#features" 
+                className={`font-satoshi font-bold text-[16px] transition-colors duration-200 ${
+                  isScrolled ? "text-slate-700 hover:text-slate-900" : "text-white/80 hover:text-white"
+                }`}
+              >
+                Fonctionnalités
+              </a>
+              <a 
+                href="#faq" 
+                className={`font-satoshi font-bold text-[16px] transition-colors duration-200 ${
+                  isScrolled ? "text-slate-700 hover:text-slate-900" : "text-white/80 hover:text-white"
+                }`}
+              >
+                FAQ
+              </a>
+            </nav>
+
+            {/* Right Action Buttons */}
+            <div className="flex items-center gap-3 sm:gap-4">
+              {/* Sign In / Sign Up Link */}
               <Link
                 href="/signup"
-                className="bg-[color:var(--color-brand-orange)] hover:bg-[color:var(--color-brand-orange-hover)] text-white shadow-sm rounded-xl px-4 py-1.5 font-bold text-xs transition duration-150 block text-center"
+                className={`hidden sm:inline-block font-satoshi font-bold text-[16px] transition-colors duration-200 ${
+                  isScrolled ? "text-slate-700 hover:text-slate-900" : "text-white/80 hover:text-white"
+                }`}
               >
-                <span className="hidden sm:inline">Créer un compte gratuitement</span>
-                <span className="sm:hidden">Créer un compte</span>
+                Se connecter
               </Link>
-            </li>
-          </ul>
+
+              {/* Download Button */}
+              <Button 
+                href="#download-ios" 
+                variant="primary" 
+                className="py-2 px-3 sm:px-4"
+              >
+                <span className="hidden sm:inline">Télécharger l'app</span>
+                <span className="sm:hidden">Télécharger</span>
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
     </header>
