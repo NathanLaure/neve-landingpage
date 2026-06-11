@@ -11,7 +11,7 @@ export default function Cta() {
         <div className="grid gap-8 md:grid-cols-12 items-center mb-12 pb-12 border-b border-gray-200/50">
           
           {/* Left: Title & Buttons */}
-          <div className="md:col-span-8 max-w-2xl">
+          <div className="md:col-span-8 max-w-4xl">
             <h2 
               className="text-3xl md:text-5xl font-extrabold text-[#292929] tracking-[-1.2px] mb-4 font-bricolage leading-[1.1] md:leading-[60px]"
               style={{ fontVariationSettings: "'opsz' 96, 'wdth' 100" }}
