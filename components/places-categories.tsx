@@ -61,8 +61,8 @@ export default function PlacesCategories() {
   const activePlace = PLACES.find((p) => p.id === hoveredId) || PLACES[0];
 
   return (
-    <section className="bg-neve-beige py-16 md:py-24 border-b border-gray-150/45 text-slate-900 relative w-full">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+    <section className="bg-neve-beige py-16 md:py-24 text-slate-900 relative w-full">
+      <div className="mx-auto max-w-[1600px] px-4 sm:px-6">
         
         {/* Section Title */}
         <div className="flex justify-between items-center mb-10">

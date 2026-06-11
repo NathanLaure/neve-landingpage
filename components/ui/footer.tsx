@@ -44,7 +44,7 @@ export default function Footer({ border = false }: { border?: boolean }) {
 
       {/* 2. MAIN FOOTER (Dark Olive-Black) */}
       <div className="bg-[#1c2414] text-slate-300 py-12 md:py-16 border-t border-slate-800/50">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="mx-auto max-w-[1600px] px-4 sm:px-6">
           <div className="grid gap-10 sm:grid-cols-12 mb-12">
             
             {/* 1st column: Logo & Description */}

@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import PageIllustration from "@/components/page-illustration";
 import Avatar01 from "@/public/images/avatar-01.jpg";
 import Avatar02 from "@/public/images/avatar-02.jpg";
 import Avatar03 from "@/public/images/avatar-03.jpg";
@@ -189,6 +188,25 @@ export default function HeroHome() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [userCoords, setUserCoords] = useState<{ lat: number; lng: number } | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const backgroundRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          if (backgroundRef.current) {
+            const scrolled = window.scrollY;
+            backgroundRef.current.style.transform = `translate3d(0, ${scrolled * 0.3}px, 0) scale(1.15)`;
+          }
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined" && navigator.geolocation) {
@@ -240,19 +258,24 @@ export default function HeroHome() {
   };
 
   return (
-    <section id="about" className="relative overflow-hidden border-b border-gray-100 h-[100vh] flex items-center justify-center">
-      {/* Background Image of Hiking Shoes at shoe-level */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center" 
-        style={{ backgroundImage: `url('/images/hero-bg.jpg')` }}
-      />
+    <section id="about" className="relative overflow-hidden h-[100vh] flex items-center justify-center">
+      {/* Background Image of Hiking Shoes at shoe-level with parallax effect */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div 
+          ref={backgroundRef}
+          className="absolute inset-0 bg-cover bg-center will-change-transform" 
+          style={{ 
+            backgroundImage: `url('/images/hero-bg.jpg')`,
+            transform: 'translate3d(0, 0, 0) scale(1.15)',
+            transformOrigin: 'center center'
+          }}
+        />
+      </div>
       {/* Semi-translucent overlay to ensure text contrast and match the warm crème theme */}
-      <div className="absolute inset-0 bg-black/35 pointer-events-none" />
+      <div className="absolute inset-0 bg-black/5 pointer-events-none" />
 
-      
-      <PageIllustration />
-      
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 relative z-10 w-full mb-16 md:mb-50">
+
+      <div className="mx-auto max-w-[1600px] px-4 sm:px-6 relative z-10 w-full mb-16">
         {/* Hero content */}
         <div>
           {/* Section header */}
@@ -339,7 +362,7 @@ export default function HeroHome() {
                 data-aos-delay={400}
                 ref={dropdownRef}
               >
-                <form onSubmit={handleSearchSubmit} className="relative flex items-center bg-brand-light p-3 rounded-full border border-brand-dark/15 shadow-lg transition">
+                <form onSubmit={handleSearchSubmit} className="relative flex items-center bg-brand-light p-3 rounded-full border border-slate-900 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] transition">
                   <div className="flex items-center pl-3 text-brand-dark/95">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -374,7 +397,7 @@ export default function HeroHome() {
 
                 {/* Autocomplete Dropdown */}
                 {isDropdownOpen && (
-                  <div className="absolute left-0 right-0 mt-2 bg-brand-light rounded-2xl border border-brand-dark/10 shadow-2xl overflow-hidden z-50 max-h-72 overflow-y-auto no-scrollbar">
+                  <div className="absolute left-0 right-0 mt-2 bg-brand-light rounded-2xl border border-slate-900 shadow-2xl overflow-hidden z-50 max-h-72 overflow-y-auto no-scrollbar">
                     {(() => {
                       const filtered = PLACES.filter((place) =>
                         place.name.toLowerCase().includes(searchQuery.toLowerCase())

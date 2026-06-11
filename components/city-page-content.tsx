@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
+import EscapeCity from "@/components/escape-city";
 
 // Set Mapbox access token
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || "";
@@ -719,6 +720,11 @@ export default function CityPageContent({ cityName, hikes }: Props) {
                   })}
                 </div>
               )}
+            </div>
+
+            {/* Escape City pain-points testimonials */}
+            <div className="border-t border-brand-dark/5 pt-6">
+              <EscapeCity cityName={cityName} layout="narrow" />
             </div>
 
             {/* Local FAQ Section for that city */}

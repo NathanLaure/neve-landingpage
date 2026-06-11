@@ -25,11 +25,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="fr" className="scroll-smooth">
       <body
         className={`${inter.variable} ${bricolage.variable} bg-gray-50 font-bricolage tracking-tight text-gray-900 antialiased`}
       >
-        <div className="flex min-h-screen flex-col overflow-x-hidden">
+        <div className="flex min-h-screen flex-col overflow-x-clip">
           {children}
         </div>
       </body>

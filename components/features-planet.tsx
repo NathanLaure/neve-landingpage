@@ -4,7 +4,7 @@ export default function FeaturesNeve() {
       {/* Decorative backdrop glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-[color:var(--color-brand-orange)] opacity-10 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+      <div className="mx-auto max-w-[1600px] px-4 sm:px-6">
         <div className="py-12 md:py-20">
           {/* Section header */}
           <div className="mx-auto max-w-3xl pb-16 text-center md:pb-20">

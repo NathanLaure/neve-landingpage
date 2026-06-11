@@ -2,7 +2,7 @@ import Accordion from "@/components/accordion";
 
 export default function Faq() {
   return (
-    <section className="bg-white py-12 md:py-20 border-b border-gray-100">
+    <section className="bg-white py-12 md:py-20">
       <div className="mx-auto max-w-4xl px-4 sm:px-6">
         {/* Section Header */}
         <div className="mx-auto max-w-3xl text-center pb-12 md:pb-16">

@@ -12,3 +12,8 @@
 ## 3. Immersion et Esthétique
 *   **Règle** : Maintenir un style épuré, premium, axé sur le plein air (fonds crème, beige chaud, vert olive, largeurs immersives `max-w-7xl`).
 *   **Règle** : Ne jamais citer de marques concurrentes directement.
+
+## 4. Expérience Utilisateur & États de Survol (Hover States)
+*   **Règle** : Ne jamais appliquer d'effets de survol (ex: `hover:`, `group-hover:`, changements d'ombre, zoom, rotation ou bordure colorée) sur des cartes, images ou conteneurs qui ne possèdent pas d'action au clic (ni lien, ni bouton, ni gestionnaire d'événement au clic).
+*   **Raison** : Les effets de survol créent une fausse affordance en suggérant à l'utilisateur qu'il peut cliquer sur l'élément, ce qui nuit à la clarté de l'ergonomie (UX).
+

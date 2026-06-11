@@ -15,8 +15,8 @@ export default function EcoComparison() {
   const trainCost = Math.round(15 + distance * 0.08); // €15 base TER tickets with standard subscription
 
   return (
-    <section className="bg-white py-16 md:py-24 border-b border-gray-100 relative">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 relative z-10">
+    <section className="bg-white py-16 md:py-24 relative">
+      <div className="mx-auto max-w-[1600px] px-4 sm:px-6 relative z-10">
         {/* Header */}
         <div className="mx-auto max-w-3xl text-center pb-12">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold uppercase tracking-wider mb-4 border border-emerald-100 shadow-xs">

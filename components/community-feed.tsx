@@ -90,8 +90,8 @@ export default function CommunityFeed() {
   };
 
   return (
-    <section className="bg-gray-50 py-16 md:py-24 border-b border-gray-100">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+    <section className="bg-gray-50 py-16 md:py-24">
+      <div className="mx-auto max-w-[1600px] px-4 sm:px-6">
         {/* Header */}
         <div className="mx-auto max-w-3xl text-center pb-12">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold uppercase tracking-wider mb-4 border border-emerald-100 shadow-xs">

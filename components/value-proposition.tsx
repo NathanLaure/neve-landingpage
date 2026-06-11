@@ -2,8 +2,8 @@
 
 export default function ValueProposition() {
   return (
-    <section className="bg-neve-beige py-16 md:py-24 border-b border-gray-150/45 text-slate-900 relative">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+    <section className="bg-neve-beige py-16 md:py-24 text-slate-900 relative">
+      <div className="mx-auto max-w-[1600px] px-4 sm:px-6">
         
         {/* Header */}
         <div className="mx-auto max-w-3xl text-center pb-16">
@@ -20,10 +20,10 @@ export default function ValueProposition() {
         <div className="grid gap-8 md:grid-cols-3 items-stretch">
           
           {/* Pillar 1 */}
-          <div className="bg-white border-2 border-slate-900 rounded-3xl p-8 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] rotate-[-1deg] hover:rotate-0 transition-all duration-300 flex flex-col justify-between group">
+          <div className="bg-white border-2 border-slate-900 rounded-3xl p-8 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] rotate-[-1deg] flex flex-col justify-between">
             <div>
               {/* Graphic Icon Area */}
-              <div className="w-14 h-14 rounded-2xl bg-emerald-50 border-2 border-slate-900 flex items-center justify-center mb-6 text-2xl group-hover:scale-105 transition-transform duration-200">
+              <div className="w-14 h-14 rounded-2xl bg-emerald-50 border-2 border-slate-900 flex items-center justify-center mb-6 text-2xl">
                 🚂
               </div>
               
@@ -55,10 +55,10 @@ export default function ValueProposition() {
           </div>
 
           {/* Pillar 2 */}
-          <div className="bg-white border-2 border-slate-900 rounded-3xl p-8 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] rotate-[1deg] hover:rotate-0 transition-all duration-300 flex flex-col justify-between group">
+          <div className="bg-white border-2 border-slate-900 rounded-3xl p-8 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] rotate-[1deg] flex flex-col justify-between">
             <div>
               {/* Graphic Icon Area */}
-              <div className="w-14 h-14 rounded-2xl bg-orange-50 border-2 border-slate-900 flex items-center justify-center mb-6 text-2xl group-hover:scale-105 transition-transform duration-200">
+              <div className="w-14 h-14 rounded-2xl bg-orange-50 border-2 border-slate-900 flex items-center justify-center mb-6 text-2xl">
                 ⏱️
               </div>
               
@@ -88,10 +88,10 @@ export default function ValueProposition() {
           </div>
 
           {/* Pillar 3 */}
-          <div className="bg-white border-2 border-slate-900 rounded-3xl p-8 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] rotate-[-0.5deg] hover:rotate-0 transition-all duration-300 flex flex-col justify-between group">
+          <div className="bg-white border-2 border-slate-900 rounded-3xl p-8 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] rotate-[-0.5deg] flex flex-col justify-between">
             <div>
               {/* Graphic Icon Area */}
-              <div className="w-14 h-14 rounded-2xl bg-indigo-50 border-2 border-slate-900 flex items-center justify-center mb-6 text-2xl group-hover:scale-105 transition-transform duration-200">
+              <div className="w-14 h-14 rounded-2xl bg-indigo-50 border-2 border-slate-900 flex items-center justify-center mb-6 text-2xl">
                 🛤️
               </div>
               

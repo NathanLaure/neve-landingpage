@@ -4,6 +4,8 @@ export const metadata = {
 };
 
 import Hero from "@/components/hero-home";
+import PromoSection from "@/components/promo-section";
+import EscapeCity from "@/components/escape-city";
 import ValueProposition from "@/components/value-proposition";
 import ProblemSection from "@/components/problem-section";
 import HowItWorks from "@/components/how-it-works";
@@ -23,6 +25,8 @@ export default function Home() {
   return (
     <>
       <Hero />
+      <PromoSection />
+      <EscapeCity />
       <ValueProposition />
       <ProblemSection />
       <HowItWorks />

@@ -4,8 +4,8 @@ import Image from "next/image";
 
 export default function Cta() {
   return (
-    <section className="bg-neve-beige py-16 md:py-24 border-b border-gray-150/45 text-slate-900 w-full relative">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+    <section className="bg-neve-beige py-16 md:py-24 text-slate-900 w-full relative">
+      <div className="mx-auto max-w-[1600px] px-4 sm:px-6">
         
         {/* Top Header Split: Title & CTA vs. Laurel Star Review */}
         <div className="grid gap-8 md:grid-cols-12 items-center mb-12 pb-12 border-b border-gray-200/50">

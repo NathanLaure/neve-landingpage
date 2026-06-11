@@ -256,8 +256,8 @@ export default function HikeExplorer() {
   });
 
   return (
-    <section className="bg-neve-beige py-16 md:py-24 border-b border-gray-150/45 text-slate-900">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+    <section className="bg-neve-beige py-16 md:py-24 text-slate-900">
+      <div className="mx-auto max-w-[1600px] px-4 sm:px-6">
         {/* Header section */}
         <div className="mx-auto max-w-3xl text-center pb-12">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-neve-gray text-neve-forest text-xs font-bold uppercase tracking-wider mb-4 border border-gray-200">

@@ -1,88 +1,270 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+
+const steps = [
+  {
+    number: "01",
+    title: "Trouver",
+    description: "Indiquez vos envies de paysages, votre niveau et votre gare de départ. Névé scanne des centaines de massifs pour vous proposer des itinéraires sur-mesure, tous 100% accessibles sans voiture.",
+    image: "https://images.unsplash.com/photo-1501555088652-021faa106b9b?q=80&w=800&auto=format&fit=crop"
+  },
+  {
+    number: "02",
+    title: "Planifier",
+    description: "Plus besoin de jongler entre trois sites. L'application calcule et synchronise le train, la navette locale et le sentier. En un instant, votre feuille de route complète est prête.",
+    image: "https://images.unsplash.com/photo-1532274402911-5a369e4c4bb5?q=80&w=800&auto=format&fit=crop"
+  },
+  {
+    number: "03",
+    title: "Profiter",
+    description: "Une fois sur place, rangez les horaires de bus. Suivez simplement le GPS embarqué ultra-précis. Les cartes et les tracés restent accessibles même si vous perdez le réseau en pleine forêt.",
+    image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=800&auto=format&fit=crop"
+  },
+  {
+    number: "04",
+    title: "Repartir",
+    description: "Marchez sans stresser. Névé analyse votre vitesse de marche en temps réel. Si vous traînez en route, l'application vous prévient pour s'assurer que vous arriviez à la gare à l'heure pour votre train retour.",
+    image: "https://images.unsplash.com/photo-1474487548417-781cb71495f3?q=80&w=800&auto=format&fit=crop"
+  }
+];
+
 export default function HowItWorks() {
+  const [activeStep, setActiveStep] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!containerRef.current) return;
+      if (window.innerWidth < 768) return;
+
+      const rect = containerRef.current.getBoundingClientRect();
+      const totalHeight = rect.height;
+      const viewportHeight = window.innerHeight;
+
+      // Scroll top relative to the parent container top
+      const scrollTop = -rect.top;
+      const scrollRange = totalHeight - viewportHeight;
+
+      if (scrollRange <= 0) return;
+
+      // Clamp progress between 0 and 1
+      const progress = Math.max(0, Math.min(1, scrollTop / scrollRange));
+
+      // Map progress to steps: 4 steps, index 0 to 3
+      const stepIndex = Math.min(Math.floor(progress * 4), 3);
+      setActiveStep(stepIndex);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll);
+    handleScroll(); // Initial call
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
+  }, []);
+
+  const handleStepClick = (index: number) => {
+    setActiveStep(index);
+    if (window.innerWidth < 768) return;
+
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const scrollTopInDoc = window.pageYOffset + rect.top;
+    const scrollRange = rect.height - window.innerHeight;
+    
+    // Scroll to the center of this step's segment range in parent scroll path
+    const targetProgress = (index + 0.5) / 4;
+    const targetScrollY = scrollTopInDoc + targetProgress * scrollRange;
+
+    window.scrollTo({
+      top: targetScrollY,
+      behavior: "smooth"
+    });
+  };
+
   return (
-    <section id="how-it-works" className="bg-white py-16 md:py-24 border-b border-gray-100 relative overflow-hidden">
-      {/* Background glow */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-emerald-50/40 rounded-full blur-3xl pointer-events-none" />
+    <section 
+      ref={containerRef}
+      id="how-it-works" 
+      className="relative h-auto md:h-[400vh] bg-[#fbfaf7] overflow-visible"
+    >
+      {/* Sticky full-screen wrapper (Desktop) or normal relative flow (Mobile) */}
+      <div className="relative md:sticky md:top-0 md:h-screen w-full flex items-center md:overflow-hidden py-16 md:py-0">
+        
+        {/* Background radial pattern */}
+        <div className="absolute inset-0 bg-[radial-gradient(#eb490b03_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 relative z-10">
-        {/* Section Header */}
-        <div className="mx-auto max-w-3xl text-center pb-12 md:pb-16">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-[color:var(--color-brand-green)] text-xs font-bold uppercase tracking-wider mb-4 border border-emerald-100 shadow-2xs">
-            🚶 Le parcours
+        <div className="mx-auto max-w-[1600px] px-4 sm:px-6 md:px-8 w-full z-10">
+          
+          {/* Main centered container */}
+          <div className="max-w-[1232px] mx-auto flex flex-col gap-12 md:gap-16">
+            
+            {/* Header */}
+            <div className="w-full text-left">
+              <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight font-bricolage">
+                Votre prochain week-end nature en 4 étapes
+              </h2>
+            </div>
+
+            {/* Grid Content */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-20 items-center">
+              
+              {/* Left Column: Interactive step list */}
+              <div className="md:col-span-7 flex flex-col gap-8 md:gap-10 relative">
+                
+                {/* Vertical line connector (Desktop only) */}
+                <div className="absolute left-[39px] top-8 bottom-8 w-[2px] bg-slate-200/80 pointer-events-none hidden md:block z-0">
+                  <div 
+                    className="w-full bg-slate-900 transition-all duration-500 ease-out origin-top rounded-full" 
+                    style={{ 
+                      height: `${(activeStep / (steps.length - 1)) * 100}%` 
+                    }}
+                  />
+                </div>
+
+                {steps.map((step, index) => {
+                  const isActive = activeStep === index;
+                  
+                  return (
+                    <div
+                      key={step.number}
+                      ref={(el) => {
+                        stepRefs.current[index] = el;
+                      }}
+                      onClick={() => handleStepClick(index)}
+                      className="flex gap-6 md:gap-10 items-start relative z-10 cursor-pointer group"
+                    >
+                      
+                      {/* Number block with local line segment overlays */}
+                      <div className="w-[80px] flex justify-center flex-shrink-0 select-none relative">
+                        <div
+                          className={`font-serif text-[48px] tracking-[4px] leading-[50px] transition-colors duration-500 ${
+                            isActive 
+                              ? "text-[#eb490b] font-bold" 
+                              : "text-[#eb490b]/40 font-normal group-hover:text-[#eb490b]/60"
+                          }`}
+                        >
+                          {step.number}
+                        </div>
+
+                        {/* Local line segment specifically under the number block */}
+                        {index < steps.length - 1 && (
+                          <div className="absolute top-[55px] bottom-[-40px] left-[39px] w-[2px] hidden md:block">
+                            {/* Muted track */}
+                            <div className="absolute inset-0 bg-slate-200/80 rounded-full" />
+                            {/* Active filled overlay */}
+                            <div 
+                              className={`absolute top-0 left-0 w-full bg-slate-900 rounded-full transition-all duration-500 ease-out origin-top ${
+                                activeStep > index 
+                                  ? "scale-y-100" 
+                                  : isActive 
+                                    ? "scale-y-50" 
+                                    : "scale-y-0"
+                              }`}
+                            />
+                          </div>
+                        )}
+
+                      </div>
+
+                      {/* Step Texts */}
+                      <div className="flex-1 pt-1.5 text-left">
+                        <h3
+                          className={`font-bricolage text-2xl md:text-3xl font-bold tracking-[-0.5px] transition-colors duration-500 ${
+                            isActive 
+                              ? "text-slate-900" 
+                              : "text-slate-400 group-hover:text-slate-600"
+                          }`}
+                        >
+                          {step.title}
+                        </h3>
+
+                        {/* Expanding Accordion Body */}
+                        <div
+                          className={`grid transition-all duration-500 ease-in-out ${
+                            isActive 
+                              ? "grid-rows-[1fr] opacity-100 mt-3 md:mt-4" 
+                              : "grid-rows-[0fr] opacity-0 mt-0 pointer-events-none"
+                          }`}
+                        >
+                          <div className="overflow-hidden">
+                            
+                            {/* Desktop description */}
+                            <p className="hidden md:block text-slate-500 text-base md:text-lg leading-relaxed font-medium">
+                              {step.description}
+                            </p>
+
+                            {/* Mobile description & inline image */}
+                            <div className="block md:hidden">
+                              <p className="text-slate-500 text-sm leading-relaxed font-medium">
+                                {step.description}
+                              </p>
+                              
+                              {/* Mobile inline image card */}
+                              <div className="mt-6 w-full max-w-[340px] aspect-[4/3] rounded-2xl overflow-hidden border-2 border-slate-900 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] rotate-1 select-none">
+                                <img
+                                  src={step.image}
+                                  alt={step.title}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            </div>
+
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Right Column: Sticky Card (Desktop only) */}
+              <div className="hidden md:block md:col-span-5 md:sticky py-4 flex-none select-none">
+                
+                {/* Photo Frame Container */}
+                <div className="relative flex items-center justify-center w-[375px] h-[450px] mx-auto rotate-2">
+                  <div className="w-full h-full bg-slate-100 border-2 border-slate-900 rounded-[32px] shadow-[6px_6px_0px_0px_rgba(15,23,42,1)] overflow-hidden relative">
+                    
+                    {/* Render all 4 step images stacked with crossfade transition */}
+                    {steps.map((step, index) => {
+                      const isActive = activeStep === index;
+                      
+                      return (
+                        <div
+                          key={step.number}
+                          className={`absolute inset-0 transition-all duration-700 ease-in-out ${
+                            isActive 
+                              ? "opacity-100 scale-100 pointer-events-auto z-10" 
+                              : "opacity-0 scale-95 pointer-events-none z-0"
+                          }`}
+                        >
+                          <img
+                            src={step.image}
+                            alt={step.title}
+                            className="w-full h-full object-cover"
+                          />
+                          {/* Shadow/gradient bottom overlay */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
+                        </div>
+                      );
+                    })}
+                    
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
           </div>
-          <h2 className="text-3xl font-extrabold text-gray-900 md:text-4xl tracking-tight">
-            L'aventure en 4 étapes, <br />
-            <span className="text-[color:var(--color-brand-green)]">sans le stress logistique.</span>
-          </h2>
-          <p className="mt-4 text-slate-500 text-base max-w-xl mx-auto leading-relaxed">
-            Névé prend en charge toute l'organisation complexe pour que vous n'ayez qu'à enfiler vos chaussures et profiter du paysage.
-          </p>
+
         </div>
 
-        {/* Steps Grid */}
-        <div className="relative">
-          {/* Step Connecting Line (Winding Mountain Trail - Desktop) */}
-          <svg 
-            className="absolute top-1/2 left-0 w-full h-24 pointer-events-none -translate-y-1/2 hidden md:block z-0 opacity-40" 
-            viewBox="0 0 1000 100" 
-            fill="none" 
-            preserveAspectRatio="none"
-          >
-            <path 
-              d="M 125 50 Q 250 10 375 50 T 625 50 T 875 50" 
-              stroke="var(--color-brand-green)" 
-              strokeWidth="3.5" 
-              strokeDasharray="8 6" 
-              fill="none" 
-            />
-          </svg>
- 
-          <div className="grid gap-8 md:grid-cols-4 relative z-10">
-            {/* Step 1 */}
-            <div className="bg-slate-50/50 hover:bg-white p-7 rounded-3xl border border-gray-150 hover:border-emerald-250 shadow-2xs hover:shadow-xl text-center flex flex-col items-center group transition-all duration-300">
-              <div className="w-12 h-12 rounded-2xl bg-[color:var(--color-brand-green)] text-white flex items-center justify-center font-bold text-lg mb-6 shadow-md shadow-emerald-700/10 group-hover:scale-110 transition-transform duration-200">
-                1
-              </div>
-              <h3 className="text-base font-bold text-slate-900 mb-2">Filtrez par accès TER</h3>
-              <p className="text-slate-500 text-xs leading-relaxed">
-                Trouvez des randonnées prêtes à l'emploi selon leur temps de trajet réel en train (ex: "à moins de 1h30 de Lyon").
-              </p>
-            </div>
-
-            {/* Step 2 */}
-            <div className="bg-slate-50/50 hover:bg-white p-7 rounded-3xl border border-gray-150 hover:border-emerald-250 shadow-2xs hover:shadow-xl text-center flex flex-col items-center group transition-all duration-300">
-              <div className="w-12 h-12 rounded-2xl bg-[color:var(--color-brand-green)] text-white flex items-center justify-center font-bold text-lg mb-6 shadow-md shadow-emerald-700/10 group-hover:scale-110 transition-transform duration-200">
-                2
-              </div>
-              <h3 className="text-base font-bold text-slate-900 mb-2">Générez l'itinéraire</h3>
-              <p className="text-slate-500 text-xs leading-relaxed">
-                Névé calcule instantanément la meilleure combinaison entre le train régional (TER) et le bus local jusqu'au début du sentier.
-              </p>
-            </div>
-
-            {/* Step 3 */}
-            <div className="bg-slate-50/50 hover:bg-white p-7 rounded-3xl border border-gray-150 hover:border-emerald-250 shadow-2xs hover:shadow-xl text-center flex flex-col items-center group transition-all duration-300">
-              <div className="w-12 h-12 rounded-2xl bg-[color:var(--color-brand-green)] text-white flex items-center justify-center font-bold text-lg mb-6 shadow-md shadow-emerald-700/10 group-hover:scale-110 transition-transform duration-200">
-                3
-              </div>
-              <h3 className="text-base font-bold text-slate-900 mb-2">Réservez en 1 clic</h3>
-              <p className="text-slate-500 text-xs leading-relaxed">
-                Névé pré-remplit votre trajet et ouvre directement l'application Trainline avec vos tarifs et cartes de réduction habituelles.
-              </p>
-            </div>
-
-            {/* Step 4 */}
-            <div className="bg-slate-50/50 hover:bg-white p-7 rounded-3xl border border-gray-150 hover:border-emerald-250 shadow-2xs hover:shadow-xl text-center flex flex-col items-center group transition-all duration-300">
-              <div className="w-12 h-12 rounded-2xl bg-[color:var(--color-brand-orange)] text-white flex items-center justify-center font-bold text-lg mb-6 shadow-md shadow-orange-700/10 group-hover:scale-110 transition-transform duration-200">
-                4
-              </div>
-              <h3 className="text-base font-bold text-slate-900 mb-2">Marchez l'esprit libre</h3>
-              <p className="text-slate-500 text-xs leading-relaxed">
-                Déconnectez. L'application compare votre position GPS aux horaires théoriques retour et vous alerte en cas de retard.
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   );

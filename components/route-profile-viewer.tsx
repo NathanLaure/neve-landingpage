@@ -177,11 +177,11 @@ export default function RouteProfileViewer() {
   const dotY = currentY * 2;
 
   return (
-    <section className="bg-neve-beige py-16 md:py-24 relative overflow-hidden text-slate-900 border-b border-gray-150/45">
+    <section className="bg-neve-beige py-16 md:py-24 relative overflow-hidden text-slate-900">
       {/* Decorative background grid */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#05966905_1px,transparent_1px),linear-gradient(to_bottom,#05966905_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 relative z-10">
+      <div className="mx-auto max-w-[1600px] px-4 sm:px-6 relative z-10">
         
         {/* Header */}
         <div className="mx-auto max-w-3xl text-center pb-12">
