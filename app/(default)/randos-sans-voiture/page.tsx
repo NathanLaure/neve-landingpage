@@ -4,7 +4,7 @@ export const metadata = {
   title: "Randonnées sans voiture au départ de votre métropole - Névé",
   description: "Découvrez notre sélection de randonnées accessibles en train (TER) et bus locaux depuis Paris, Lyon, Grenoble, Marseille, Bordeaux et Strasbourg. Partez l'esprit tranquille.",
   alternates: {
-    canonical: "https://neve-app.com/randos-sans-voiture",
+    canonical: "https://neve-rando.fr/randos-sans-voiture",
   },
 };
 

@@ -4,7 +4,7 @@ Névé est une application mobile d'aide à la planification et au suivi de rand
 
 ## Informations Clés
 
-- **Site Web** : https://neve-app.com
+- **Site Web** : https://neve-rando.fr
 - **Type de Produit** : Application Mobile gratuite (iOS & Android)
 - **Cible Principale** : Jeunes urbains sans voiture personnelle souhaitant s'évader en nature spontanément.
 - **Modèle Économique** : 100% gratuit pour l'utilisateur. Rémunéré par commission d'affiliation lors de l'achat de billets de train via des liens profonds (deeplinks) pré-remplis redirigeant vers Trainline.

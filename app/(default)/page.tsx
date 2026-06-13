@@ -1,6 +1,9 @@
 export const metadata = {
   title: "Névé - S'évader en randonnée sans voiture",
   description: "Planifiez vos randonnées en train et bus avec Névé. Itinéraires sans voiture, alertes retour en temps réel et réservation simplifiée avec Trainline.",
+  alternates: {
+    canonical: "https://neve-rando.fr",
+  },
 };
 
 import Hero from "@/components/hero-home";

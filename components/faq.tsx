@@ -112,7 +112,7 @@ export default function Faq() {
               </svg>
             </div>
             <span className="font-satoshi text-[18px] font-medium text-[#525252]">
-              Encore des questions ? <Link href="mailto:hello@neve-app.com" variant="arrow">Envoyez-nous un message</Link>
+              Encore des questions ? <Link href="mailto:info@neve-rando.fr" variant="arrow">Envoyez-nous un message</Link>
             </span>
           </div>
         </div>
@@ -175,7 +175,7 @@ export default function Faq() {
                   </svg>
                 </div>
                 <span className="font-satoshi text-[18px] font-medium text-[#525252]">
-                  Encore des questions ? <Link href="mailto:hello@neve-app.com" variant="arrow">Envoyez-nous un message</Link>
+                  Encore des questions ? <Link href="mailto:info@neve-rando.fr" variant="arrow">Envoyez-nous un message</Link>
                 </span>
               </div>
             </div>

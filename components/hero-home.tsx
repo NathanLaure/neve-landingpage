@@ -10,7 +10,7 @@ import Avatar03 from "@/public/images/avatar-03.jpg";
 import Avatar04 from "@/public/images/avatar-04.jpg";
 import Avatar05 from "@/public/images/avatar-05.jpg";
 import Avatar06 from "@/public/images/avatar-06.jpg";
-import { Trees, Mountain, Waves, Compass, MapPin } from "lucide-react";
+import { Trees, Mountain, Waves, Compass, MapPin, Loader2 } from "lucide-react";
 
 type Place = {
   name: string;
@@ -187,6 +187,7 @@ export default function HeroHome() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [userCoords, setUserCoords] = useState<{ lat: number; lng: number } | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const backgroundRef = useRef<HTMLDivElement>(null);
@@ -255,7 +256,12 @@ export default function HeroHome() {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      const target = event.target as HTMLElement;
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(target) &&
+        !target.closest("[data-search-dropdown]")
+      ) {
         setIsDropdownOpen(false);
       }
     };
@@ -264,6 +270,8 @@ export default function HeroHome() {
   }, []);
 
   const handleSelectPlace = (place: Place) => {
+    console.log("Navigating to city page for place:", place);
+    setIsLoading(true);
     setSearchQuery(place.name);
     setIsDropdownOpen(false);
     router.push(`/randos-sans-voiture/${place.city}?hike=${encodeURIComponent(place.name)}`);
@@ -396,12 +404,17 @@ export default function HeroHome() {
               >
                 <form onSubmit={handleSearchSubmit} className="relative flex items-center bg-brand-light p-3 rounded-full border border-slate-900 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] transition-all duration-150 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] focus-within:!translate-x-[4px] focus-within:!translate-y-[4px] focus-within:!shadow-none">
                   <div className="flex items-center pl-3 text-brand-dark/95">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
+                    {isLoading ? (
+                      <Loader2 className="w-5 h-5 animate-spin text-[color:var(--color-brand-orange)]" />
+                    ) : (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    )}
                   </div>
                   <input
                     type="text"
+                    disabled={isLoading}
                     placeholder="Rechercher une destination (ex: Fontainebleau, Vercors...)"
                     value={searchQuery}
                     onChange={(e) => {
@@ -409,11 +422,12 @@ export default function HeroHome() {
                       setIsDropdownOpen(true);
                     }}
                     onFocus={() => setIsDropdownOpen(true)}
-                    className="w-full text-brand-dark placeholder-brand-dark/95 text-base px-4 py-1.5 bg-transparent border-none focus:outline-none focus:ring-0"
+                    className="w-full text-brand-dark placeholder-brand-dark/95 text-base px-4 py-1.5 bg-transparent border-none focus:outline-none focus:ring-0 disabled:opacity-60"
                   />
-                  {searchQuery && (
+                  {searchQuery && !isLoading && (
                     <button
                       type="button"
+                      disabled={isLoading}
                       onClick={() => {
                         setSearchQuery("");
                         setIsDropdownOpen(true);
@@ -428,8 +442,9 @@ export default function HeroHome() {
                 </form>
 
                 {/* Autocomplete Dropdown (Teleported to document.body to avoid clipping on mobile) */}
-                {isDropdownOpen && mounted && createPortal(
+                {isDropdownOpen && !isLoading && mounted && createPortal(
                   <div 
+                    data-search-dropdown
                     className="absolute bg-brand-light rounded-2xl border border-slate-900 shadow-2xl overflow-hidden z-[9999] max-h-72 overflow-y-auto no-scrollbar"
                     style={{
                       top: `${coords.top + 8}px`,

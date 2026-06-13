@@ -300,7 +300,7 @@ export async function generateMetadata({ params }: Props) {
     title: `Randonnées sans voiture depuis ${capitalizedCity} - Névé`,
     description: `Sélection d'itinéraires de randonnée accessibles en train et bus depuis la gare de ${capitalizedCity}. Partez explorer l'esprit tranquille avec Névé.`,
     alternates: {
-      canonical: `https://neve-app.com/randos-sans-voiture/${city.toLowerCase()}`,
+      canonical: `https://neve-rando.fr/randos-sans-voiture/${city.toLowerCase()}`,
     },
   };
 }
@@ -311,7 +311,7 @@ export default async function CityPage({ params }: Props) {
   const hikes = HIKES_DATABASE[city.toLowerCase()] || DEFAULT_HIKES(cityName);
 
   // Generate Google-compliant Rich Snippet Schema (JSON-LD)
-  const websiteUrl = "https://neve-app.com"; // placeholder brand url
+  const websiteUrl = "https://neve-rando.fr"; // placeholder brand url
   const pageUrl = `${websiteUrl}/randos-sans-voiture/${city.toLowerCase()}`;
 
   const schema = {
