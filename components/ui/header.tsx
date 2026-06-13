@@ -1,15 +1,22 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
+import { usePathname } from "next/navigation";
 import Logo from "./logo";
 import Button from "./button";
+import CustomLink from "./link";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const pathname = usePathname();
+  const isHome = pathname === "/";
 
   useEffect(() => {
     const handleScroll = () => {
+      if (!isHome) {
+        setIsScrolled(true);
+        return;
+      }
       const heroHeight = window.innerHeight;
       if (window.scrollY > heroHeight - 80) {
         setIsScrolled(true);
@@ -18,12 +25,12 @@ export default function Header() {
       }
     };
 
-    // Initialize state on mount
+    // Initialize state on mount & route change
     handleScroll();
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [isHome]);
 
   return (
     <header 
@@ -48,60 +55,53 @@ export default function Header() {
           <div className="flex items-center gap-8">
             {/* Navigation Links (Anchors) */}
             <nav className="hidden md:flex items-center gap-8">
-              <a 
+              <CustomLink 
                 href="#about" 
-                className={`font-satoshi font-bold text-[16px] transition-colors duration-200 ${
-                  isScrolled ? "text-slate-700 hover:text-slate-900" : "text-white/80 hover:text-white"
-                }`}
+                variant={isScrolled ? "header-scrolled" : "header"}
               >
                 À propos
-              </a>
-              <a 
+              </CustomLink>
+              <CustomLink 
                 href="#how-it-works" 
-                className={`font-satoshi font-bold text-[16px] transition-colors duration-200 ${
-                  isScrolled ? "text-slate-700 hover:text-slate-900" : "text-white/80 hover:text-white"
-                }`}
+                variant={isScrolled ? "header-scrolled" : "header"}
               >
                 Comment ça marche
-              </a>
-              <a 
+              </CustomLink>
+              <CustomLink 
                 href="#features" 
-                className={`font-satoshi font-bold text-[16px] transition-colors duration-200 ${
-                  isScrolled ? "text-slate-700 hover:text-slate-900" : "text-white/80 hover:text-white"
-                }`}
+                variant={isScrolled ? "header-scrolled" : "header"}
               >
                 Fonctionnalités
-              </a>
-              <a 
+              </CustomLink>
+              <CustomLink 
                 href="#faq" 
-                className={`font-satoshi font-bold text-[16px] transition-colors duration-200 ${
-                  isScrolled ? "text-slate-700 hover:text-slate-900" : "text-white/80 hover:text-white"
-                }`}
+                variant={isScrolled ? "header-scrolled" : "header"}
               >
                 FAQ
-              </a>
+              </CustomLink>
             </nav>
 
             {/* Right Action Buttons */}
             <div className="flex items-center gap-3 sm:gap-4">
               {/* Sign In / Sign Up Link */}
-              <Link
-                href="/signup"
-                className={`hidden sm:inline-block font-satoshi font-bold text-[16px] transition-colors duration-200 ${
-                  isScrolled ? "text-slate-700 hover:text-slate-900" : "text-white/80 hover:text-white"
-                }`}
-              >
-                Se connecter
-              </Link>
+              <span className="hidden md:inline-flex">
+                <Button
+                  href="#download-ios"
+                  variant="secondary"
+                  className="py-2 px-3 sm:px-4 border-none"
+                >
+                  Télécharger l'app
+                </Button>
+              </span>
 
               {/* Download Button */}
               <Button 
-                href="#download-ios" 
+                href="/signup" 
                 variant="primary" 
                 className="py-2 px-3 sm:px-4"
               >
-                <span className="hidden sm:inline">Télécharger l'app</span>
-                <span className="sm:hidden">Télécharger</span>
+                <span className="hidden sm:inline">Se connecter / S'inscrire</span>
+                <span className="sm:hidden">Se connecter</span>
               </Button>
             </div>
           </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Link from "next/link";
+import CustomLink from "./ui/link";
 import { useSearchParams } from "next/navigation";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -540,13 +540,13 @@ export default function CityPageContent({ cityName, hikes }: Props) {
           <div className="p-4 sm:p-5 lg:p-6 pb-3 border-b border-brand-dark/5 flex-shrink-0">
             {/* Breadcrumb Navigation */}
             <nav className="mb-3.5 text-[10px] text-brand-dark/40 flex items-center gap-1.5" aria-label="Fil d'Ariane">
-              <Link href="/" className="hover:text-brand-orange transition">
+              <CustomLink href="/" className="hover:text-brand-orange transition">
                 Accueil
-              </Link>
+              </CustomLink>
               <span className="text-brand-dark/20">/</span>
-              <Link href="/randos-sans-voiture" className="hover:text-brand-orange transition">
+              <CustomLink href="/randos-sans-voiture" className="hover:text-brand-orange transition">
                 Randos sans voiture
-              </Link>
+              </CustomLink>
               <span className="text-brand-dark/20">/</span>
               <span className="text-brand-dark/80 font-bold">Départs de {cityName}</span>
             </nav>

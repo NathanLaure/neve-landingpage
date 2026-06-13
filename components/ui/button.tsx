@@ -22,11 +22,11 @@ export default function Button({
   target,
   rel,
 }: ButtonProps) {
-  const baseStyles = "inline-flex items-center justify-center font-bold px-6 py-3 rounded-xl transition duration-150 text-[16px] whitespace-nowrap cursor-pointer";
+  const baseStyles = "inline-flex items-center justify-center font-bold px-6 py-3 rounded-3xl [corner-shape:squircle] transition duration-150 text-[14px] whitespace-nowrap cursor-pointer";
   
   const variantStyles = {
     primary: "bg-[#eb490b] text-white hover:bg-[#ff5a1a] border-2 border-[#0f172b] hover:translate-y-[-1px] active:translate-y-[0px] hover:shadow-[4px_4px_0px_0px_#0f172a] active:translate-y-[0px] active:shadow-[2px_2px_0px_0px_#0f172a]",
-    secondary: "bg-white text-[#0f172b] hover:bg-slate-50 border-2 border-[#0f172b] hover:translate-y-[-1px] active:translate-y-[0px] hover:shadow-[4px_4px_0px_0px_#0f172a] active:translate-y-[0px] active:shadow-[2px_2px_0px_0px_#0f172a]",
+    secondary: "bg-[#fff6ed] text-[#0f172b] hover:bg-slate-50 hover:translate-y-[-1px] active:translate-y-[0px] hover:shadow-[4px_4px_0px_0px_#0f172a] active:translate-y-[0px] active:shadow-[2px_2px_0px_0px_#0f172a]",
   };
 
   const combinedClassName = `${baseStyles} ${variantStyles[variant]} ${className}`;

@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
 import Logo from "./logo";
 import Button from "./button";
+import CustomLink from "./link";
 import { useState } from "react";
 
 export default function Footer({ border = false }: { border?: boolean }) {
@@ -59,7 +59,7 @@ export default function Footer({ border = false }: { border?: boolean }) {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Entrez votre email"
-                    className="flex-1 px-4 py-3 rounded-xl bg-white border-2 border-[#0f172b] text-[#292929] placeholder-slate-400 text-sm focus:outline-none focus:border-[#eb490b] transition duration-150"
+                    className="flex-1 px-4 py-3 rounded-3xl [corner-shape:squircle] bg-white border-2 border-[#0f172b] text-[#292929] placeholder-slate-400 text-sm focus:outline-none focus:border-[#eb490b] transition duration-150"
                   />
                   <Button
                     type="submit"
@@ -124,29 +124,29 @@ export default function Footer({ border = false }: { border?: boolean }) {
               </h4>
               <ul className="space-y-2 text-[12px] font-semibold font-bricolage tracking-[-0.4px]" style={{ fontVariationSettings: "'opsz' 14, 'wdth' 100" }}>
                 <li>
-                  <Link className="text-slate-500 hover:text-slate-900 transition" href="/#hike-explorer">
+                  <CustomLink variant="footer" href="/#hike-explorer">
                     Itinéraires
-                  </Link>
+                  </CustomLink>
                 </li>
                 <li>
-                  <Link className="text-slate-500 hover:text-slate-900 transition" href="/#hike-explorer">
+                  <CustomLink variant="footer" href="/#hike-explorer">
                     Planificateur TER
-                  </Link>
+                  </CustomLink>
                 </li>
                 <li>
-                  <Link className="text-slate-500 hover:text-slate-900 transition" href="/#features">
+                  <CustomLink variant="footer" href="/#features">
                     Fonctionnalités
-                  </Link>
+                  </CustomLink>
                 </li>
                 <li>
-                  <Link className="text-slate-500 hover:text-slate-900 transition" href="/randos-sans-voiture">
+                  <CustomLink variant="footer" href="/randos-sans-voiture">
                     Randonnées
-                  </Link>
+                  </CustomLink>
                 </li>
                 <li>
-                  <Link className="text-slate-500 hover:text-slate-900 transition" href="/randos-sans-voiture">
+                  <CustomLink variant="footer" href="/randos-sans-voiture">
                     Gares de départ
-                  </Link>
+                  </CustomLink>
                 </li>
               </ul>
             </div>
@@ -161,24 +161,24 @@ export default function Footer({ border = false }: { border?: boolean }) {
               </h4>
               <ul className="space-y-2 text-[12px] font-semibold font-bricolage tracking-[-0.4px]" style={{ fontVariationSettings: "'opsz' 14, 'wdth' 100" }}>
                 <li>
-                  <Link className="text-slate-500 hover:text-slate-900 transition" href="https://www.trainline.fr" target="_blank">
+                  <CustomLink variant="footer" href="https://www.trainline.fr" target="_blank">
                     Trainline API
-                  </Link>
+                  </CustomLink>
                 </li>
                 <li>
-                  <Link className="text-slate-500 hover:text-slate-900 transition" href="#0">
+                  <CustomLink variant="footer" href="#0">
                     Régions TER
-                  </Link>
+                  </CustomLink>
                 </li>
                 <li>
-                  <Link className="text-slate-500 hover:text-slate-900 transition" href="#0">
+                  <CustomLink variant="footer" href="#0">
                     SNCF Connect
-                  </Link>
+                  </CustomLink>
                 </li>
                 <li>
-                  <Link className="text-slate-500 hover:text-slate-900 transition" href="#0">
+                  <CustomLink variant="footer" href="#0">
                     Offices de Tourisme
-                  </Link>
+                  </CustomLink>
                 </li>
               </ul>
             </div>
@@ -193,29 +193,29 @@ export default function Footer({ border = false }: { border?: boolean }) {
               </h4>
               <ul className="space-y-2 text-[12px] font-semibold font-bricolage tracking-[-0.4px]" style={{ fontVariationSettings: "'opsz' 14, 'wdth' 100" }}>
                 <li>
-                  <Link className="text-slate-500 hover:text-slate-900 transition" href="#about">
+                  <CustomLink variant="footer" href="#about">
                     À propos
-                  </Link>
+                  </CustomLink>
                 </li>
                 <li>
-                  <Link className="text-slate-500 hover:text-slate-900 transition" href="#0">
+                  <CustomLink variant="footer" href="#0">
                     Recrutement
-                  </Link>
+                  </CustomLink>
                 </li>
                 <li>
-                  <Link className="text-slate-500 hover:text-slate-900 transition" href="#0">
+                  <CustomLink variant="footer" href="#0">
                     Presse
-                  </Link>
+                  </CustomLink>
                 </li>
                 <li>
-                  <Link className="text-slate-500 hover:text-slate-900 transition" href="/privacy">
+                  <CustomLink variant="footer" href="/privacy">
                     Politique
-                  </Link>
+                  </CustomLink>
                 </li>
                 <li>
-                  <Link className="text-slate-500 hover:text-slate-900 transition" href="/terms">
+                  <CustomLink variant="footer" href="/terms">
                     CGU
-                  </Link>
+                  </CustomLink>
                 </li>
               </ul>
             </div>
@@ -230,24 +230,24 @@ export default function Footer({ border = false }: { border?: boolean }) {
               </h4>
               <ul className="space-y-2 text-[12px] font-semibold font-bricolage tracking-[-0.4px]" style={{ fontVariationSettings: "'opsz' 14, 'wdth' 100" }}>
                 <li>
-                  <Link className="text-slate-500 hover:text-slate-900 transition" href="#0">
+                  <CustomLink variant="footer" href="#0">
                     Guides pratiques
-                  </Link>
+                  </CustomLink>
                 </li>
                 <li>
-                  <Link className="text-slate-500 hover:text-slate-900 transition" href="#0">
+                  <CustomLink variant="footer" href="#0">
                     Support & Contact
-                  </Link>
+                  </CustomLink>
                 </li>
                 <li>
-                  <Link className="text-slate-500 hover:text-slate-900 transition" href="#0">
+                  <CustomLink variant="footer" href="#0">
                     Outil de tracé GPX
-                  </Link>
+                  </CustomLink>
                 </li>
                 <li>
-                  <Link className="text-slate-500 hover:text-slate-900 transition" href="#0">
+                  <CustomLink variant="footer" href="#0">
                     Live Tracking
-                  </Link>
+                  </CustomLink>
                 </li>
               </ul>
             </div>
@@ -283,17 +283,6 @@ export default function Footer({ border = false }: { border?: boolean }) {
                   <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.779-1.75-1.75s.784-1.75 1.75-1.75 1.75.779 1.75 1.75-.784 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
                 </svg>
                 <span className="font-semibold text-xs text-slate-500 group-hover:text-[#0077b5] transition-colors duration-300 font-satoshi">LinkedIn</span>
-              </a>
-              <a 
-                href="https://www.strava.com/clubs/neve" 
-                target="_blank"
-                className="group flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border-2 border-[#0f172b] text-slate-500 hover:text-[#fc6100] hover:border-[#fc6100] transition-all duration-300 shadow-[2px_2px_0px_0px_rgba(15,23,42,0.06)] hover:translate-y-[-2px] hover:shadow-[3px_3px_0px_0px_rgba(252,97,0,0.2)]" 
-                aria-label="Strava Club"
-              >
-                <svg className="w-4 h-4 fill-current transition-colors duration-300" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M15.387 17.944L13.298 13.83h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.608h4.172L10.463 0l-7.313 13.837h4.172" />
-                </svg>
-                <span className="font-semibold text-xs text-slate-500 group-hover:text-[#fc6100] transition-colors duration-300 font-satoshi">Strava Club</span>
               </a>
             </div>
           </div>

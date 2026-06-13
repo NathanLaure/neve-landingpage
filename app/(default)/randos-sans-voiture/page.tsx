@@ -1,4 +1,4 @@
-import Link from "next/link";
+import CustomLink from "@/components/ui/link";
 
 export const metadata = {
   title: "Randonnées sans voiture au départ de votre métropole - Névé",
@@ -80,7 +80,7 @@ export default function HubPage() {
       <div className="mx-auto max-w-6xl px-6 sm:px-10 md:px-16 mb-24">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {CITIES.map((city) => (
-            <Link
+            <CustomLink
               key={city.slug}
               href={`/randos-sans-voiture/${city.slug}`}
               className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-gray-150 bg-white p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition duration-300 ease-in-out min-h-[260px] cursor-pointer"
@@ -122,7 +122,7 @@ export default function HubPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                 </svg>
               </div>
-            </Link>
+            </CustomLink>
           ))}
         </div>
       </div>

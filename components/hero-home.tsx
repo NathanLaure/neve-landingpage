@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Avatar01 from "@/public/images/avatar-01.jpg";
@@ -190,6 +191,34 @@ export default function HeroHome() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const backgroundRef = useRef<HTMLDivElement>(null);
 
+  const [mounted, setMounted] = useState(false);
+  const [coords, setCoords] = useState({ top: 0, left: 0, width: 0 });
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const updateCoords = () => {
+    if (dropdownRef.current) {
+      const rect = dropdownRef.current.getBoundingClientRect();
+      setCoords({
+        top: rect.bottom + window.pageYOffset,
+        left: rect.left + window.pageXOffset,
+        width: rect.width,
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (isDropdownOpen) {
+      updateCoords();
+      window.addEventListener("resize", updateCoords);
+    }
+    return () => {
+      window.removeEventListener("resize", updateCoords);
+    };
+  }, [isDropdownOpen]);
+
   useEffect(() => {
     let ticking = false;
     const handleScroll = () => {
@@ -273,6 +302,9 @@ export default function HeroHome() {
       </div>
       {/* Semi-translucent overlay to ensure text contrast and match the warm crème theme */}
       <div className="absolute inset-0 bg-black/5 pointer-events-none" />
+      
+      {/* Mobile-only top scrim gradient to guarantee header link contrast on light images */}
+      <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/40 to-transparent pointer-events-none md:hidden z-0" />
 
 
       <div className="mx-auto max-w-[1400px] px-6 sm:px-10 md:px-16 relative z-10 w-full mb-16">
@@ -395,9 +427,16 @@ export default function HeroHome() {
                   )}
                 </form>
 
-                {/* Autocomplete Dropdown */}
-                {isDropdownOpen && (
-                  <div className="absolute left-0 right-0 mt-2 bg-brand-light rounded-2xl border border-slate-900 shadow-2xl overflow-hidden z-50 max-h-72 overflow-y-auto no-scrollbar">
+                {/* Autocomplete Dropdown (Teleported to document.body to avoid clipping on mobile) */}
+                {isDropdownOpen && mounted && createPortal(
+                  <div 
+                    className="absolute bg-brand-light rounded-2xl border border-slate-900 shadow-2xl overflow-hidden z-[9999] max-h-72 overflow-y-auto no-scrollbar"
+                    style={{
+                      top: `${coords.top + 8}px`,
+                      left: `${coords.left}px`,
+                      width: `${coords.width}px`,
+                    }}
+                  >
                     {(() => {
                       const filtered = PLACES.filter((place) =>
                         place.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -470,7 +509,8 @@ export default function HeroHome() {
                         </div>
                       );
                     })()}
-                  </div>
+                  </div>,
+                  document.body
                 )}
               </div>
             </div>

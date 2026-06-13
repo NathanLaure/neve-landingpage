@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Accordion from "@/components/accordion";
+import Link from "@/components/ui/link";
 
 const faqData = [
   {
@@ -22,7 +23,7 @@ const faqData = [
   {
     id: "faq-4",
     question: "L'application de randonnée Névé est-elle gratuite ? Comment vous financez-vous ?",
-    answer: "Névé est une application de randonnée sans voiture 100% gratuite, sans abonnement, sans achat intégré ni publicité. Notre modèle repose sur l'affiliation : lorsque vous réservez vos billets de train ou de bus via la redirection Trainline intégrée, nous percevons une commission partenaire de la part de Trainline. Cela ne change absolument rien au prix de votre billet, qui reste identique au tarif officiel de la SNCF.",
+    answer: "Névé est une application de randonnée sans voiture 100% gratuite. Nous proposons un abonement vous permettant de débloquer des fonctionnalitées supplémentaires pour aller encore plus loin dans vos aventures. Cet abonement est sans engagement et résiliable à tout moment. Retrouvez plus d'informations sur notre page tarifs.",
   },
   {
     id: "faq-5",
@@ -111,7 +112,7 @@ export default function Faq() {
               </svg>
             </div>
             <span className="font-satoshi text-[18px] font-medium text-[#525252]">
-              Encore des questions ? <a href="mailto:hello@neve-app.com" className="text-[#eb490b] hover:underline font-semibold">Envoyez-nous un message</a>.
+              Encore des questions ? <Link href="mailto:hello@neve-app.com" variant="arrow">Envoyez-nous un message</Link>
             </span>
           </div>
         </div>
@@ -174,7 +175,7 @@ export default function Faq() {
                   </svg>
                 </div>
                 <span className="font-satoshi text-[18px] font-medium text-[#525252]">
-                  Encore des questions ? <a href="mailto:hello@neve-app.com" className="text-[#eb490b] hover:underline font-semibold">Envoyez-nous un message</a>.
+                  Encore des questions ? <Link href="mailto:hello@neve-app.com" variant="arrow">Envoyez-nous un message</Link>
                 </span>
               </div>
             </div>

@@ -3,7 +3,7 @@ export const metadata = {
   description: "Page description",
 };
 
-import Link from "next/link";
+import CustomLink from "@/components/ui/link";
 
 export default function SignIn() {
   return (
@@ -55,12 +55,12 @@ export default function SignIn() {
         </form>
         {/* Bottom link */}
         <div className="mt-6 text-center">
-          <Link
+          <CustomLink
             className="text-sm text-gray-700 underline hover:no-underline"
             href="/reset-password"
           >
             Forgot password
-          </Link>
+          </CustomLink>
         </div>
       </>
     </>

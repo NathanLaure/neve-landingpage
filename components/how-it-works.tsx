@@ -115,16 +115,6 @@ export default function HowItWorks() {
               
               {/* Left Column: Interactive step list */}
               <div className="md:col-span-7 flex flex-col gap-8 md:gap-10 relative">
-                
-                {/* Vertical line connector (Desktop only) */}
-                <div className="absolute left-[39px] top-8 bottom-8 w-[2px] bg-slate-200/80 pointer-events-none hidden md:block z-0">
-                  <div 
-                    className="w-full bg-slate-900 transition-all duration-500 ease-out origin-top rounded-full" 
-                    style={{ 
-                      height: `${(activeStep / (steps.length - 1)) * 100}%` 
-                    }}
-                  />
-                </div>
 
                 {steps.map((step, index) => {
                   const isActive = activeStep === index;
@@ -142,7 +132,7 @@ export default function HowItWorks() {
                       {/* Number block with local line segment overlays */}
                       <div className="w-[80px] flex justify-center flex-shrink-0 select-none relative">
                         <div
-                          className={`font-serif text-[48px] tracking-[4px] leading-[50px] transition-colors duration-500 ${
+                          className={` text-[48px] tracking-[4px] leading-[50px] transition-colors duration-500 ${
                             isActive 
                               ? "text-[#eb490b] font-bold" 
                               : "text-[#eb490b]/40 font-normal group-hover:text-[#eb490b]/60"
@@ -150,25 +140,24 @@ export default function HowItWorks() {
                         >
                           {step.number}
                         </div>
+                      </div>
 
-                        {/* Local line segment specifically under the number block */}
-                        {index < steps.length - 1 && (
-                          <div className="absolute top-[55px] bottom-[-40px] left-[39px] w-[2px] hidden md:block">
-                            {/* Muted track */}
-                            <div className="absolute inset-0 bg-slate-200/80 rounded-full" />
-                            {/* Active filled overlay */}
-                            <div 
-                              className={`absolute top-0 left-0 w-full bg-slate-900 rounded-full transition-all duration-500 ease-out origin-top ${
-                                activeStep > index 
-                                  ? "scale-y-100" 
-                                  : isActive 
-                                    ? "scale-y-50" 
-                                    : "scale-y-0"
-                              }`}
-                            />
-                          </div>
-                        )}
-
+                      {/* Local line segment on the right side of the numbers block (relative to row) */}
+                      <div className={`absolute top-2 w-[2px] hidden md:block z-0 ${
+                        index < steps.length - 1 
+                          ? "bottom-[-32px] md:bottom-[-40px]" 
+                          : "bottom-2"
+                      } left-[80px]`}>
+                        {/* Muted track */}
+                        <div className="absolute inset-0 bg-slate-200/80 rounded-full" />
+                        {/* Active filled overlay */}
+                        <div 
+                          className={`absolute inset-0 bg-slate-900 rounded-full transition-all duration-500 ease-out origin-top ${
+                            activeStep >= index 
+                              ? "scale-y-100" 
+                              : "scale-y-0"
+                          }`}
+                        />
                       </div>
 
                       {/* Step Texts */}

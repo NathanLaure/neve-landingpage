@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import CustomLink from "@/components/ui/link";
 
 export default function Cta() {
   return (
@@ -50,13 +51,13 @@ export default function Cta() {
               </div>
               
               {/* Text Link */}
-              <a
+              <CustomLink
                 href="#signup"
-                className="flex items-center gap-1.5 font-inter font-medium text-lg text-brand-orange hover:underline py-2"
+                variant="underline"
+                className="text-lg py-2"
               >
-                <span>Créer un compte gratuitement</span>
-                <span>→</span>
-              </a>
+                Créer un compte gratuitement
+              </CustomLink>
             </div>
           </div>
 
