@@ -371,7 +371,7 @@ export default function HeroHome() {
                   />
                 </div>
                 <div className="text-xs text-brand-light/80 font-bold tracking-wider">
-                  Recommandé par <span className="text-brand-orange font-bold">10 000+</span> randonneurs sans voiture
+                  Recommandé par <span className="text-brand-orange font-bold">1000+</span> randonneurs sans voiture
                 </div>
               </div>
             </div>
