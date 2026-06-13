@@ -52,7 +52,7 @@ export default function Cta() {
               
               {/* Text Link */}
               <CustomLink
-                href="#signup"
+                href="/signup"
                 variant="underline"
                 className="text-lg py-2"
               >

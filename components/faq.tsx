@@ -112,7 +112,7 @@ export default function Faq() {
               </svg>
             </div>
             <span className="font-satoshi text-[18px] font-medium text-[#525252]">
-              Encore des questions ? <Link href="mailto:info@neve-rando.fr" variant="arrow">Envoyez-nous un message</Link>
+              Encore des questions ? <Link href="mailto:info@neve-rando.fr?subject=Une%20question%20sur%20N%C3%A9v%C3%A9%20%F0%9F%8C%B2&body=Bonjour%20l%27%C3%A9quipe%20N%C3%A9v%C3%A9%2C%0A%0AJe%20vous%20contacte%20au%20sujet%20de..." variant="arrow">Envoyez-nous un message</Link>
             </span>
           </div>
         </div>
@@ -175,7 +175,7 @@ export default function Faq() {
                   </svg>
                 </div>
                 <span className="font-satoshi text-[18px] font-medium text-[#525252]">
-                  Encore des questions ? <Link href="mailto:info@neve-rando.fr" variant="arrow">Envoyez-nous un message</Link>
+                  Encore des questions ? <Link href="mailto:info@neve-rando.fr?subject=Une%20question%20sur%20N%C3%A9v%C3%A9%20%F0%9F%8C%B2&body=Bonjour%20l%27%C3%A9quipe%20N%C3%A9v%C3%A9%2C%0A%0AJe%20vous%20contacte%20au%20sujet%20de..." variant="arrow">Envoyez-nous un message</Link>
                 </span>
               </div>
             </div>

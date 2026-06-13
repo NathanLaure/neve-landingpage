@@ -20,7 +20,7 @@ export default function SplitFeatures() {
               </p>
               
               <div className="flex flex-wrap items-center gap-4">
-                <Button href="#download-ios">
+                <Button href="/signup">
                   Inscrivez-vous gratuitement
                 </Button>
               </div>
@@ -127,7 +127,7 @@ export default function SplitFeatures() {
               </p>
               
               <div className="flex flex-wrap items-center gap-4">
-                <Button href="#download-ios">
+                <Button href="/signup">
                   Inscrivez-vous gratuitement
                 </Button>
               </div>
@@ -152,7 +152,7 @@ export default function SplitFeatures() {
               </p>
               
               <div className="flex flex-wrap items-center gap-4">
-                <Button href="#download-ios">
+                <Button href="/signup">
                   Inscrivez-vous gratuitement
                 </Button>
               </div>

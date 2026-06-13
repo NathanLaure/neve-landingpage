@@ -114,7 +114,7 @@ export default function PromoSection() {
               
               {/* Text Link */}
               <CustomLink
-                href="#signup"
+                href="/signup"
                 variant="underline"
                 className="text-lg py-2"
               >
