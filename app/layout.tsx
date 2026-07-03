@@ -1,6 +1,7 @@
 import "./css/style.css";
 
 import { Inter, Bricolage_Grotesque } from "next/font/google";
+import Script from "next/script";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -36,6 +37,19 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${bricolage.variable} bg-gray-50 font-bricolage tracking-tight text-gray-900 antialiased`}
       >
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-04VG4TQB49"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-04VG4TQB49');
+          `}
+        </Script>
         <div className="flex min-h-screen flex-col overflow-x-clip">
           {children}
         </div>
@@ -43,3 +57,4 @@ export default function RootLayout({
     </html>
   );
 }
+
