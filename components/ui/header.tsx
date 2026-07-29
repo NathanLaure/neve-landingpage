@@ -65,7 +65,7 @@ export default function Header() {
                 href="#how-it-works" 
                 variant={isScrolled ? "header-scrolled" : "header"}
               >
-                Comment ça marche
+                Comment ça marche ?
               </CustomLink>
               <CustomLink 
                 href="#features" 
