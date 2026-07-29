@@ -48,7 +48,7 @@ export default function Header() {
         >
           {/* Logo */}
           <div className="flex items-center">
-            <Logo light={!isScrolled} />
+            <Logo light={!isScrolled} iconClassName="h-8 w-8 sm:h-9 sm:w-9" typoClassName="h-6 sm:h-7" />
           </div>
 
           {/* Right Group: Nav Links + Action Buttons */}
