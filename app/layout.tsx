@@ -24,9 +24,8 @@ export const metadata = {
   description: "L'application mobile pour s'évader en randonnée sans voiture et l'esprit tranquille.",
   icons: {
     icon: [
-      { url: "/icon-light.svg", media: "(prefers-color-scheme: light)", type: "image/svg+xml" },
       { url: "/icon-dark.svg", media: "(prefers-color-scheme: dark)", type: "image/svg+xml" },
-      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon-light.svg", media: "(prefers-color-scheme: light)", type: "image/svg+xml" },
     ],
     apple: [
       { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
@@ -44,6 +43,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr" className="scroll-smooth">
+      <head>
+        <link rel="icon" href="/icon-dark.svg" media="(prefers-color-scheme: dark)" type="image/svg+xml" />
+        <link rel="icon" href="/icon-light.svg" media="(prefers-color-scheme: light)" type="image/svg+xml" />
+      </head>
       <body
         className={`${inter.variable} ${bricolage.variable} bg-gray-50 font-bricolage tracking-tight text-gray-900 antialiased`}
       >
