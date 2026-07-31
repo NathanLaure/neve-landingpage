@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/api/", "/reset-password", "/signin", "/signup"],
+      disallow: ["/api/", "/auth/", "/reset-password", "/signin", "/signup"],
     },
     sitemap: "https://neve-rando.fr/sitemap.xml",
   };

@@ -115,11 +115,11 @@ function ConfirmedContent() {
     };
   }, []);
 
-  // 3. Optional soft auto-redirection to deep link on mobile after 2s on success
+  // 3. Optional soft auto-redirection to deep link on mobile after 5s on success
   useEffect(() => {
     if (status !== "success" || !isMobile) return;
 
-    setCountdown(2);
+    setCountdown(5);
     const interval = setInterval(() => {
       setCountdown((prev) => {
         if (prev === null || prev <= 1) {
@@ -148,7 +148,7 @@ function ConfirmedContent() {
                 Validation de votre e-mail...
               </h1>
               <p className="text-base text-gray-500">
-                Nous vérifions votre compte Supabase, veuillez patienter un instant.
+                Nous vérifions votre compte, veuillez patienter un instant.
               </p>
             </div>
           </div>
