@@ -1,45 +1,37 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import CustomLink from "./ui/link";
 import { useSearchParams } from "next/navigation";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
+import Supercluster from "supercluster";
 import EscapeCity from "@/components/escape-city";
+import HikeDetailPanel from "@/components/hike-detail-panel";
+import type { HikeDifficulty, HikeSummary } from "@/types/hike";
+import { formatDifficultyColor, formatDifficultyLabel, formatDistance, formatDuration, formatElevation } from "@/lib/format-hike";
 
 // Set Mapbox access token
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || "";
 
-export type Hike = {
-  name: string;
-  distance: string;
-  duration: string;
-  difficulty: "Facile" | "Moyen" | "Difficile";
-  transit: string;
-  description: string;
-  scenery: string;
-  elevation: string;
-  svgPath: string;
-  co2Saved: string;
-  destinationStation: string;
-  lat: number;
-  lng: number;
-};
-
 type Props = {
-  cityName: string;
-  hikes: Hike[];
-};
-
-// Map scenery to beautiful Unsplash images for outdoor aesthetics
-const SCENERY_IMAGES: Record<string, string> = {
-  Forêt: "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=600&q=80", // beautiful dense sunlit pine forest
-  Lac: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=600&q=80", // mountain lake reflection
-  Mer: "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?auto=format&fit=crop&w=600&q=80", // calanques/sea view
-  Sommet: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=600&q=80", // high peak mountains
+  /** Optional place name when arriving centered on a location (e.g. from a city page's "Voir sur la carte" link). */
+  areaName?: string;
+  hikes: HikeSummary[];
+  fetchError?: string | null;
+  /** Map center used before bounds auto-fit to the markers (or when there are no hikes at all). */
+  centerLat: number;
+  centerLng: number;
 };
 
 const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1501555088652-021faa106b9b?auto=format&fit=crop&w=600&q=80";
+
+const DIFFICULTY_OPTIONS: (HikeDifficulty | "All")[] = ["All", "facile", "modere", "difficile", "expert"];
+
+// Beyond this zoom, supercluster stops grouping pins and returns individual points.
+const CLUSTER_MAX_ZOOM = 13;
+
+type HikePointProps = { hikeId: string };
 
 const MAP_STYLES = [
   { id: "outdoors", label: "Par défaut", url: "mapbox://styles/mapbox/outdoors-v12", img: "https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=120&h=120&q=80" },
@@ -48,13 +40,13 @@ const MAP_STYLES = [
   { id: "dark", label: "Sombre", url: "mapbox://styles/mapbox/dark-v11", img: "https://images.unsplash.com/photo-1506318137071-a8e063b4bec0?auto=format&fit=crop&w=120&h=120&q=80" },
 ];
 
-export default function CityPageContent({ cityName, hikes }: Props) {
+export default function ExplorerMapView({ areaName, hikes, fetchError = null, centerLat, centerLng }: Props) {
   const searchParams = useSearchParams();
   const hikeQuery = searchParams.get("hike");
 
-  const [selectedDifficulty, setSelectedDifficulty] = useState<string>("All");
-  const [selectedScenery, setSelectedScenery] = useState<string>("All");
-  const [activeHikeName, setActiveHikeName] = useState<string | null>(null);
+  const [selectedDifficulty, setSelectedDifficulty] = useState<HikeDifficulty | "All">("All");
+  const [activeHikeId, setActiveHikeId] = useState<string | null>(null);
+  const [detailHikeId, setDetailHikeId] = useState<string | null>(null);
   const [showMapMobile, setShowMapMobile] = useState<boolean>(false);
   const [isListCollapsed, setIsListCollapsed] = useState<boolean>(false);
   const [favorites, setFavorites] = useState<Record<string, boolean>>({});
@@ -65,26 +57,30 @@ export default function CityPageContent({ cityName, hikes }: Props) {
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<{ [key: string]: mapboxgl.Marker }>({});
   const styleDropdownRef = useRef<HTMLDivElement>(null);
+  const superclusterRef = useRef<Supercluster<HikePointProps> | null>(null);
+  const hikesByIdRef = useRef<Map<string, HikeSummary>>(new Map());
+  // Set when a hike is still inside a cluster: renderMarkers() opens its popup
+  // once the deep-enough flyTo breaks it out into an individual pin.
+  const pendingPopupHikeIdRef = useRef<string | null>(null);
 
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
   // Filtering Logic
   const filteredHikes = hikes.filter((hike) => {
-    const diffMatch = selectedDifficulty === "All" || hike.difficulty === selectedDifficulty;
-    const scenMatch = selectedScenery === "All" || hike.scenery === selectedScenery;
-    return diffMatch && scenMatch;
+    return selectedDifficulty === "All" || hike.difficulty === selectedDifficulty;
   });
+
+  const detailHike = detailHikeId ? hikes.find((h) => h.id === detailHikeId) : undefined;
 
   // Handle scroll and initial active hike from search params
   useEffect(() => {
     if (hikeQuery) {
-      const decodedHike = decodeURIComponent(hikeQuery);
-      const matched = hikes.find(h => h.name.toLowerCase() === decodedHike.toLowerCase());
+      const matched = hikes.find((h) => h.id === hikeQuery);
       if (matched) {
-        setActiveHikeName(matched.name);
+        setActiveHikeId(matched.id);
         setIsListCollapsed(false); // Make sure it's expanded to see it
         setTimeout(() => {
-          const element = document.getElementById(`hike-${matched.name.replace(/\s+/g, "-")}`);
+          const element = document.getElementById(`hike-${matched.id}`);
           if (element) {
             element.scrollIntoView({ behavior: "smooth", block: "center" });
           }
@@ -94,21 +90,129 @@ export default function CityPageContent({ cityName, hikes }: Props) {
   }, [hikeQuery, hikes]);
 
   // Toggle Favorite Handler
-  const toggleFavorite = (hikeName: string) => {
+  const toggleFavorite = (hikeId: string) => {
     setFavorites(prev => ({
       ...prev,
-      [hikeName]: !prev[hikeName]
+      [hikeId]: !prev[hikeId]
     }));
   };
+
+  // Renders whatever the supercluster index says belongs in the current viewport:
+  // cluster badges (grouped pins) or individual hike pins. Called on every
+  // "moveend" (pan/zoom) and whenever the hikes list / difficulty filter changes.
+  // Stable identity (empty deps) — everything it needs comes from refs, so it's
+  // safe to use directly as a mapbox event listener without going stale.
+  const renderMarkers = useCallback(() => {
+    const map = mapRef.current;
+    const index = superclusterRef.current;
+    if (!map || !index) return;
+
+    Object.values(markersRef.current).forEach((marker) => marker.remove());
+    markersRef.current = {};
+
+    const bounds = map.getBounds();
+    if (!bounds) return;
+    const bbox: [number, number, number, number] = [
+      bounds.getWest(),
+      bounds.getSouth(),
+      bounds.getEast(),
+      bounds.getNorth(),
+    ];
+    const zoom = Math.round(map.getZoom());
+
+    index.getClusters(bbox, zoom).forEach((feature) => {
+      const [lng, lat] = feature.geometry.coordinates;
+      const props = feature.properties;
+
+      if ("cluster" in props && props.cluster) {
+        const count = props.point_count as number;
+        const clusterId = props.cluster_id as number;
+        const size = count < 10 ? 38 : count < 50 ? 46 : count < 150 ? 54 : 62;
+
+        // Root element: mapbox owns its `transform` for positioning. All visual
+        // hover/scale styling goes on this `inner` child instead, so it never
+        // clobbers mapbox's translate() and makes the pin "disappear".
+        const el = document.createElement("div");
+        el.className = "cursor-pointer";
+        const inner = document.createElement("div");
+        inner.style.width = `${size}px`;
+        inner.style.height = `${size}px`;
+        inner.style.fontSize = count < 100 ? "13px" : "12px";
+        inner.className =
+          "flex items-center justify-center rounded-full bg-brand-orange text-brand-light font-black shadow-lg border-2 border-brand-light transition-transform duration-150";
+        inner.textContent = count > 999 ? `${(count / 1000).toFixed(1)}k` : String(count);
+        el.appendChild(inner);
+
+        el.addEventListener("mouseenter", () => { inner.style.transform = "scale(1.1)"; });
+        el.addEventListener("mouseleave", () => { inner.style.transform = "scale(1)"; });
+        el.addEventListener("click", () => {
+          const expansionZoom = Math.min(index.getClusterExpansionZoom(clusterId), CLUSTER_MAX_ZOOM + 2);
+          map.flyTo({ center: [lng, lat], zoom: expansionZoom, duration: 500 });
+        });
+
+        const marker = new mapboxgl.Marker({ element: el }).setLngLat([lng, lat]).addTo(map);
+        markersRef.current[`cluster-${clusterId}`] = marker;
+        return;
+      }
+
+      const hike = hikesByIdRef.current.get((props as HikePointProps).hikeId);
+      if (!hike) return;
+
+      const el = document.createElement("div");
+      el.className = "cursor-pointer";
+      const inner = document.createElement("div");
+      inner.className =
+        "flex items-center justify-center w-9 h-9 bg-brand-light rounded-full border-2 border-brand-orange shadow-md transition-transform duration-150";
+      const emojiSpan = document.createElement("span");
+      emojiSpan.style.fontSize = "16px";
+      emojiSpan.innerText = "🥾";
+      inner.appendChild(emojiSpan);
+      el.appendChild(inner);
+
+      const popup = new mapboxgl.Popup({ offset: 15 }).setHTML(`
+        <div style="font-family: var(--font-bricolage, sans-serif); padding: 4px; max-width: 180px;">
+          <div style="font-weight: 800; font-size: 12px; margin-bottom: 2px; color: #0f172a;">${hike.title}</div>
+          <div style="font-size: 10px; color: #ff6b35; font-weight: 700; margin-bottom: 4px;">📐 ${formatDistance(hike.distance_km)} • ⏱️ ${formatDuration(hike.duration_minutes)}</div>
+          <div style="font-size: 9px; color: #475569; line-height: 1.3;">D+ : ${formatElevation(hike.elevation_gain_m)} • ${formatDifficultyLabel(hike.difficulty)}</div>
+        </div>
+      `);
+
+      const marker = new mapboxgl.Marker({ element: el }).setLngLat([lng, lat]).setPopup(popup).addTo(map);
+
+      el.addEventListener("mouseenter", () => {
+        inner.style.borderColor = "var(--color-brand-green)";
+        inner.style.transform = "scale(1.15)";
+      });
+      el.addEventListener("mouseleave", () => {
+        inner.style.borderColor = "var(--color-brand-orange)";
+        inner.style.transform = "scale(1)";
+      });
+      el.addEventListener("click", () => {
+        setActiveHikeId(hike.id);
+        setIsListCollapsed(false);
+        const cardElement = document.getElementById(`hike-${hike.id}`);
+        if (cardElement) {
+          cardElement.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      });
+
+      markersRef.current[hike.id] = marker;
+
+      if (pendingPopupHikeIdRef.current === hike.id) {
+        pendingPopupHikeIdRef.current = null;
+        marker.togglePopup();
+      }
+    });
+  }, []);
 
   // 1. Initialize Mapbox map with custom control integration
   useEffect(() => {
     if (!mapboxToken || !mapContainerRef.current) return;
 
-    const validHikes = hikes.filter(h => h.lat && h.lng);
-    const centerCoords: [number, number] = validHikes.length > 0 
-      ? [validHikes[0].lng, validHikes[0].lat] 
-      : [2.3522, 48.8566];
+    const validHikes = hikes.filter(h => h.start_lat && h.start_lng);
+    const centerCoords: [number, number] = validHikes.length > 0
+      ? [validHikes[0].start_lng, validHikes[0].start_lat]
+      : [centerLng, centerLat];
 
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
@@ -118,14 +222,16 @@ export default function CityPageContent({ cityName, hikes }: Props) {
     });
 
     mapRef.current = map;
-    
+    map.on("moveend", renderMarkers);
+
     // Add only ScaleControl to the bottom-right
     map.addControl(new mapboxgl.ScaleControl(), "bottom-right");
 
     return () => {
+      map.off("moveend", renderMarkers);
       map.remove();
     };
-  }, [mapboxToken]);
+  }, [mapboxToken, renderMarkers]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -165,10 +271,10 @@ export default function CityPageContent({ cityName, hikes }: Props) {
         if (map) {
           const el = document.createElement("div");
           el.className = "w-5 h-5 bg-brand-orange rounded-full border-2 border-brand-light shadow-md animate-ping absolute";
-          
+
           const core = document.createElement("div");
           core.className = "w-3 h-3 bg-brand-orange rounded-full border border-brand-light shadow-xs absolute top-1 left-1";
-          
+
           const container = document.createElement("div");
           container.className = "relative w-5 h-5";
           container.appendChild(el);
@@ -187,135 +293,91 @@ export default function CityPageContent({ cityName, hikes }: Props) {
     );
   };
 
-  // 2. Sync Map Markers when filteredHikes changes
+  // 2. Rebuild the cluster index when filteredHikes changes, fit bounds, and re-render.
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapboxToken) return;
 
-    // Clear old markers
-    Object.values(markersRef.current).forEach(marker => marker.remove());
-    markersRef.current = {};
+    hikesByIdRef.current = new Map(filteredHikes.map((h) => [h.id, h]));
 
-    const validHikes = filteredHikes.filter(h => h.lat && h.lng);
-    if (validHikes.length === 0) return;
+    const validHikes = filteredHikes.filter((h) => h.start_lat && h.start_lng);
+    const points = validHikes.map((hike) => ({
+      type: "Feature" as const,
+      properties: { hikeId: hike.id },
+      geometry: { type: "Point" as const, coordinates: [hike.start_lng, hike.start_lat] },
+    }));
+
+    const index = new Supercluster<HikePointProps>({ radius: 60, maxZoom: CLUSTER_MAX_ZOOM });
+    index.load(points);
+    superclusterRef.current = index;
+
+    if (validHikes.length === 0) {
+      renderMarkers();
+      return;
+    }
 
     const bounds = new mapboxgl.LngLatBounds();
+    validHikes.forEach((hike) => bounds.extend([hike.start_lng, hike.start_lat]));
 
-    validHikes.forEach(hike => {
-      // Create HTML element for custom marker
-      const el = document.createElement("div");
-      el.className = "flex items-center justify-center w-9 h-9 bg-brand-light rounded-full border-2 border-brand-orange shadow-md transition-transform duration-150 hover:scale-110 cursor-pointer";
-      
-      const emojiSpan = document.createElement("span");
-      emojiSpan.style.fontSize = "16px";
-      emojiSpan.innerText = hike.scenery === "Sommet" ? "🏔️" : hike.scenery === "Lac" || hike.scenery === "Mer" ? "🌊" : "🌲";
-      el.appendChild(emojiSpan);
-
-      // Create Mapbox popup
-      const popup = new mapboxgl.Popup({ offset: 15 }).setHTML(`
-        <div style="font-family: var(--font-bricolage, sans-serif); padding: 4px; max-width: 180px;">
-          <div style="font-weight: 800; font-size: 12px; margin-bottom: 2px; color: #0f172a;">${hike.name}</div>
-          <div style="font-size: 10px; color: #ff6b35; font-weight: 700; margin-bottom: 4px;">📐 ${hike.distance} • ⏱️ ${hike.duration}</div>
-          <div style="font-size: 9px; color: #475569; line-height: 1.3;">D+ : ${hike.elevation} • ${hike.difficulty}</div>
-        </div>
-      `);
-
-      // Create marker
-      const marker = new mapboxgl.Marker({ element: el })
-        .setLngLat([hike.lng, hike.lat])
-        .setPopup(popup)
-        .addTo(map);
-
-      // Interactive behaviors
-      el.addEventListener("mouseenter", () => {
-        el.style.borderColor = "var(--color-brand-green)";
-        el.style.transform = "scale(1.15)";
-      });
-      el.addEventListener("mouseleave", () => {
-        el.style.borderColor = "var(--color-brand-orange)";
-        el.style.transform = "scale(1)";
-      });
-      el.addEventListener("click", () => {
-        setActiveHikeName(hike.name);
-        setIsListCollapsed(false); // Expand if collapsed
-        // Scroll to card
-        const cardElement = document.getElementById(`hike-${hike.name.replace(/\s+/g, "-")}`);
-        if (cardElement) {
-          cardElement.scrollIntoView({ behavior: "smooth", block: "center" });
-        }
-      });
-
-      markersRef.current[hike.name] = marker;
-      bounds.extend([hike.lng, hike.lat]);
-    });
-
-    // Auto fit map bounds with padding
     map.fitBounds(bounds, {
       padding: { top: 60, bottom: 60, left: 60, right: 60 },
       maxZoom: 12,
       duration: 1000
     });
-  }, [filteredHikes, mapboxToken]);
+
+    // fitBounds triggers "moveend" (already wired to renderMarkers), but call it
+    // immediately too so pins/clusters show right away instead of after the animation.
+    renderMarkers();
+  }, [filteredHikes, mapboxToken, renderMarkers]);
 
   // 3. React to Active Hike changes (Fly to location & Open popup)
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !mapboxToken || !activeHikeName) return;
+    if (!map || !mapboxToken || !activeHikeId) return;
 
-    const activeHike = filteredHikes.find(h => h.name === activeHikeName);
-    if (activeHike) {
+    const activeHike = filteredHikes.find(h => h.id === activeHikeId);
+    if (!activeHike) return;
+
+    const existingMarker = markersRef.current[activeHike.id];
+    if (existingMarker) {
+      // Already an individual pin at the current zoom — just recenter and open its popup.
       map.flyTo({
-        center: [activeHike.lng, activeHike.lat],
-        zoom: 11.5,
+        center: [activeHike.start_lng, activeHike.start_lat],
+        zoom: Math.max(map.getZoom(), 11.5),
         essential: true,
         duration: 800
       });
-
-      const marker = markersRef.current[activeHike.name];
-      if (marker) {
-        // Close other popups first
-        Object.values(markersRef.current).forEach(m => {
-          const p = m.getPopup();
-          if (m !== marker && p && p.isOpen()) {
-            m.togglePopup();
-          }
-        });
-        const activePopup = marker.getPopup();
-        if (activePopup && !activePopup.isOpen()) {
-          marker.togglePopup();
+      Object.values(markersRef.current).forEach(m => {
+        const p = m.getPopup();
+        if (m !== existingMarker && p && p.isOpen()) {
+          m.togglePopup();
         }
+      });
+      const activePopup = existingMarker.getPopup();
+      if (activePopup && !activePopup.isOpen()) {
+        existingMarker.togglePopup();
       }
+    } else {
+      // Still inside a cluster — fly in past CLUSTER_MAX_ZOOM to break it apart,
+      // then renderMarkers() (triggered by the flyTo's "moveend") opens the popup.
+      pendingPopupHikeIdRef.current = activeHike.id;
+      map.flyTo({
+        center: [activeHike.start_lng, activeHike.start_lat],
+        zoom: CLUSTER_MAX_ZOOM + 1,
+        essential: true,
+        duration: 800
+      });
     }
-  }, [activeHikeName, mapboxToken]);
+  }, [activeHikeId, mapboxToken]);
 
   // Render Filters Shared Sub-component
   const RenderFilters = ({ inline }: { inline?: boolean }) => (
-    <div className={inline ? "grid gap-3 grid-cols-2" : "flex items-center gap-4 text-xs font-semibold"}>
-      {/* Scenery Filter */}
-      <div className={`flex items-center gap-2 ${inline ? "" : "border-r border-brand-dark/10 pr-4"}`}>
-        <span className="text-[10px] font-bold uppercase tracking-wider text-brand-dark/50">Paysage:</span>
-        <div className="flex gap-1">
-          {["All", "Forêt", "Lac", "Sommet"].map((scenery) => (
-            <button
-              key={scenery}
-              onClick={() => setSelectedScenery(scenery)}
-              className={`px-2.5 py-1 rounded-md md:rounded-full text-[10px] md:text-xs font-bold transition cursor-pointer ${
-                selectedScenery === scenery
-                  ? "bg-brand-orange text-brand-light shadow-2xs"
-                  : "bg-brand-light border border-brand-dark/10 text-brand-dark/70 hover:bg-brand-dark/5"
-              }`}
-            >
-              {scenery === "All" ? "Tous" : scenery}
-            </button>
-          ))}
-        </div>
-      </div>
-
+    <div className={inline ? "grid gap-3 grid-cols-1" : "flex items-center gap-4 text-xs font-semibold"}>
       {/* Difficulty Filter */}
       <div className="flex items-center gap-2">
         <span className="text-[10px] font-bold uppercase tracking-wider text-brand-dark/50">Difficulté:</span>
-        <div className="flex gap-1">
-          {["All", "Facile", "Moyen", "Difficile"].map((level) => (
+        <div className="flex gap-1 flex-wrap">
+          {DIFFICULTY_OPTIONS.map((level) => (
             <button
               key={level}
               onClick={() => setSelectedDifficulty(level)}
@@ -325,7 +387,7 @@ export default function CityPageContent({ cityName, hikes }: Props) {
                   : "bg-brand-light border border-brand-dark/10 text-brand-dark/70 hover:bg-brand-dark/5"
               }`}
             >
-              {level === "All" ? "Tous" : level}
+              {level === "All" ? "Tous" : formatDifficultyLabel(level)}
             </button>
           ))}
         </div>
@@ -371,10 +433,10 @@ export default function CityPageContent({ cityName, hikes }: Props) {
       </div>
 
       {/* Floating Map Filters (Desktop & Map Mobile mode) */}
-      <div 
+      <div
         className={`z-20 items-center bg-brand-light/95 backdrop-blur-md rounded-2xl md:rounded-full border border-brand-dark/10 shadow-lg p-3 md:h-[48px] absolute transition-all duration-300 ${
-          showMapMobile 
-            ? "flex top-20 left-4 right-[72px] md:top-28 md:left-[456px] lg:left-[488px] md:right-auto md:w-auto" 
+          showMapMobile
+            ? "flex top-20 left-4 right-[72px] md:top-28 md:left-[456px] lg:left-[488px] md:right-auto md:w-auto"
             : "hidden md:flex top-28 left-[456px] lg:left-[488px]"
         }`}
       >
@@ -382,10 +444,10 @@ export default function CityPageContent({ cityName, hikes }: Props) {
       </div>
 
       {/* Floating Custom Map Controls (Desktop & Map Mobile mode) */}
-      <div 
+      <div
         className={`z-20 flex flex-col items-center gap-1.5 bg-brand-light/95 backdrop-blur-md rounded-full border border-brand-dark/10 shadow-lg p-1.5 w-[48px] h-auto absolute transition-all duration-300 ${
-          showMapMobile 
-            ? "top-20 right-4" 
+          showMapMobile
+            ? "top-20 right-4"
             : "hidden md:flex top-28 right-6"
         }`}
       >
@@ -442,7 +504,7 @@ export default function CityPageContent({ cityName, hikes }: Props) {
           {/* Style Dropdown Menu (Komoot/Strava Style - Compact) */}
           {showStyleDropdown && (
             <div className="absolute right-[56px] top-0 bg-brand-light/95 backdrop-blur-md rounded-[24px] border border-brand-dark/15 shadow-2xl p-4.5 w-[280px] sm:w-[310px] flex flex-col gap-3.5 z-30 animate-fadeIn text-brand-dark select-none">
-              
+
               {/* Header */}
               <div className="flex items-center justify-between">
                 <h3 className="font-extrabold font-bricolage text-xs text-brand-dark tracking-tight">
@@ -474,8 +536,8 @@ export default function CityPageContent({ cityName, hikes }: Props) {
                         className="flex flex-col items-center cursor-pointer group"
                       >
                         <div className={`relative w-full aspect-square rounded-xl overflow-hidden border-2 transition duration-200 ${
-                          isActive 
-                            ? "border-brand-orange scale-105 shadow-md" 
+                          isActive
+                            ? "border-brand-orange scale-105 shadow-md"
                             : "border-brand-dark/10 group-hover:border-brand-dark/30"
                         }`}>
                           <img src={style.img} alt={style.label} className="w-full h-full object-cover" />
@@ -497,10 +559,10 @@ export default function CityPageContent({ cityName, hikes }: Props) {
       </div>
 
       {/* Left Pane: Floating cards panel with fixed header and scrollable cards */}
-      <div 
+      <div
         className={`z-10 absolute left-4 right-4 md:right-auto md:left-6 md:w-[420px] lg:w-[450px] flex flex-col bg-brand-light/95 backdrop-blur-md border border-brand-dark/10 shadow-2xl overflow-hidden transition-all duration-300 ease-in-out ${
-          showMapMobile 
-            ? "hidden md:flex" 
+          showMapMobile
+            ? "hidden md:flex"
             : isListCollapsed
               ? "top-20 h-[48px] md:top-28 md:h-[48px] md:rounded-3xl rounded-2xl"
               : "top-20 h-[calc(100vh-96px)] md:top-28 md:h-[calc(100vh-136px)] md:rounded-3xl rounded-2xl"
@@ -513,7 +575,7 @@ export default function CityPageContent({ cityName, hikes }: Props) {
           <h2 className="font-black font-bricolage text-brand-dark tracking-tight text-sm md:text-base">
             Explorez des itinéraires
           </h2>
-          <button 
+          <button
             onClick={() => setIsListCollapsed(!isListCollapsed)}
             className="w-8 h-8 rounded-full border border-brand-dark/10 flex items-center justify-center bg-brand-light hover:bg-neve-gray transition text-brand-dark/65 cursor-pointer shadow-xs"
             aria-label={isListCollapsed ? "Déplier la liste" : "Replier la liste"}
@@ -532,8 +594,8 @@ export default function CityPageContent({ cityName, hikes }: Props) {
 
         {/* B. COLLAPSIBLE CONTENTS WRAPPER */}
         <div className={`flex-grow flex flex-col overflow-hidden transition-all duration-300 ease-in-out ${
-          isListCollapsed 
-            ? "opacity-0 pointer-events-none duration-150" 
+          isListCollapsed
+            ? "opacity-0 pointer-events-none duration-150"
             : "opacity-100 duration-300 delay-100"
         }`}>
           {/* Sub-header inside collapsible content (Breadcrumbs, count, and mobile filters) */}
@@ -544,11 +606,17 @@ export default function CityPageContent({ cityName, hikes }: Props) {
                 Accueil
               </CustomLink>
               <span className="text-brand-dark/20">/</span>
-              <CustomLink href="/randos-sans-voiture" className="hover:text-brand-orange transition">
-                Randos sans voiture
-              </CustomLink>
-              <span className="text-brand-dark/20">/</span>
-              <span className="text-brand-dark/80 font-bold">Départs de {cityName}</span>
+              {areaName ? (
+                <>
+                  <CustomLink href="/explorer" className="hover:text-brand-orange transition">
+                    Explorer
+                  </CustomLink>
+                  <span className="text-brand-dark/20">/</span>
+                  <span className="text-brand-dark/80 font-bold">Autour de {areaName}</span>
+                </>
+              ) : (
+                <span className="text-brand-dark/80 font-bold">Explorer</span>
+              )}
             </nav>
 
             {/* Count and Sort Bar */}
@@ -563,7 +631,7 @@ export default function CityPageContent({ cityName, hikes }: Props) {
             {/* Mobile-only Express Planner filters (in list view) */}
             <div className="md:hidden mt-3 bg-neve-gray border border-brand-dark/5 rounded-xl p-3 shadow-2xs">
               <h2 className="text-[10px] font-bold text-brand-dark mb-2 flex items-center gap-1.5">
-                <span>🔍</span> Planificateur express
+                <span>🔍</span> Filtrer
               </h2>
               <RenderFilters inline />
             </div>
@@ -573,14 +641,20 @@ export default function CityPageContent({ cityName, hikes }: Props) {
           <div className="flex-grow overflow-y-auto no-scrollbar p-4 sm:p-5 lg:p-6 pt-2 space-y-6">
             {/* Hike Cards Stacked Layout (Screenshot Inspired) */}
             <div className="flex flex-col gap-6">
-              {filteredHikes.length === 0 ? (
+              {fetchError ? (
+                <div className="text-center py-10 border border-dashed border-rose-300 rounded-2xl bg-rose-50">
+                  <p className="text-rose-600 font-bold mb-1 text-xs">Impossible de charger les randonnées</p>
+                  <p className="text-rose-500/80 text-[11px]">Réessayez dans quelques instants.</p>
+                </div>
+              ) : hikes.length === 0 ? (
+                <div className="text-center py-10 border border-dashed border-brand-dark/10 rounded-2xl bg-neve-gray/30">
+                  <p className="text-brand-dark/50 font-bold text-xs">Aucune randonnée à proximité pour le moment</p>
+                </div>
+              ) : filteredHikes.length === 0 ? (
                 <div className="text-center py-10 border border-dashed border-brand-dark/10 rounded-2xl bg-neve-gray/30">
                   <p className="text-brand-dark/50 font-bold mb-2 text-xs">Aucun sentier ne correspond</p>
                   <button
-                    onClick={() => {
-                      setSelectedDifficulty("All");
-                      setSelectedScenery("All");
-                    }}
+                    onClick={() => setSelectedDifficulty("All")}
                     className="text-brand-orange font-bold text-[11px] hover:underline cursor-pointer"
                   >
                     Réinitialiser les filtres
@@ -588,17 +662,18 @@ export default function CityPageContent({ cityName, hikes }: Props) {
                 </div>
               ) : (
                 <div className="flex flex-col gap-6">
-                  {filteredHikes.map((hike, index) => {
-                    const imageSrc = SCENERY_IMAGES[hike.scenery] || DEFAULT_IMAGE;
-                    const isFavorited = !!favorites[hike.name];
+                  {filteredHikes.map((hike) => {
+                    const imageSrc = hike.cover_image_url || DEFAULT_IMAGE;
+                    const isFavorited = !!favorites[hike.id];
 
                     return (
                       <div
-                        key={index}
-                        id={`hike-${hike.name.replace(/\s+/g, "-")}`}
-                        onMouseEnter={() => setActiveHikeName(hike.name)}
+                        key={hike.id}
+                        id={`hike-${hike.id}`}
+                        onMouseEnter={() => setActiveHikeId(hike.id)}
+                        onClick={() => setDetailHikeId(hike.id)}
                         className={`group transition duration-200 ease-in-out flex flex-col cursor-pointer border border-transparent p-2 rounded-3xl ${
-                          activeHikeName === hike.name ? "bg-brand-dark/[0.04]" : ""
+                          activeHikeId === hike.id ? "bg-brand-dark/[0.04]" : ""
                         }`}
                       >
                         {/* Image container */}
@@ -606,9 +681,9 @@ export default function CityPageContent({ cityName, hikes }: Props) {
                           <img
                             src={imageSrc}
                             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                            alt={hike.name}
+                            alt={hike.title}
                           />
-                          
+
                           {/* Soft overlay gradient */}
                           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
 
@@ -617,7 +692,7 @@ export default function CityPageContent({ cityName, hikes }: Props) {
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
-                              toggleFavorite(hike.name);
+                              toggleFavorite(hike.id);
                             }}
                             className="absolute top-3 right-3 w-8 h-8 rounded-full bg-brand-light/90 hover:bg-brand-light backdrop-blur-xs shadow-md flex items-center justify-center transition hover:scale-105 active:scale-95 cursor-pointer"
                           >
@@ -632,87 +707,46 @@ export default function CityPageContent({ cityName, hikes }: Props) {
                             </svg>
                           </button>
 
-                          {/* Interactive Left/Right Carousel Controls (Simulated on Hover) */}
-                          <div className="absolute inset-x-3 top-1/2 -translate-y-1/2 flex justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
-                            <button
-                              type="button"
-                              className="w-7 h-7 rounded-full bg-brand-light/95 shadow-md flex items-center justify-center pointer-events-auto hover:scale-105 active:scale-95 transition cursor-pointer"
-                            >
-                              <svg className="w-3.5 h-3.5 text-brand-dark" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-                              </svg>
-                            </button>
-                            <button
-                              type="button"
-                              className="w-7 h-7 rounded-full bg-brand-light/95 shadow-md flex items-center justify-center pointer-events-auto hover:scale-105 active:scale-95 transition cursor-pointer"
-                            >
-                              <svg className="w-3.5 h-3.5 text-brand-dark" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                              </svg>
-                            </button>
-                          </div>
-
-                          {/* Pagination Dots */}
-                          <div className="absolute bottom-3 inset-x-0 flex justify-center gap-1.5 pointer-events-none">
-                            <span className="w-1.5 h-1.5 rounded-full bg-brand-light shadow-xs" />
-                            <span className="w-1.5 h-1.5 rounded-full bg-brand-light/65 shadow-xs" />
-                            <span className="w-1.5 h-1.5 rounded-full bg-brand-light/40 shadow-xs" />
-                          </div>
-
-                          {/* Landscape Type overlay */}
+                          {/* Difficulty overlay */}
                           <span className="absolute bottom-3 left-3 px-2 py-0.5 text-[9px] font-extrabold tracking-wider uppercase rounded-md bg-brand-orange text-brand-light shadow-md">
-                            🏞️ {hike.scenery}
+                            🥾 {formatDifficultyLabel(hike.difficulty)}
                           </span>
                         </div>
 
-                        {/* Card Details (Screenshot inspired details structure) */}
+                        {/* Card Details */}
                         <div className="px-1.5 pb-1">
                           <h3 className="text-base font-extrabold text-brand-dark font-bricolage leading-snug group-hover:text-brand-orange transition">
-                            {hike.name}
+                            {hike.title}
                           </h3>
-                          <div className="text-[11px] text-brand-dark/50 font-bold mt-0.5">
-                            Départ : Gare de {cityName} • {hike.destinationStation}
+                          <div className="text-[11px] text-brand-dark/50 font-bold mt-0.5 truncate">
+                            {hike.location_name}
                           </div>
-                          
-                          {/* Rating, Difficulty, Distance, Duration details line */}
+
+                          {/* Difficulty, Distance, Duration, Elevation details line */}
                           <div className="flex items-center gap-1 text-[11px] text-brand-dark/70 mt-2 font-semibold flex-wrap">
-                            <span className="text-brand-orange font-black">★ 4.7</span>
+                            <span className={`font-black ${formatDifficultyColor(hike.difficulty)}`}>
+                              {formatDifficultyLabel(hike.difficulty)}
+                            </span>
                             <span className="text-brand-dark/20 font-light">•</span>
-                            <span className={`font-black ${
-                              hike.difficulty === "Facile"
-                                ? "text-emerald-600"
-                                : hike.difficulty === "Moyen"
-                                ? "text-brand-orange-hover"
-                                : "text-rose-600"
-                            }`}>{hike.difficulty}</span>
+                            <span>{formatDistance(hike.distance_km)}</span>
                             <span className="text-brand-dark/20 font-light">•</span>
-                            <span>{hike.distance}</span>
+                            <span>{formatDuration(hike.duration_minutes)}</span>
                             <span className="text-brand-dark/20 font-light">•</span>
-                            <span>{hike.duration}</span>
-                            <span className="text-brand-dark/20 font-light">•</span>
-                            <span className="text-brand-green font-bold">🌱 -{hike.co2Saved}kg CO2</span>
+                            <span>{formatElevation(hike.elevation_gain_m)}</span>
                           </div>
 
-                          {/* Transit Box */}
-                          <div className="bg-neve-gray border border-brand-dark/5 rounded-xl p-3 mt-3">
-                            <div className="text-[8px] font-bold uppercase tracking-wider text-brand-orange mb-0.5">
-                              🚃 Accès Train/TER
-                            </div>
-                            <p className="text-[10px] font-bold text-brand-dark/85 leading-snug">
-                              {hike.transit}
-                            </p>
-                          </div>
-
-                          {/* Booking Link */}
+                          {/* Detail Link */}
                           <div className="mt-3">
-                            <a
-                              href={`https://www.trainline.fr/search/${cityName.toLowerCase()}/${hike.destinationStation.toLowerCase()}?utm_source=neve&utm_medium=affiliate`}
-                              target="_blank"
-                              rel="noopener noreferrer"
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setDetailHikeId(hike.id);
+                              }}
                               className="inline-flex items-center justify-center gap-1 px-4 py-2 rounded-xl bg-brand-orange hover:bg-brand-orange-hover text-brand-light text-[11px] font-bold shadow-2xs transition duration-150 cursor-pointer"
                             >
-                              Réserver sur Trainline
-                            </a>
+                              Voir la fiche
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -724,48 +758,28 @@ export default function CityPageContent({ cityName, hikes }: Props) {
 
             {/* Escape City pain-points testimonials */}
             <div className="border-t border-brand-dark/5 pt-6">
-              <EscapeCity cityName={cityName} layout="narrow" />
+              <EscapeCity cityName={areaName} layout="narrow" />
             </div>
 
-            {/* Local FAQ Section for that city */}
+            {/* Local FAQ Section for that area */}
             <div className="border-t border-brand-dark/5 pt-6">
               <h3 className="text-sm font-bold text-brand-dark mb-3 font-bricolage">
-                Randonner sans voiture depuis {cityName}
+                {areaName ? `Randonner autour de ${areaName}` : "Randonner avec Névé"}
               </h3>
               <div className="space-y-3 text-[10px] text-brand-dark/70">
                 <div className="bg-neve-gray p-3.5 rounded-xl border border-brand-dark/5">
-                  <h4 className="font-bold text-brand-dark mb-1">⏱️ Quel est le temps d'accès en TER ?</h4>
+                  <h4 className="font-bold text-brand-dark mb-1">📍 Comment sont sélectionnés ces itinéraires ?</h4>
                   <p className="leading-relaxed">
-                    La plupart de nos sentiers débutent à moins de 1h30 de train régional (TER). La gare d'arrivée donne un accès direct à pied ou via navette au début du sentier.
+                    {areaName
+                      ? `Les randonnées affichées sont triées par proximité autour de ${areaName}, avec distance, dénivelé et durée calculés à partir du tracé GPS réel de chaque sentier.`
+                      : "Les randonnées affichées sont triées par proximité, avec distance, dénivelé et durée calculés à partir du tracé GPS réel de chaque sentier."}
                   </p>
                 </div>
                 <div className="bg-neve-gray p-3.5 rounded-xl border border-brand-dark/5">
-                  <h4 className="font-bold text-brand-dark mb-1">🎒 Comment fonctionne la planification ?</h4>
+                  <h4 className="font-bold text-brand-dark mb-1">🎒 Comment accéder au tracé GPS complet ?</h4>
                   <p className="leading-relaxed">
-                    Sélectionnez votre itinéraire, réservez vos billets TER sur Trainline et activez la "Sécurité Retour" sur l'app mobile pour marcher sans stress d'horaires.
+                    Ouvrez la fiche d'une randonnée pour voir sa description complète, puis téléchargez le tracé GPS hors-ligne depuis l'application mobile Névé.
                   </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Carbon Impact Comparison block */}
-            <div className="border-t border-brand-dark/5 pt-6">
-              <div className="bg-brand-green/5 border border-brand-green/10 rounded-xl p-4">
-                <h3 className="text-xs font-bold text-brand-green mb-1.5 flex items-center gap-1.5 font-bricolage">
-                  <span>🌱</span> Impact Climat
-                </h3>
-                <p className="text-[10px] text-brand-green/80 leading-relaxed mb-3">
-                  Le train régional (TER) émet environ <strong>2,4 g de CO2</strong> par passager par kilomètre, contre <strong>190 g de CO2/km</strong> pour une voiture thermique.
-                </p>
-                <div className="grid gap-2 grid-cols-2 text-center text-[10px]">
-                  <div className="bg-brand-light/80 rounded-lg p-2.5 border border-brand-green/10">
-                     <div className="text-brand-dark/50 font-bold">Voiture</div>
-                     <div className="text-sm font-black text-rose-600 mt-0.5">190g <span className="text-[8px] font-normal">CO2 / km</span></div>
-                  </div>
-                  <div className="bg-brand-light/80 rounded-lg p-2.5 border border-brand-green/10">
-                     <div className="text-brand-dark/50 font-bold">TER</div>
-                     <div className="text-sm font-black text-brand-green mt-0.5">2,4g <span className="text-[8px] font-normal">CO2 / km</span></div>
-                  </div>
                 </div>
               </div>
             </div>
@@ -803,6 +817,11 @@ export default function CityPageContent({ cityName, hikes }: Props) {
           </div>
         </div>
       </div>
+
+      {/* Hike Detail Panel (fetches full row incl. description + geometry on open) */}
+      {detailHike && (
+        <HikeDetailPanel summary={detailHike} onClose={() => setDetailHikeId(null)} />
+      )}
     </div>
   );
 }

@@ -1,65 +1,33 @@
 import CustomLink from "@/components/ui/link";
+import { HIKE_HUBS } from "@/lib/hike-hubs";
+import { countHikesNearby, DEFAULT_HIKE_RADIUS_KM } from "@/lib/hikes";
+import { geocodePlace } from "@/lib/geocode";
+
+// Without this, Next prerenders the "N itinéraires" counts once at build time
+// and freezes them — new rows added to Supabase wouldn't show up until the
+// next deploy. Hourly ISR keeps them live without querying on every request.
+export const revalidate = 3600;
 
 export const metadata = {
-  title: "Randonnées sans voiture au départ de votre métropole - Névé",
-  description: "Découvrez notre sélection de randonnées accessibles en train (TER) et bus locaux depuis Paris, Lyon, Grenoble, Marseille, Bordeaux et Strasbourg. Partez l'esprit tranquille.",
+  title: "Randonnées en Alpes-de-Haute-Provence - Névé",
+  description:
+    "Découvrez notre sélection de randonnées autour de Digne-les-Bains, Sisteron, Manosque, Castellane, Forcalquier et Barcelonnette.",
   alternates: {
     canonical: "https://neve-rando.fr/randos-sans-voiture",
   },
 };
 
-const CITIES = [
-  {
-    slug: "paris",
-    name: "Paris",
-    hikesCount: 3,
-    description: "Échappez-vous dans les denses forêts de Fontainebleau, de Rambouillet ou de la Vallée de Chevreuse en moins de 45 minutes de train.",
-    scenery: "Forêt & Lacs",
-    accent: "from-amber-500 to-orange-600",
-  },
-  {
-    slug: "lyon",
-    name: "Lyon",
-    hikesCount: 3,
-    description: "Prenez de la hauteur dans le Parc Naturel Régional du Pilat, explorez les Monts d'Or ou respirez l'air pur des balcons de la Chartreuse.",
-    scenery: "Sommets & Forêts",
-    accent: "from-orange-500 to-red-600",
-  },
-  {
-    slug: "grenoble",
-    name: "Grenoble",
-    hikesCount: 3,
-    description: "Le paradis de la rando alpine sans voiture : rejoignez directement le Vercors, Belledonne ou la Chartreuse grâce aux bus de montagne.",
-    scenery: "Haute Montagne & Lacs",
-    accent: "from-rose-500 to-orange-600",
-  },
-  {
-    slug: "marseille",
-    name: "Marseille",
-    hikesCount: 3,
-    description: "Randonnez le long des falaises calcaires des Calanques ou grimpez la mythique montagne Sainte-Victoire peinte par Cézanne.",
-    scenery: "Mer & Sommets",
-    accent: "from-orange-500 to-amber-600",
-  },
-  {
-    slug: "bordeaux",
-    name: "Bordeaux",
-    hikesCount: 2,
-    description: "Parcourez la crête de la Dune du Pilat ou profitez du calme sauvage et de l'ombre de la pinède entourant le grand lac de Lacanau.",
-    scenery: "Dunes & Lacs",
-    accent: "from-yellow-500 to-orange-600",
-  },
-  {
-    slug: "strasbourg",
-    name: "Strasbourg",
-    hikesCount: 2,
-    description: "Explorez les ruines romantiques des châteaux d'Alsace et les mystères du Mur Païen sur le massif des Vosges.",
-    scenery: "Forêt & Châteaux",
-    accent: "from-red-500 to-orange-600",
-  },
-];
+export default async function HubPage() {
+  const hubsWithCounts = await Promise.all(
+    HIKE_HUBS.map(async (hub) => {
+      const place = await geocodePlace(hub.name);
+      const hikesCount = place
+        ? await countHikesNearby({ lat: place.lat, lng: place.lng, radiusKm: DEFAULT_HIKE_RADIUS_KM })
+        : 0;
+      return { ...hub, hikesCount };
+    })
+  );
 
-export default function HubPage() {
   return (
     <div className="bg-white min-h-screen pt-24 md:pt-32">
       {/* Hero Header */}
@@ -68,45 +36,51 @@ export default function HubPage() {
           🌲 Rando Zéro Carbone
         </div>
         <h1 className="text-4xl font-extrabold text-slate-900 md:text-5xl tracking-tight mb-6 leading-tight">
-          Trouvez votre randonnée <br className="max-md:hidden" />
-          <span className="text-[color:var(--color-brand-orange)] font-black">accessible sans voiture</span>
+          Trouvez votre prochaine <br className="max-md:hidden" />
+          <span className="text-[color:var(--color-brand-orange)] font-black">randonnée en Haute-Provence</span>
         </h1>
         <p className="font-satoshi text-[#525252] text-[18px] max-w-2xl mx-auto leading-relaxed font-medium">
-          Sélectionnez votre métropole de départ et découvrez des sentiers sauvages planifiés par Névé. TER, bus de montagne locaux et sécurité retour inclus dans votre poche.
+          Sélectionnez votre zone de départ et découvrez des sentiers planifiés par Névé, entre Préalpes, Gorges du Verdon et vallée de l'Ubaye.
         </p>
+        <CustomLink
+          href="/explorer"
+          className="inline-flex items-center justify-center gap-2 mt-6 px-5 py-3 rounded-xl bg-slate-950 hover:bg-slate-800 text-white text-sm font-bold shadow-sm transition duration-150 cursor-pointer"
+        >
+          🗺️ Explorer toutes les randonnées sur la carte
+        </CustomLink>
       </div>
 
-      {/* Cities Grid */}
+      {/* Hubs Grid */}
       <div className="mx-auto max-w-6xl px-6 sm:px-10 md:px-16 mb-24">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {CITIES.map((city) => (
+          {hubsWithCounts.map((hub) => (
             <CustomLink
-              key={city.slug}
-              href={`/randos-sans-voiture/${city.slug}`}
+              key={hub.slug}
+              href={`/randos-sans-voiture/${hub.slug}`}
               className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-gray-150 bg-white p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition duration-300 ease-in-out min-h-[260px] cursor-pointer"
             >
               {/* Background gradient mask on hover */}
               <div className="absolute inset-0 bg-linear-to-b from-transparent to-slate-50 opacity-50 group-hover:opacity-100 transition duration-300" />
-              
+
               {/* Colored tag bar */}
-              <div className={`absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r ${city.accent}`} />
+              <div className={`absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r ${hub.accent}`} />
 
               <div className="relative z-10">
                 <div className="flex justify-between items-center mb-4">
                   <span className="px-2.5 py-0.5 text-[10px] font-bold rounded-md bg-slate-100 text-slate-700">
-                    🏞️ {city.scenery}
+                    🏞️ {hub.tagline}
                   </span>
                   <span className="text-xs font-semibold text-[color:var(--color-brand-orange)]">
-                    {city.hikesCount} itinéraires
+                    {hub.hikesCount} itinéraire{hub.hikesCount > 1 ? "s" : ""}
                   </span>
                 </div>
-                
+
                 <h3 className="text-xl font-bold text-slate-900 group-hover:text-[color:var(--color-brand-orange)] transition duration-150 mb-3">
-                  Depuis {city.name}
+                  Autour de {hub.name}
                 </h3>
-                
+
                 <p className="font-satoshi text-[#525252] text-[18px] leading-relaxed font-medium">
-                  {city.description}
+                  {hub.description}
                 </p>
               </div>
 
@@ -131,32 +105,32 @@ export default function HubPage() {
       <div className="mx-auto max-w-5xl px-6 sm:px-10 md:px-16 mb-24">
         <div className="bg-slate-950 rounded-3xl p-8 md:p-12 text-white relative overflow-hidden shadow-2xl">
           <div className="absolute inset-0 bg-radial-gradient from-[color:var(--color-brand-orange)] to-transparent opacity-10 pointer-events-none" />
-          
+
           <div className="relative z-10 text-center max-w-3xl mx-auto">
-            <h2 className="text-2xl font-bold md:text-3xl mb-4">Pourquoi randonner sans voiture avec Névé ?</h2>
+            <h2 className="text-2xl font-bold md:text-3xl mb-4">Pourquoi randonner avec Névé ?</h2>
             <p className="font-satoshi text-slate-300 text-[18px] mb-8 leading-relaxed font-medium">
-              En moyenne, voyager en train régional (TER) émet 95% de CO2 de moins qu'en voiture individuelle. Névé lève le dernier obstacle à la déconnexion en gérant automatiquement toute la logistique train + bus.
+              Névé référence des itinéraires réels, avec tracé GPS, dénivelé et distance précis, pour préparer votre prochaine sortie en toute confiance.
             </p>
             <div className="grid gap-6 sm:grid-cols-3 text-left">
               <div>
-                <div className="text-xl mb-1">🚄</div>
-                <h4 className="font-bold text-sm text-white mb-1">Liaison Gare-à-Sentier</h4>
+                <div className="text-xl mb-1">🗺️</div>
+                <h4 className="font-bold text-sm text-white mb-1">Sentiers vérifiés</h4>
                 <p className="text-xs text-slate-400">
-                  Nous recherchons et calculons les correspondances avec les navettes et bus locaux.
+                  Distance, dénivelé positif et négatif calculés à partir du tracé réel de chaque itinéraire.
                 </p>
               </div>
               <div>
-                <div className="text-xl mb-1">🎟️</div>
-                <h4 className="font-bold text-sm text-white mb-1">1 Clic Trainline</h4>
+                <div className="text-xl mb-1">📍</div>
+                <h4 className="font-bold text-sm text-white mb-1">Autour de vous</h4>
                 <p className="text-xs text-slate-400">
-                  Tous vos trajets sont pré-remplis sur l'application Trainline pour une commande facile.
+                  Les itinéraires sont triés par proximité autour de chaque zone de départ.
                 </p>
               </div>
               <div>
-                <div className="text-xl mb-1">⏱️</div>
-                <h4 className="font-bold text-sm text-white mb-1">Sécurité Anti-Retard</h4>
+                <div className="text-xl mb-1">📲</div>
+                <h4 className="font-bold text-sm text-white mb-1">Hors-ligne sur l'app</h4>
                 <p className="text-xs text-slate-400">
-                  L'application vous alerte s'il est temps de faire demi-tour pour attraper votre train retour.
+                  Téléchargez le tracé GPS complet et randonnez en toute sécurité, même sans réseau.
                 </p>
               </div>
             </div>
