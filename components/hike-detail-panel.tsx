@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { getHikeById } from "@/lib/hikes";
 import type { HikeDetail, HikeSummary } from "@/types/hike";
 import { formatDifficultyColor, formatDifficultyLabel, formatDistance, formatDuration, formatElevation } from "@/lib/format-hike";
+import { useAuth } from "@/context/AuthContext";
+import { useFavorites } from "@/context/FavoritesContext";
 
 type Props = {
   summary: HikeSummary;
@@ -11,9 +14,23 @@ type Props = {
 };
 
 export default function HikeDetailPanel({ summary, onClose }: Props) {
+  const router = useRouter();
+  const { user } = useAuth();
+  const { isFavorite, isPending: isFavoritePending, toggleFavorite } = useFavorites();
   const [detail, setDetail] = useState<HikeDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const isFavorited = isFavorite(summary.id);
+  const isTogglingFavorite = isFavoritePending(summary.id);
+
+  const handleFavoriteClick = () => {
+    if (!user) {
+      router.push("/signin");
+      return;
+    }
+    toggleFavorite(summary.id);
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -69,16 +86,36 @@ export default function HikeDetailPanel({ summary, onClose }: Props) {
           {summary.cover_image_url && (
             <img src={summary.cover_image_url} alt={summary.title} className="w-full h-full object-cover" />
           )}
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Fermer"
-            className="absolute top-3 right-3 w-9 h-9 rounded-full bg-brand-light/90 hover:bg-brand-light shadow-md flex items-center justify-center transition cursor-pointer"
-          >
-            <svg className="w-4 h-4 text-brand-dark" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          <div className="absolute top-3 right-3 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleFavoriteClick}
+              disabled={isTogglingFavorite}
+              aria-pressed={isFavorited}
+              aria-label={isFavorited ? "Retirer des favoris" : "Ajouter aux favoris"}
+              className="w-9 h-9 rounded-full bg-brand-light/90 hover:bg-brand-light shadow-md flex items-center justify-center transition cursor-pointer disabled:opacity-60 disabled:cursor-wait"
+            >
+              <svg
+                className={`w-4.5 h-4.5 stroke-current transition ${
+                  isFavorited ? "fill-rose-500 text-rose-500" : "fill-none text-brand-dark"
+                }`}
+                viewBox="0 0 24 24"
+                strokeWidth="2"
+              >
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Fermer"
+              className="w-9 h-9 rounded-full bg-brand-light/90 hover:bg-brand-light shadow-md flex items-center justify-center transition cursor-pointer"
+            >
+              <svg className="w-4 h-4 text-brand-dark" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         <div className="p-5 md:p-6">

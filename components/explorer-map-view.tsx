@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import CustomLink from "./ui/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import Supercluster from "supercluster";
@@ -10,6 +10,8 @@ import EscapeCity from "@/components/escape-city";
 import HikeDetailPanel from "@/components/hike-detail-panel";
 import type { HikeDifficulty, HikeSummary } from "@/types/hike";
 import { formatDifficultyColor, formatDifficultyLabel, formatDistance, formatDuration, formatElevation } from "@/lib/format-hike";
+import { useAuth } from "@/context/AuthContext";
+import { useFavorites } from "@/context/FavoritesContext";
 
 // Set Mapbox access token
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || "";
@@ -42,14 +44,16 @@ const MAP_STYLES = [
 
 export default function ExplorerMapView({ areaName, hikes, fetchError = null, centerLat, centerLng }: Props) {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const hikeQuery = searchParams.get("hike");
+  const { user } = useAuth();
+  const { isFavorite, isPending: isFavoritePending, toggleFavorite } = useFavorites();
 
   const [selectedDifficulty, setSelectedDifficulty] = useState<HikeDifficulty | "All">("All");
   const [activeHikeId, setActiveHikeId] = useState<string | null>(null);
   const [detailHikeId, setDetailHikeId] = useState<string | null>(null);
   const [showMapMobile, setShowMapMobile] = useState<boolean>(false);
   const [isListCollapsed, setIsListCollapsed] = useState<boolean>(false);
-  const [favorites, setFavorites] = useState<Record<string, boolean>>({});
   const [mapStyle, setMapStyle] = useState<string>("mapbox://styles/mapbox/outdoors-v12");
   const [showStyleDropdown, setShowStyleDropdown] = useState<boolean>(false);
 
@@ -89,12 +93,13 @@ export default function ExplorerMapView({ areaName, hikes, fetchError = null, ce
     }
   }, [hikeQuery, hikes]);
 
-  // Toggle Favorite Handler
-  const toggleFavorite = (hikeId: string) => {
-    setFavorites(prev => ({
-      ...prev,
-      [hikeId]: !prev[hikeId]
-    }));
+  // Toggle Favorite Handler — anonymous visitors are sent to sign in first.
+  const handleFavoriteClick = (hikeId: string) => {
+    if (!user) {
+      router.push("/signin");
+      return;
+    }
+    toggleFavorite(hikeId);
   };
 
   // Renders whatever the supercluster index says belongs in the current viewport:
@@ -664,7 +669,8 @@ export default function ExplorerMapView({ areaName, hikes, fetchError = null, ce
                 <div className="flex flex-col gap-6">
                   {filteredHikes.map((hike) => {
                     const imageSrc = hike.cover_image_url || DEFAULT_IMAGE;
-                    const isFavorited = !!favorites[hike.id];
+                    const isFavorited = isFavorite(hike.id);
+                    const isTogglingFavorite = isFavoritePending(hike.id);
 
                     return (
                       <div
@@ -692,9 +698,12 @@ export default function ExplorerMapView({ areaName, hikes, fetchError = null, ce
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
-                              toggleFavorite(hike.id);
+                              handleFavoriteClick(hike.id);
                             }}
-                            className="absolute top-3 right-3 w-8 h-8 rounded-full bg-brand-light/90 hover:bg-brand-light backdrop-blur-xs shadow-md flex items-center justify-center transition hover:scale-105 active:scale-95 cursor-pointer"
+                            disabled={isTogglingFavorite}
+                            aria-pressed={isFavorited}
+                            aria-label={isFavorited ? "Retirer des favoris" : "Ajouter aux favoris"}
+                            className="absolute top-3 right-3 w-8 h-8 rounded-full bg-brand-light/90 hover:bg-brand-light backdrop-blur-xs shadow-md flex items-center justify-center transition hover:scale-105 active:scale-95 cursor-pointer disabled:opacity-60 disabled:cursor-wait"
                           >
                             <svg
                               className={`w-4.5 h-4.5 stroke-current transition ${

@@ -1,9 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import HikeDetailPanel from "@/components/hike-detail-panel";
 import type { HikeDifficulty, HikeSummary } from "@/types/hike";
 import { formatDifficultyColor, formatDifficultyLabel, formatDistance, formatDuration, formatElevation } from "@/lib/format-hike";
+import { useAuth } from "@/context/AuthContext";
+import { useFavorites } from "@/context/FavoritesContext";
 
 type Props = {
   hikes: HikeSummary[];
@@ -14,8 +17,10 @@ const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1501555088652-021faa106
 const DIFFICULTY_OPTIONS: (HikeDifficulty | "All")[] = ["All", "facile", "modere", "difficile", "expert"];
 
 export default function HikeGrid({ hikes }: Props) {
+  const router = useRouter();
+  const { user } = useAuth();
+  const { isFavorite, isPending: isFavoritePending, toggleFavorite } = useFavorites();
   const [selectedDifficulty, setSelectedDifficulty] = useState<HikeDifficulty | "All">("All");
-  const [favorites, setFavorites] = useState<Record<string, boolean>>({});
   const [detailHikeId, setDetailHikeId] = useState<string | null>(null);
 
   const filteredHikes = hikes.filter(
@@ -23,8 +28,13 @@ export default function HikeGrid({ hikes }: Props) {
   );
   const detailHike = detailHikeId ? hikes.find((h) => h.id === detailHikeId) : undefined;
 
-  const toggleFavorite = (hikeId: string) => {
-    setFavorites((prev) => ({ ...prev, [hikeId]: !prev[hikeId] }));
+  // Anonymous visitors are sent to sign in before a favorite can be saved.
+  const handleFavoriteClick = (hikeId: string) => {
+    if (!user) {
+      router.push("/signin");
+      return;
+    }
+    toggleFavorite(hikeId);
   };
 
   return (
@@ -65,7 +75,8 @@ export default function HikeGrid({ hikes }: Props) {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filteredHikes.map((hike) => {
             const imageSrc = hike.cover_image_url || DEFAULT_IMAGE;
-            const isFavorited = !!favorites[hike.id];
+            const isFavorited = isFavorite(hike.id);
+            const isTogglingFavorite = isFavoritePending(hike.id);
 
             return (
               <div
@@ -84,9 +95,12 @@ export default function HikeGrid({ hikes }: Props) {
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      toggleFavorite(hike.id);
+                      handleFavoriteClick(hike.id);
                     }}
-                    className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 hover:bg-white shadow-md flex items-center justify-center transition hover:scale-105 active:scale-95 cursor-pointer"
+                    disabled={isTogglingFavorite}
+                    aria-pressed={isFavorited}
+                    aria-label={isFavorited ? "Retirer des favoris" : "Ajouter aux favoris"}
+                    className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 hover:bg-white shadow-md flex items-center justify-center transition hover:scale-105 active:scale-95 cursor-pointer disabled:opacity-60 disabled:cursor-wait"
                   >
                     <svg
                       className={`w-4.5 h-4.5 stroke-current transition ${

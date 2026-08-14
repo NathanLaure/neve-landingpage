@@ -10,6 +10,7 @@ type ButtonProps = {
   className?: string;
   target?: string;
   rel?: string;
+  disabled?: boolean;
 };
 
 export default function Button({
@@ -21,8 +22,9 @@ export default function Button({
   className = "",
   target,
   rel,
+  disabled = false,
 }: ButtonProps) {
-  const baseStyles = "inline-flex items-center justify-center font-bold px-6 py-3 rounded-3xl [corner-shape:squircle] transition duration-150 text-[14px] whitespace-nowrap cursor-pointer";
+  const baseStyles = "inline-flex items-center justify-center font-bold px-6 py-3 rounded-3xl [corner-shape:squircle] transition duration-150 text-[14px] whitespace-nowrap cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none";
   
   const variantStyles = {
     primary: "bg-[#eb490b] text-white hover:bg-[#ff5a1a] border-2 border-[#0f172b] hover:translate-y-[-1px] active:translate-y-[0px] hover:shadow-[4px_4px_0px_0px_#0f172a] active:translate-y-[0px] active:shadow-[2px_2px_0px_0px_#0f172a]",
@@ -47,7 +49,7 @@ export default function Button({
   }
 
   return (
-    <button type={type} onClick={onClick} className={combinedClassName}>
+    <button type={type} onClick={onClick} className={combinedClassName} disabled={disabled}>
       {children}
     </button>
   );

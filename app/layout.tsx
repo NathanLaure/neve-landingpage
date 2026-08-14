@@ -2,6 +2,8 @@ import "./css/style.css";
 
 import { Inter, Bricolage_Grotesque } from "next/font/google";
 import Script from "next/script";
+import { AuthProvider } from "@/context/AuthContext";
+import { FavoritesProvider } from "@/context/FavoritesContext";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -63,9 +65,13 @@ export default function RootLayout({
             gtag('config', 'G-04VG4TQB49');
           `}
         </Script>
-        <div className="flex min-h-screen flex-col overflow-x-clip">
-          {children}
-        </div>
+        <AuthProvider>
+          <FavoritesProvider>
+            <div className="flex min-h-screen flex-col overflow-x-clip">
+              {children}
+            </div>
+          </FavoritesProvider>
+        </AuthProvider>
       </body>
     </html>
   );

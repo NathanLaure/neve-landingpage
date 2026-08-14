@@ -5,11 +5,14 @@ import { usePathname } from "next/navigation";
 import Logo from "./logo";
 import Button from "./button";
 import CustomLink from "./link";
+import AccountMenu from "./account-menu";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
   const isHome = pathname === "/";
+  const { user, isLoading } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -94,15 +97,19 @@ export default function Header() {
                 </Button>
               </span>
 
-              {/* Download Button */}
-              <Button 
-                href="/signup" 
-                variant="primary" 
-                className="py-2 px-3 sm:px-4"
-              >
-                <span className="hidden sm:inline">Se connecter / S'inscrire</span>
-                <span className="sm:hidden">Se connecter</span>
-              </Button>
+              {/* Account state */}
+              {!isLoading && user ? (
+                <AccountMenu scrolled={isScrolled} />
+              ) : (
+                <Button
+                  href="/signup"
+                  variant="primary"
+                  className="py-2 px-3 sm:px-4"
+                >
+                  <span className="hidden sm:inline">Se connecter / S'inscrire</span>
+                  <span className="sm:hidden">Se connecter</span>
+                </Button>
+              )}
             </div>
           </div>
         </div>
