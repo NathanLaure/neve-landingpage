@@ -25,7 +25,11 @@ import {
   AdventureStepConnector,
   AdventureTimelineCaption,
 } from "@/components/share/AdventureStepConnector";
-import type { UserAdventure, AdventureTrainInfo } from "@/types/adventure";
+import {
+  isOneWayAdventure,
+  type UserAdventure,
+  type AdventureTrainInfo,
+} from "@/types/adventure";
 
 interface SharedAdventureViewProps {
   adventure: UserAdventure;
@@ -101,7 +105,9 @@ function formatAdventureRange(outwardDate: string, returnDate?: string | null): 
 function downloadAdventureCalendar(adventure: UserAdventure) {
   const hikeTitle = adventure.hike_snapshot?.title || "Randonnée sans voiture";
   const outward = adventure.outward_train;
-  const returnTrain = adventure.return_train;
+  // Aller simple : `return_train` recopie l'aller, il n'y a pas de retour à poser
+  // dans l'agenda.
+  const returnTrain = isOneWayAdventure(adventure) ? null : adventure.return_train;
 
   const formatDateForICS = (dateStr?: string, timeStr?: string) => {
     if (!dateStr) return null;
@@ -352,7 +358,8 @@ export default function SharedAdventureView({
 
   const hike = adventure.hike_snapshot || {};
   const outward = adventure.outward_train;
-  const returnTrain = adventure.return_train;
+  const isOneWay = isOneWayAdventure(adventure);
+  const returnTrain = isOneWay ? null : adventure.return_train;
 
   const handleShare = async () => {
     const shareUrl = typeof window !== "undefined" ? window.location.href : `https://neve-rando.fr/share/${adventure.share_token}`;
@@ -453,7 +460,10 @@ export default function SharedAdventureView({
               Votre aventure à {placeName}
             </h1>
             <p className="text-sm font-medium text-[#7C7C7C] font-satoshi">
-              {formatAdventureRange(adventure.outward_date, adventure.return_date)}
+              {formatAdventureRange(
+                adventure.outward_date,
+                isOneWay ? null : adventure.return_date
+              )}
             </p>
           </div>
 
@@ -504,7 +514,7 @@ export default function SharedAdventureView({
           />
 
           {/* Étape 3 : Trajet Retour (si présent) */}
-          {returnTrain || adventure.return_date ? (
+          {returnTrain ? (
             <>
               <AdventureStepConnector
                 label={formatShortDate(adventure.return_date || adventure.outward_date)}

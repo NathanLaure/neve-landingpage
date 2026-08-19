@@ -57,6 +57,25 @@ export interface HikeSnapshot {
   [key: string]: any;
 }
 
+/**
+ * L'aventure est-elle un aller simple ?
+ *
+ * Le drapeau `is_one_way` fait foi, mais il n'existe que depuis l'ajout de la
+ * colonne : les aventures enregistrées avant portent `false` sans que cela veuille
+ * dire qu'un retour a été choisi. Elles se reconnaissent à leurs deux trajets
+ * identiques — l'app recopiait l'aller faute de retour, et un vrai aller-retour
+ * n'a jamais deux fois le même identifiant d'itinéraire.
+ *
+ * Règle reprise telle quelle de l'app (`isOneWayAdventure`) : les deux surfaces
+ * lisent la même ligne en base, elles ne peuvent pas en tirer des récits
+ * différents.
+ */
+export function isOneWayAdventure(adventure: UserAdventure): boolean {
+  if (adventure.is_one_way) return true;
+  const outwardId = adventure.outward_train?.id;
+  return !!outwardId && outwardId === adventure.return_train?.id;
+}
+
 export interface UserAdventure {
   id: string;
   share_token: string;
@@ -65,7 +84,13 @@ export interface UserAdventure {
   departure_station_name: string;
   return_station_name?: string | null;
   outward_train?: AdventureTrainInfo | null;
+  /**
+   * Sur un aller simple, ce trajet n'est qu'une recopie de l'aller : le modèle en
+   * exige un. C'est `is_one_way` qui dit s'il a été réellement planifié — passer
+   * par `isOneWayAdventure`.
+   */
   return_train?: AdventureTrainInfo | null;
+  is_one_way?: boolean | null;
   passengers_count?: string | null;
   passengers?: PassengerDetail[] | Record<string, any> | null;
   hike_snapshot?: HikeSnapshot | null;
