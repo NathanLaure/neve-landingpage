@@ -15,18 +15,57 @@
   --font-satoshi: 'Satoshi', sans-serif;
   --font-mono: Roboto Mono, monospace;
 
-  --color-brand-orange: #ff6b35;
-  --color-brand-orange-hover: #e0531f;
-  --color-brand-orange-light: #f78963;
-  --color-brand-green: #15803d;
-  --color-brand-green-hover: #166534;
-  --color-brand-green-light: #f0fdf4;
-  --color-neve-beige: #fbfaf7;
-  --color-neve-forest: #4c6a17;
-  --color-neve-forest-hover: #374e13;
-  --color-neve-gray: #f5f3ec;
-  --color-brand-dark: #0f172a;
-  --color-brand-light: #ffffff;
+  /* Palette Neutre Minérale & Chaude Névé (Figma) */
+  --color-neutral-0: #ffffff;
+  --color-neutral-50: #fbfaf7;
+  --color-neutral-100: #f5f3ec;
+  --color-neutral-200: #eae6dc;
+  --color-neutral-300: #d6d0c2;
+  --color-neutral-400: #a8a190;
+  --color-neutral-500: #7a7363;
+  --color-neutral-600: #575246;
+  --color-neutral-700: #3d3930;
+  --color-neutral-800: #29251e;
+  --color-neutral-900: #1c1914;
+  --color-neutral-950: #12100c;
+
+  /* Palette Primaire Névé (Figma) */
+  --color-primary-50: #fff7f2;
+  --color-primary-100: #ffead5;
+  --color-primary-200: #fed2aa;
+  --color-primary-300: #febf8c;
+  --color-primary-400: #fc863b;
+  --color-primary-500: #fa6415;
+  --color-primary-600: #eb490b;
+  --color-primary-700: #c3350b;
+  --color-primary-800: #9b2b11;
+  --color-primary-900: #7d2611;
+  --color-primary-950: #200803;
+
+  /* Raccourcis / Couleurs de Marque */
+  --color-brand-orange: var(--color-primary-600);
+  --color-brand-orange-hover: var(--color-primary-700);
+  --color-brand-orange-light: var(--color-primary-400);
+  --color-brand-green: #00a63e;
+  --color-brand-green-hover: #0d542b;
+  --color-brand-green-light: #dcfce7;
+  --color-brand-blue: #457b9d;
+  --color-brand-blue-hover: #024a70;
+  --color-brand-blue-light: #dff2fe;
+  --color-brand-warning: #bb4d00;
+  --color-brand-warning-light: #ffedd4;
+
+  /* Raccourcis sémantiques Névé */
+  --color-neve-canvas: var(--color-neutral-50);
+  --color-neve-surface: var(--color-neutral-100);
+  --color-neve-card: var(--color-neutral-0);
+  --color-neve-border: var(--color-neutral-200);
+  --color-neve-border-subtle: var(--color-neutral-100);
+  --color-neve-border-strong: var(--color-neutral-300);
+  --color-neve-beige: var(--color-neutral-50);
+  --color-neve-gray: var(--color-neutral-100);
+  --color-brand-dark: var(--color-neutral-900);
+  --color-brand-light: var(--color-neutral-0);
 
   --text-xs: 0.75rem;
   --text-xs--line-height: 1.5;
@@ -73,214 +112,93 @@
   --animate-roll-in: roll-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   --animate-roll-out: roll-out 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 
-
   @keyframes code-1 {
-    0% {
-      opacity: 0;
-    }
-
-    2.5% {
-      opacity: 1;
-    }
-
-    97.5% {
-      opacity: 1;
-    }
-
-    100% {
-      opacity: 0;
-    }
+    0% { opacity: 0; }
+    2.5% { opacity: 1; }
+    97.5% { opacity: 1; }
+    100% { opacity: 0; }
   }
 
   @keyframes code-2 {
-    16.2% {
-      opacity: 0;
-    }
-
-    18.75% {
-      opacity: 1;
-    }
-
-    97.5% {
-      opacity: 1;
-    }
-
-    100% {
-      opacity: 0;
-    }
+    16.2% { opacity: 0; }
+    18.75% { opacity: 1; }
+    97.5% { opacity: 1; }
+    100% { opacity: 0; }
   }
 
   @keyframes code-3 {
-    32.5% {
-      opacity: 0;
-    }
-
-    35% {
-      opacity: 1;
-    }
-
-    97.5% {
-      opacity: 1;
-    }
-
-    100% {
-      opacity: 0;
-    }
+    32.5% { opacity: 0; }
+    35% { opacity: 1; }
+    97.5% { opacity: 1; }
+    100% { opacity: 0; }
   }
 
   @keyframes code-4 {
-    48.75% {
-      opacity: 0;
-    }
-
-    51.25% {
-      opacity: 1;
-    }
-
-    97.5% {
-      opacity: 1;
-    }
-
-    100% {
-      opacity: 0;
-    }
+    48.75% { opacity: 0; }
+    51.25% { opacity: 1; }
+    97.5% { opacity: 1; }
+    100% { opacity: 0; }
   }
 
   @keyframes code-5 {
-    65% {
-      opacity: 0;
-    }
-
-    72.5% {
-      opacity: 1;
-    }
-
-    97.5% {
-      opacity: 1;
-    }
-
-    100% {
-      opacity: 0;
-    }
+    65% { opacity: 0; }
+    72.5% { opacity: 1; }
+    97.5% { opacity: 1; }
+    100% { opacity: 0; }
   }
 
   @keyframes code-6 {
-    81.25% {
-      opacity: 0;
-    }
-
-    83.75% {
-      opacity: 1;
-    }
-
-    97.5% {
-      opacity: 1;
-    }
-
-    100% {
-      opacity: 0;
-    }
+    81.25% { opacity: 0; }
+    83.75% { opacity: 1; }
+    97.5% { opacity: 1; }
+    100% { opacity: 0; }
   }
 
   @keyframes breath {
-
-    0%,
-    100% {
-      transform: scale(0.95);
-    }
-
-    50% {
-      transform: scale(1.1);
-    }
+    0%, 100% { transform: scale(0.95); }
+    50% { transform: scale(1.1); }
   }
 
   @keyframes float {
-
-    0%,
-    100% {
-      transform: translateY(0);
-    }
-
-    50% {
-      transform: translateY(-5%);
-    }
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5%); }
   }
 
   @keyframes line {
-
-    0%,
-    100% {
-      left: 0;
-      opacity: 0;
-    }
-
-    50% {
-      left: 100%;
-      transform: translateX(-100%);
-    }
-
-    10%,
-    40%,
-    60%,
-    90% {
-      opacity: 0;
-    }
-
-    25%,
-    75% {
-      opacity: 1;
-    }
+    0%, 100% { left: 0; opacity: 0; }
+    50% { left: 100%; transform: translateX(-100%); }
+    10%, 40%, 60%, 90% { opacity: 0; }
+    25%, 75% { opacity: 1; }
   }
 
   @keyframes infinite-scroll {
-    from {
-      transform: translateX(0);
-    }
-
-    to {
-      transform: translateX(-100%);
-    }
+    from { transform: translateX(0); }
+    to { transform: translateX(-100%); }
   }
 
   @keyframes roll-in {
-    0% {
-      transform: translateY(100%);
-      opacity: 0;
-    }
-    100% {
-      transform: translateY(0);
-      opacity: 1;
-    }
+    0% { transform: translateY(100%); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
   }
 
   @keyframes roll-out {
-    0% {
-      transform: translateY(0);
-      opacity: 1;
-    }
-    100% {
-      transform: translateY(-100%);
-      opacity: 0;
-    }
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(-100%); opacity: 0; }
   }
 }
 
-/*
-  The default border color has changed to `currentColor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
 @layer base {
-
   *,
   ::after,
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-gray-200, currentColor);
+    border-color: var(--color-neutral-200, currentColor);
+  }
+
+  body {
+    background-color: var(--color-neutral-50);
+    color: var(--color-neutral-900);
   }
 
   ::selection {
@@ -290,9 +208,9 @@
 }
 
 @utility no-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
   &::-webkit-scrollbar {
-    display: none;  /* Chrome, Safari and Opera */
+    display: none;
   }
 }
