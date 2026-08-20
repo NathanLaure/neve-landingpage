@@ -121,7 +121,7 @@ export default function DeleteAccountClient() {
   return (
     <div className={body}>
       <p>
-        Névé est une application de randonnée sans voiture éditée par Nathan Laure. Vous pouvez
+        Névé est une application de randonnée sans voiture éditée par Névé Rando. Vous pouvez
         supprimer votre compte Névé et l&apos;ensemble des données qui lui sont associées, à tout
         moment et sans avoir à vous justifier. La suppression est immédiate et définitive : rien
         ne peut être restauré.
