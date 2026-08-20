@@ -8,6 +8,26 @@ interface Props {
   params: Promise<{ token: string }>;
 }
 
+/**
+ * Lit l'aventure désignée par un jeton de partage.
+ *
+ * Passe par `get_shared_adventure` plutôt que par la table : la politique de
+ * lecture publique qui existait auparavant disait « toute ligne pourvue d'un
+ * jeton est lisible », sans jamais vérifier lequel — RLS ne voit pas le `WHERE`
+ * de la requête. Elle ouvrait donc la table entière à quiconque détient la clé
+ * anonyme, laquelle est publique par construction.
+ *
+ * La fonction ne rend qu'une ligne, et seulement les colonnes que cette page
+ * affiche : ni identifiant de compte, ni coordonnées de départ, ni voyageurs.
+ */
+async function fetchSharedAdventure(token: string) {
+  const { data, error } = await supabase
+    .rpc("get_shared_adventure", { p_token: token })
+    .maybeSingle();
+
+  return { adventure: data as UserAdventure | null, error };
+}
+
 // Format date into French string for meta descriptions
 function formatMetadataDate(dateStr?: string | null): string {
   if (!dateStr) return "";
@@ -46,11 +66,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1200&auto=format&fit=crop";
 
   try {
-    const { data: adventure } = await supabase
-      .from("user_adventures")
-      .select("hike_snapshot, outward_date, departure_station_name, return_date")
-      .eq("share_token", token)
-      .maybeSingle();
+    const { adventure } = await fetchSharedAdventure(token);
 
     if (!adventure) {
       return {
@@ -154,15 +170,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function SharedAdventurePage({ params }: Props) {
   const { token } = await params;
 
-  const { data: adventure, error } = await supabase
-    .from("user_adventures")
-    .select("*")
-    .eq("share_token", token)
-    .maybeSingle();
+  const { adventure, error } = await fetchSharedAdventure(token);
 
   if (error || !adventure) {
     notFound();
   }
 
-  return <SharedAdventureView adventure={adventure as UserAdventure} />;
+  return <SharedAdventureView adventure={adventure} />;
 }
