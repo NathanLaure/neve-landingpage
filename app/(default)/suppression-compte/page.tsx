@@ -14,7 +14,9 @@ export const metadata = {
   description:
     "Supprimez votre compte Névé et l'ensemble des données associées, depuis l'application ou depuis cette page.",
   alternates: {
-    canonical: "https://neve-rando.fr/suppression-compte",
+    /* Avec le `www` : l'apex répond 308 vers lui. Un canonique qui pointe vers
+       une URL redirigée est un canonique qui se contredit. */
+    canonical: "https://www.neve-rando.fr/suppression-compte",
   },
 };
 

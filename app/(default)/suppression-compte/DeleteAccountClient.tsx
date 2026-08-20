@@ -157,6 +157,52 @@ export default function DeleteAccountClient() {
         </ul>
       </div>
 
+      {/* Google renvoie aussi vers cette page depuis le champ « Gérer les données
+          de l'appli », qui promet la suppression d'une partie des données sans
+          fermer le compte. Sans cette section, le lecteur venu pour ça repartirait
+          avec la seule option du tout ou rien. */}
+      <div>
+        <h2 className="text-xl font-bold text-slate-900 mt-8 mb-2">
+          Supprimer une partie de vos données, sans fermer votre compte
+        </h2>
+        <p>
+          Vous n&apos;êtes pas obligé de tout effacer. Depuis l&apos;application, chacun de ces
+          éléments se supprime séparément, et la suppression est immédiate :
+        </p>
+        <ul className="mt-4 list-disc space-y-1 pl-5">
+          <li>
+            <span className="font-bold text-slate-900">Une aventure planifiée</span> — ouvrez sa
+            fiche depuis l&apos;onglet Aventures, puis « Annuler l&apos;aventure » dans le menu
+            d&apos;options. Son lien de partage cesse aussitôt de fonctionner.
+          </li>
+          <li>
+            <span className="font-bold text-slate-900">Votre photo de profil</span> — Profil, puis
+            appuyez sur votre photo et choisissez « Supprimer ».
+          </li>
+          <li>
+            <span className="font-bold text-slate-900">Une randonnée favorite</span> — depuis sa
+            fiche ou depuis l&apos;onglet Favoris.
+          </li>
+          <li>
+            <span className="font-bold text-slate-900">Vos randonnées hors ligne</span> — Profil,
+            Paramètres, Randonnées hors ligne : une par une ou toutes d&apos;un coup.
+          </li>
+          <li>
+            <span className="font-bold text-slate-900">
+              Votre adresse de domicile et vos abonnements de transport
+            </span>{" "}
+            — modifiables ou effaçables depuis Profil, Paramètres.
+          </li>
+        </ul>
+        <p className="mt-4">
+          Pour toute autre demande portant sur une partie de vos données, écrivez-nous à{" "}
+          <CustomLink href="mailto:info@neve-rando.fr?subject=Suppression%20partielle%20de%20mes%20donn%C3%A9es">
+            info@neve-rando.fr
+          </CustomLink>
+          .
+        </p>
+      </div>
+
       <div>
         <h2 className="text-xl font-bold text-slate-900 mt-8 mb-2">
           Ce qui est conservé, et pour combien de temps
