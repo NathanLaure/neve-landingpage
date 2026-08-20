@@ -25,7 +25,14 @@ export default function DefaultLayout({
     });
   }, []);
 
-  const isCityPage = pathname ? /^\/randos-sans-voiture\/[^/]+$/.test(pathname) : false;
+  // Application routes (map explorer, favorites, hike directories, hike detail) don't display marketing footer
+  const isAppPage = pathname
+    ? pathname.startsWith("/explorer") ||
+      pathname.startsWith("/favoris") ||
+      pathname.startsWith("/profil") ||
+      pathname.startsWith("/randos-sans-voiture") ||
+      pathname.startsWith("/rando")
+    : false;
 
   return (
     <>
@@ -33,7 +40,7 @@ export default function DefaultLayout({
 
       <main className="grow">{children}</main>
 
-      {!isCityPage && <Footer border={true} />}
+      {!isAppPage && <Footer border={true} />}
     </>
   );
 }

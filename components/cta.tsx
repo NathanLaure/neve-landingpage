@@ -2,8 +2,10 @@
 
 import Image from "next/image";
 import CustomLink from "@/components/ui/link";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Cta() {
+  const { openAuthModal } = useAuth();
   return (
     <section className="bg-[#fbfaf7] py-16 md:py-24 text-slate-900 w-full relative">
       <div className="mx-auto max-w-[1400px] px-6 sm:px-10 md:px-16">
@@ -51,13 +53,13 @@ export default function Cta() {
               </div>
               
               {/* Text Link */}
-              <CustomLink
-                href="/signup"
-                variant="underline"
-                className="text-lg py-2"
+              <button
+                type="button"
+                onClick={() => openAuthModal()}
+                className="relative font-medium after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:origin-bottom-right after:scale-x-0 after:bg-[#eb490b] after:transition-transform after:duration-300 hover:after:origin-bottom-left hover:after:scale-x-100 pb-0.5 text-lg py-2 text-slate-900 cursor-pointer"
               >
                 Créer un compte gratuitement
-              </CustomLink>
+              </button>
             </div>
           </div>
 

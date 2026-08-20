@@ -6,8 +6,10 @@ import PromoPhone1 from "@/public/images/promo-phone-1.png";
 import PromoPhone2 from "@/public/images/promo-phone-2.png";
 import PromoPhone3 from "@/public/images/promo-phone-3.png";
 import CustomLink from "@/components/ui/link";
+import { useAuth } from "@/context/AuthContext";
 
 export default function PromoSection() {
+  const { openAuthModal } = useAuth();
   const sectionRef = useRef<HTMLDivElement>(null);
   const phoneLeftRef = useRef<HTMLDivElement>(null);
   const phoneCenterRef = useRef<HTMLDivElement>(null);
@@ -113,13 +115,13 @@ export default function PromoSection() {
               </div>
               
               {/* Text Link */}
-              <CustomLink
-                href="/signup"
-                variant="underline"
-                className="text-lg py-2"
+              <button
+                type="button"
+                onClick={() => openAuthModal()}
+                className="relative font-medium after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:origin-bottom-right after:scale-x-0 after:bg-[#eb490b] after:transition-transform after:duration-300 hover:after:origin-bottom-left hover:after:scale-x-100 pb-0.5 text-lg py-2 text-slate-900 cursor-pointer"
               >
                 Créer un compte gratuitement
-              </CustomLink>
+              </button>
             </div>
           </div>
           

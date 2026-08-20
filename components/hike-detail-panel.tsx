@@ -15,7 +15,7 @@ type Props = {
 
 export default function HikeDetailPanel({ summary, onClose }: Props) {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, openAuthModal } = useAuth();
   const { isFavorite, isPending: isFavoritePending, toggleFavorite } = useFavorites();
   const [detail, setDetail] = useState<HikeDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -26,7 +26,7 @@ export default function HikeDetailPanel({ summary, onClose }: Props) {
 
   const handleFavoriteClick = () => {
     if (!user) {
-      router.push("/signin");
+      openAuthModal();
       return;
     }
     toggleFavorite(summary.id);

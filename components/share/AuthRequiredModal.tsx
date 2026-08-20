@@ -7,6 +7,7 @@ import Logo from "@/components/ui/logo";
 import { supabase } from "@/lib/supabase";
 import { translateAuthError } from "@/lib/auth-errors";
 import { AppleIcon, GoogleIcon } from "@/components/ui/social-icon";
+import { useAuth } from "@/context/AuthContext";
 import type { HikeSnapshot } from "@/types/adventure";
 
 interface AuthRequiredModalProps {
@@ -24,6 +25,7 @@ export default function AuthRequiredModal({
   hike,
   shareToken,
 }: AuthRequiredModalProps) {
+  const { openAuthModal } = useAuth();
   const [loadingProvider, setLoadingProvider] = useState<OAuthProvider | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -165,22 +167,30 @@ export default function AuthRequiredModal({
 
         {/* Action Options: Email Signup / Signin */}
         <div className="flex flex-col gap-2">
-          <Link
-            href={signupUrl}
-            className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-2xl bg-[#EB490B] hover:bg-[#C3350B] active:scale-[0.99] text-white font-semibold text-xs sm:text-sm transition-all shadow-sm text-center"
+          <button
+            type="button"
+            onClick={() => {
+              onClose();
+              openAuthModal({ initialStep: "entry" });
+            }}
+            className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-2xl bg-[#EB490B] hover:bg-[#C3350B] active:scale-[0.99] text-white font-semibold text-xs sm:text-sm transition-all shadow-sm text-center cursor-pointer"
           >
-            <span>Créer un compte avec mon e-mail</span>
+            <span>Continuer avec mon e-mail</span>
             <ArrowRight className="w-4 h-4" />
-          </Link>
+          </button>
 
           <div className="text-center pt-1">
             <span className="text-xs text-[#525252]">Déjà inscrit ? </span>
-            <Link
-              href={signinUrl}
-              className="text-xs font-bold text-[#111111] hover:text-[#EB490B] underline transition-colors"
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                openAuthModal({ initialStep: "entry" });
+              }}
+              className="text-xs font-bold text-[#111111] hover:text-[#EB490B] underline transition-colors cursor-pointer"
             >
               Se connecter
-            </Link>
+            </button>
           </div>
         </div>
 

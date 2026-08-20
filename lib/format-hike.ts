@@ -4,14 +4,14 @@ const DIFFICULTY_LABELS: Record<HikeDifficulty, string> = {
   facile: "Facile",
   modere: "Modéré",
   difficile: "Difficile",
-  expert: "Expert",
+  expert: "Difficile",
 };
 
 const DIFFICULTY_COLORS: Record<HikeDifficulty, string> = {
   facile: "text-emerald-600",
   modere: "text-brand-orange-hover",
   difficile: "text-rose-600",
-  expert: "text-rose-700",
+  expert: "text-rose-600",
 };
 
 export function formatDifficultyLabel(difficulty: HikeDifficulty): string {
@@ -36,4 +36,17 @@ export function formatDistance(distanceKm: number): string {
 
 export function formatElevation(meters: number): string {
   return `+${Math.round(meters)}m`;
+}
+
+export function formatRouteType(routeType?: string | null): string {
+  switch (routeType) {
+    case "boucle":
+      return "Boucle";
+    case "aller_retour":
+      return "Aller-retour";
+    case "point_a_point":
+      return "Point à point";
+    default:
+      return "Itinéraire";
+  }
 }

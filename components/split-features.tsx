@@ -1,6 +1,10 @@
+"use client";
+
 import Button from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
 
 export default function SplitFeatures() {
+  const { openAuthModal } = useAuth();
   return (
     <div id="features" className="bg-neve-beige text-slate-900 w-full overflow-hidden">
       
@@ -20,7 +24,7 @@ export default function SplitFeatures() {
               </p>
               
               <div className="flex flex-wrap items-center gap-4">
-                <Button href="/signup">
+                <Button onClick={() => openAuthModal()}>
                   Inscrivez-vous gratuitement
                 </Button>
               </div>
@@ -127,7 +131,7 @@ export default function SplitFeatures() {
               </p>
               
               <div className="flex flex-wrap items-center gap-4">
-                <Button href="/signup">
+                <Button onClick={() => openAuthModal()}>
                   Inscrivez-vous gratuitement
                 </Button>
               </div>
@@ -152,7 +156,7 @@ export default function SplitFeatures() {
               </p>
               
               <div className="flex flex-wrap items-center gap-4">
-                <Button href="/signup">
+                <Button onClick={() => openAuthModal()}>
                   Inscrivez-vous gratuitement
                 </Button>
               </div>

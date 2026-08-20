@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ChevronDown, Compass, LogOut, Smartphone } from "lucide-react";
+import { ChevronDown, Compass, Heart, LogOut, Smartphone, User } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 export default function AccountMenu({ scrolled }: { scrolled: boolean }) {
@@ -96,6 +96,22 @@ export default function AccountMenu({ scrolled }: { scrolled: boolean }) {
             </div>
           </div>
           <div className="my-1 h-px bg-gray-100" />
+          <Link
+            href="/profil"
+            onClick={() => setIsOpen(false)}
+            className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-[#1C1914] hover:bg-gray-50 transition-colors"
+          >
+            <User className="h-4 w-4 text-[#575246]" />
+            <span>Mon profil</span>
+          </Link>
+          <Link
+            href="/favoris"
+            onClick={() => setIsOpen(false)}
+            className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-[#1C1914] hover:bg-gray-50 transition-colors"
+          >
+            <Heart className="h-4 w-4 text-[#EB490B] fill-[#EB490B]/20" />
+            <span>Mes favoris</span>
+          </Link>
           <Link
             href="/explorer"
             onClick={() => setIsOpen(false)}

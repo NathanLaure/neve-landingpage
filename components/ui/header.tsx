@@ -12,7 +12,7 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
   const isHome = pathname === "/";
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, openAuthModal } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -56,33 +56,35 @@ export default function Header() {
 
           {/* Right Group: Nav Links + Action Buttons */}
           <div className="flex items-center gap-8">
-            {/* Navigation Links (Anchors) */}
-            <nav className="hidden md:flex items-center gap-8">
-              <CustomLink 
-                href="#about" 
-                variant={isScrolled ? "header-scrolled" : "header"}
-              >
-                À propos
-              </CustomLink>
-              <CustomLink 
-                href="#how-it-works" 
-                variant={isScrolled ? "header-scrolled" : "header"}
-              >
-                Comment ça marche ?
-              </CustomLink>
-              <CustomLink 
-                href="#features" 
-                variant={isScrolled ? "header-scrolled" : "header"}
-              >
-                Fonctionnalités
-              </CustomLink>
-              <CustomLink 
-                href="#faq" 
-                variant={isScrolled ? "header-scrolled" : "header"}
-              >
-                FAQ
-              </CustomLink>
-            </nav>
+            {/* Navigation Links (Anchors) - Only visible on landing page */}
+            {isHome && (
+              <nav className="hidden md:flex items-center gap-8">
+                <CustomLink 
+                  href="#about" 
+                  variant={isScrolled ? "header-scrolled" : "header"}
+                >
+                  À propos
+                </CustomLink>
+                <CustomLink 
+                  href="#how-it-works" 
+                  variant={isScrolled ? "header-scrolled" : "header"}
+                >
+                  Comment ça marche ?
+                </CustomLink>
+                <CustomLink 
+                  href="#features" 
+                  variant={isScrolled ? "header-scrolled" : "header"}
+                >
+                  Fonctionnalités
+                </CustomLink>
+                <CustomLink 
+                  href="#faq" 
+                  variant={isScrolled ? "header-scrolled" : "header"}
+                >
+                  FAQ
+                </CustomLink>
+              </nav>
+            )}
 
             {/* Right Action Buttons */}
             <div className="flex items-center gap-3 sm:gap-4">
@@ -102,7 +104,7 @@ export default function Header() {
                 <AccountMenu scrolled={isScrolled} />
               ) : (
                 <Button
-                  href="/signup"
+                  onClick={() => openAuthModal()}
                   variant="primary"
                   className="py-2 px-3 sm:px-4"
                 >

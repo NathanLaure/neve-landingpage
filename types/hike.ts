@@ -25,6 +25,7 @@ export interface HikeSummary {
   location_name: string;
   cover_image_url: string | null;
   gallery_urls: string[] | null;
+  is_navigo_accessible?: boolean;
 }
 
 /** Full row, fetched on demand when a hike's detail view is opened. */

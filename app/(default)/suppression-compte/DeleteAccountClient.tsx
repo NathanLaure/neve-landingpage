@@ -90,7 +90,7 @@ export default function DeleteAccountClient() {
     setIsDone(true);
   };
 
-  const body = "text-gray-600 space-y-6 text-sm md:text-base leading-relaxed";
+  const body = "font-satoshi text-[#575246] space-y-6 text-sm sm:text-base leading-relaxed";
 
   if (isDone) {
     return (
@@ -123,21 +123,21 @@ export default function DeleteAccountClient() {
       </p>
 
       <div>
-        <h2 className="text-xl font-bold text-slate-900 mt-8 mb-2">
+        <h2 className="font-bricolage font-bold text-xl sm:text-2xl text-[#1C1914] tracking-tight mt-8 mb-2">
           Comment demander la suppression
         </h2>
         <p>Deux chemins, au choix. Le premier est le plus rapide.</p>
-        <ol className="mt-4 list-decimal space-y-2 pl-5 marker:font-bold marker:text-slate-900">
+        <ol className="mt-4 list-decimal space-y-2 pl-5 marker:font-bold marker:text-[#1C1914]">
           <li>
-            <span className="font-bold text-slate-900">Depuis l&apos;application Névé</span> —
-            ouvrez l&apos;onglet <span className="font-bold text-slate-900">Profil</span>, puis{" "}
-            <span className="font-bold text-slate-900">Paramètres</span>, et choisissez{" "}
-            <span className="font-bold text-slate-900">Supprimer mon compte</span> tout en bas de
+            <span className="font-bold text-[#1C1914]">Depuis l&apos;application Névé</span> —
+            ouvrez l&apos;onglet <span className="font-bold text-[#1C1914]">Profil</span>, puis{" "}
+            <span className="font-bold text-[#1C1914]">Paramètres</span>, et choisissez{" "}
+            <span className="font-bold text-[#1C1914]">Supprimer mon compte</span> tout en bas de
             la page. Une confirmation vous est demandée, puis la suppression est effectuée
             immédiatement.
           </li>
           <li>
-            <span className="font-bold text-slate-900">Depuis cette page</span> — connectez-vous
+            <span className="font-bold text-[#1C1914]">Depuis cette page</span> — connectez-vous
             ci-dessous et confirmez. Si vous n&apos;avez plus accès à votre compte, écrivez-nous à{" "}
             <CustomLink href="mailto:info@neve-rando.fr?subject=Demande%20de%20suppression%20de%20compte">
               info@neve-rando.fr
@@ -149,7 +149,9 @@ export default function DeleteAccountClient() {
       </div>
 
       <div>
-        <h2 className="text-xl font-bold text-slate-900 mt-8 mb-2">Ce qui est supprimé</h2>
+        <h2 className="font-bricolage font-bold text-xl sm:text-2xl text-[#1C1914] tracking-tight mt-8 mb-2">
+          Ce qui est supprimé
+        </h2>
         <ul className="list-disc space-y-1 pl-5">
           {DELETED_ITEMS.map((item) => (
             <li key={item}>{item}</li>
@@ -162,7 +164,7 @@ export default function DeleteAccountClient() {
           fermer le compte. Sans cette section, le lecteur venu pour ça repartirait
           avec la seule option du tout ou rien. */}
       <div>
-        <h2 className="text-xl font-bold text-slate-900 mt-8 mb-2">
+        <h2 className="font-bricolage font-bold text-xl sm:text-2xl text-[#1C1914] tracking-tight mt-8 mb-2">
           Supprimer une partie de vos données, sans fermer votre compte
         </h2>
         <p>
@@ -171,24 +173,24 @@ export default function DeleteAccountClient() {
         </p>
         <ul className="mt-4 list-disc space-y-1 pl-5">
           <li>
-            <span className="font-bold text-slate-900">Une aventure planifiée</span> — ouvrez sa
+            <span className="font-bold text-[#1C1914]">Une aventure planifiée</span> — ouvrez sa
             fiche depuis l&apos;onglet Aventures, puis « Annuler l&apos;aventure » dans le menu
             d&apos;options. Son lien de partage cesse aussitôt de fonctionner.
           </li>
           <li>
-            <span className="font-bold text-slate-900">Votre photo de profil</span> — Profil, puis
+            <span className="font-bold text-[#1C1914]">Votre photo de profil</span> — Profil, puis
             appuyez sur votre photo et choisissez « Supprimer ».
           </li>
           <li>
-            <span className="font-bold text-slate-900">Une randonnée favorite</span> — depuis sa
+            <span className="font-bold text-[#1C1914]">Une randonnée favorite</span> — depuis sa
             fiche ou depuis l&apos;onglet Favoris.
           </li>
           <li>
-            <span className="font-bold text-slate-900">Vos randonnées hors ligne</span> — Profil,
+            <span className="font-bold text-[#1C1914]">Vos randonnées hors ligne</span> — Profil,
             Paramètres, Randonnées hors ligne : une par une ou toutes d&apos;un coup.
           </li>
           <li>
-            <span className="font-bold text-slate-900">
+            <span className="font-bold text-[#1C1914]">
               Votre adresse de domicile et vos abonnements de transport
             </span>{" "}
             — modifiables ou effaçables depuis Profil, Paramètres.
@@ -204,13 +206,13 @@ export default function DeleteAccountClient() {
       </div>
 
       <div>
-        <h2 className="text-xl font-bold text-slate-900 mt-8 mb-2">
+        <h2 className="font-bricolage font-bold text-xl sm:text-2xl text-[#1C1914] tracking-tight mt-8 mb-2">
           Ce qui est conservé, et pour combien de temps
         </h2>
         <dl className="space-y-4">
           {RETAINED_ITEMS.map((item) => (
             <div key={item.what}>
-              <dt className="font-bold text-slate-900">{item.what}</dt>
+              <dt className="font-bold text-[#1C1914]">{item.what}</dt>
               <dd className="mt-1">{item.detail}</dd>
             </div>
           ))}
@@ -222,12 +224,12 @@ export default function DeleteAccountClient() {
       </div>
 
       <div>
-        <h2 className="text-xl font-bold text-slate-900 mt-8 mb-2">
+        <h2 className="font-bricolage font-bold text-xl sm:text-2xl text-[#1C1914] tracking-tight mt-8 mb-2">
           Supprimer mon compte maintenant
         </h2>
 
         {isLoading ? (
-          <p className="flex items-center gap-2 text-gray-500">
+          <p className="flex items-center gap-2 text-[#7A7363]">
             <Loader2 className="h-4 w-4 animate-spin" />
             Vérification de votre session…
           </p>
@@ -251,7 +253,7 @@ export default function DeleteAccountClient() {
           <>
             <p>
               Vous êtes connecté avec{" "}
-              <span className="font-bold text-slate-900">{user.email}</span>.
+              <span className="font-bold text-[#1C1914]">{user.email}</span>.
             </p>
 
             {error && (
@@ -272,11 +274,11 @@ export default function DeleteAccountClient() {
                 </Button>
               </div>
             ) : (
-              <div className="mt-5 rounded-2xl border-2 border-[#1c1914] bg-[#f5f3ec] p-5">
-                <p className="font-bold text-slate-900">
+              <div className="mt-5 rounded-2xl border border-[#D6D0C2] bg-[#FAF8F5] p-5">
+                <p className="font-bold text-[#1C1914]">
                   Confirmez-vous la suppression définitive de votre compte ?
                 </p>
-                <p className="mt-1 text-sm text-gray-600">
+                <p className="mt-1 text-sm text-[#575246]">
                   Cette action ne peut pas être annulée.
                 </p>
                 <div className="mt-5 flex flex-wrap items-center gap-3">
@@ -305,7 +307,9 @@ export default function DeleteAccountClient() {
       </div>
 
       <div>
-        <h2 className="text-xl font-bold text-slate-900 mt-8 mb-2">Une question ?</h2>
+        <h2 className="font-bricolage font-bold text-xl sm:text-2xl text-[#1C1914] tracking-tight mt-8 mb-2">
+          Une question ?
+        </h2>
         {/* `default` et non `arrow` au fil du texte : la variante à flèche pousse
             une icône après le lien, ce qui se lit comme un appel à l'action et non
             comme une adresse citée dans une phrase. */}

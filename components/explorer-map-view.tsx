@@ -28,7 +28,7 @@ type Props = {
 
 const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1501555088652-021faa106b9b?auto=format&fit=crop&w=600&q=80";
 
-const DIFFICULTY_OPTIONS: (HikeDifficulty | "All")[] = ["All", "facile", "modere", "difficile", "expert"];
+const DIFFICULTY_OPTIONS: (HikeDifficulty | "All")[] = ["All", "facile", "modere", "difficile"];
 
 // Beyond this zoom, supercluster stops grouping pins and returns individual points.
 const CLUSTER_MAX_ZOOM = 13;
@@ -46,7 +46,7 @@ export default function ExplorerMapView({ areaName, hikes, fetchError = null, ce
   const searchParams = useSearchParams();
   const router = useRouter();
   const hikeQuery = searchParams.get("hike");
-  const { user } = useAuth();
+  const { user, openAuthModal } = useAuth();
   const { isFavorite, isPending: isFavoritePending, toggleFavorite } = useFavorites();
 
   const [selectedDifficulty, setSelectedDifficulty] = useState<HikeDifficulty | "All">("All");
@@ -71,7 +71,11 @@ export default function ExplorerMapView({ areaName, hikes, fetchError = null, ce
 
   // Filtering Logic
   const filteredHikes = hikes.filter((hike) => {
-    return selectedDifficulty === "All" || hike.difficulty === selectedDifficulty;
+    if (selectedDifficulty === "All") return true;
+    if (selectedDifficulty === "difficile") {
+      return hike.difficulty === "difficile" || hike.difficulty === "expert";
+    }
+    return hike.difficulty === selectedDifficulty;
   });
 
   const detailHike = detailHikeId ? hikes.find((h) => h.id === detailHikeId) : undefined;
@@ -93,10 +97,10 @@ export default function ExplorerMapView({ areaName, hikes, fetchError = null, ce
     }
   }, [hikeQuery, hikes]);
 
-  // Toggle Favorite Handler — anonymous visitors are sent to sign in first.
+  // Toggle Favorite Handler — anonymous visitors are prompted with the auth modal.
   const handleFavoriteClick = (hikeId: string) => {
     if (!user) {
-      router.push("/signin");
+      openAuthModal();
       return;
     }
     toggleFavorite(hikeId);
@@ -167,11 +171,12 @@ export default function ExplorerMapView({ areaName, hikes, fetchError = null, ce
       el.className = "cursor-pointer";
       const inner = document.createElement("div");
       inner.className =
-        "flex items-center justify-center w-9 h-9 bg-brand-light rounded-full border-2 border-brand-orange shadow-md transition-transform duration-150";
-      const emojiSpan = document.createElement("span");
-      emojiSpan.style.fontSize = "16px";
-      emojiSpan.innerText = "🥾";
-      inner.appendChild(emojiSpan);
+        "flex items-center justify-center w-8 h-8 bg-[#EB490B] rounded-full border-2 border-white shadow-[0px_3px_10px_rgba(0,0,0,0.25)] transition-transform duration-150";
+      inner.innerHTML = `
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="12 2 19 21 12 17 5 21 12 2"></polygon>
+        </svg>
+      `;
       el.appendChild(inner);
 
       const popup = new mapboxgl.Popup({ offset: 15 }).setHTML(`
@@ -185,11 +190,9 @@ export default function ExplorerMapView({ areaName, hikes, fetchError = null, ce
       const marker = new mapboxgl.Marker({ element: el }).setLngLat([lng, lat]).setPopup(popup).addTo(map);
 
       el.addEventListener("mouseenter", () => {
-        inner.style.borderColor = "var(--color-brand-green)";
-        inner.style.transform = "scale(1.15)";
+        inner.style.transform = "scale(1.2)";
       });
       el.addEventListener("mouseleave", () => {
-        inner.style.borderColor = "var(--color-brand-orange)";
         inner.style.transform = "scale(1)";
       });
       el.addEventListener("click", () => {

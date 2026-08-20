@@ -53,7 +53,7 @@ export default function RootLayout({
         <link rel="icon" href="/icon-light.svg" media="(prefers-color-scheme: light)" type="image/svg+xml" />
       </head>
       <body
-        className={`${inter.variable} ${bricolage.variable} bg-gray-50 font-bricolage tracking-tight text-gray-900 antialiased`}
+        className={`${inter.variable} ${bricolage.variable} bg-gray-50 font-satoshi font-medium text-base text-gray-900 antialiased`}
       >
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-04VG4TQB49"
