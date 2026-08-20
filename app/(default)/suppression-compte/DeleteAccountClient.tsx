@@ -31,11 +31,6 @@ const RETAINED_ITEMS = [
       "Nos bases de données sont sauvegardées de façon chiffrée. Des copies résiduelles de vos données peuvent y subsister jusqu'à 30 jours après la suppression, le temps que ces sauvegardes soient écrasées à leur tour. Elles ne sont ni consultées ni exploitées.",
   },
   {
-    what: "Cache des itinéraires",
-    detail:
-      "Les horaires de train calculés sont mis en cache pour éviter d'interroger le réseau deux fois pour le même trajet. Ce cache ne contient aucun identifiant, et les points de départ y sont arrondis à une centaine de mètres : rien n'y permet de remonter jusqu'à vous. Il est partagé entre tous les randonneurs et n'est donc pas supprimé.",
-  },
-  {
     what: "Statistiques du site",
     detail:
       "Les mesures d'audience de neve-rando.fr sont anonymes et ne sont rattachées à aucun compte.",
