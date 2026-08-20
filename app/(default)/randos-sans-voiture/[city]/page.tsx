@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Props) {
     title: `Randonnées autour de ${place.name} - Névé`,
     description: `Sélection d'itinéraires de randonnée autour de ${place.name}, avec distance, dénivelé et durée précis. Partez explorer l'esprit tranquille avec Névé.`,
     alternates: {
-      canonical: `https://neve-rando.fr/randos-sans-voiture/${city.toLowerCase()}`,
+      canonical: `https://www.neve-rando.fr/randos-sans-voiture/${city.toLowerCase()}`,
     },
   };
 }
@@ -48,7 +48,7 @@ export default async function CityPage({ params }: Props) {
   const exploreHref = `/explorer?lat=${place.lat}&lng=${place.lng}&name=${encodeURIComponent(place.name)}`;
 
   // Generate Google-compliant Rich Snippet Schema (JSON-LD)
-  const websiteUrl = "https://neve-rando.fr"; // placeholder brand url
+  const websiteUrl = "https://www.neve-rando.fr"; // placeholder brand url
   const pageUrl = `${websiteUrl}/randos-sans-voiture/${city.toLowerCase()}`;
 
   const schema = {

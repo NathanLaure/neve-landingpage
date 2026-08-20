@@ -148,7 +148,7 @@ function downloadAdventureCalendar(adventure: UserAdventure) {
     }`;
     const description = `Feuille de route Névé pour la rando : ${hikeTitle}\\nTrain : ${
       outward?.line || outward?.trainNumber || "TER/Transilien"
-    }\\nLien : https://neve-rando.fr/share/${adventure.share_token}`;
+    }\\nLien : https://www.neve-rando.fr/share/${adventure.share_token}`;
 
     events.push(`BEGIN:VEVENT
 UID:neve-outward-${adventure.share_token}-${Date.now()}@neve-rando.fr
@@ -179,7 +179,7 @@ END:VEVENT`);
     } -> ${adventure.return_station_name || adventure.departure_station_name}`;
     const description = `Retour de la rando Névé : ${hikeTitle}\\nTrain : ${
       returnTrain?.line || returnTrain?.trainNumber || "TER/Transilien"
-    }\\nLien : https://neve-rando.fr/share/${adventure.share_token}`;
+    }\\nLien : https://www.neve-rando.fr/share/${adventure.share_token}`;
 
     events.push(`BEGIN:VEVENT
 UID:neve-return-${adventure.share_token}-${Date.now()}@neve-rando.fr
@@ -362,7 +362,7 @@ export default function SharedAdventureView({
   const returnTrain = isOneWay ? null : adventure.return_train;
 
   const handleShare = async () => {
-    const shareUrl = typeof window !== "undefined" ? window.location.href : `https://neve-rando.fr/share/${adventure.share_token}`;
+    const shareUrl = typeof window !== "undefined" ? window.location.href : `https://www.neve-rando.fr/share/${adventure.share_token}`;
     const title = `${hike.title || "Randonnée"} — Feuille de route Névé`;
     const text = `Consulte les horaires de train et l'itinéraire pour notre rando prévue le ${adventure.outward_date} !`;
 

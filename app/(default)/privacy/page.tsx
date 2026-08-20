@@ -4,7 +4,7 @@ export const metadata = {
   title: "Politique de confidentialité - Névé",
   description: "Politique de confidentialité de l'application de randonnée Névé.",
   alternates: {
-    canonical: "https://neve-rando.fr/privacy",
+    canonical: "https://www.neve-rando.fr/privacy",
   },
 };
 

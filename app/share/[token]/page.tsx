@@ -59,7 +59,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         openGraph: {
           title: defaultTitle,
           description: defaultDesc,
-          url: `https://neve-rando.fr/share/${token}`,
+          url: `https://www.neve-rando.fr/share/${token}`,
           siteName: "Névé",
           locale: "fr_FR",
           type: "website",
@@ -96,12 +96,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: { absolute: title },
       description,
       alternates: {
-        canonical: `https://neve-rando.fr/share/${token}`,
+        canonical: `https://www.neve-rando.fr/share/${token}`,
       },
       openGraph: {
         title,
         description,
-        url: `https://neve-rando.fr/share/${token}`,
+        url: `https://www.neve-rando.fr/share/${token}`,
         siteName: "Névé",
         locale: "fr_FR",
         type: "website",
@@ -128,7 +128,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       openGraph: {
         title: defaultTitle,
         description: defaultDesc,
-        url: `https://neve-rando.fr/share/${token}`,
+        url: `https://www.neve-rando.fr/share/${token}`,
         siteName: "Névé",
         locale: "fr_FR",
         type: "website",

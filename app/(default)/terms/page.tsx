@@ -2,7 +2,7 @@ export const metadata = {
   title: "Conditions Générales d'Utilisation - Névé",
   description: "Conditions Générales d'Utilisation de l'application Névé.",
   alternates: {
-    canonical: "https://neve-rando.fr/terms",
+    canonical: "https://www.neve-rando.fr/terms",
   },
 };
 

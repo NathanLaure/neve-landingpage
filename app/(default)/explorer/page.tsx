@@ -7,7 +7,7 @@ export const metadata = {
   description:
     "Explorez toutes les randonnées référencées par Névé sur une carte interactive : distance, dénivelé, difficulté et tracé GPS.",
   alternates: {
-    canonical: "https://neve-rando.fr/explorer",
+    canonical: "https://www.neve-rando.fr/explorer",
   },
 };
 

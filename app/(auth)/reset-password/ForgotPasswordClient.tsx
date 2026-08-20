@@ -9,6 +9,7 @@ import CustomLink from "@/components/ui/link";
 
 // Kept in sync with the mobile app's recovery redirect (context/AuthContext.tsx)
 // so both platforms land on the same "set a new password" bridge page.
+/* Voir EMAIL_REDIRECT_TO : liste blanche Supabase, pas canonique SEO. */
 const RESET_REDIRECT_TO = "https://neve-rando.fr/auth/reset-password";
 
 export default function ForgotPasswordClient() {

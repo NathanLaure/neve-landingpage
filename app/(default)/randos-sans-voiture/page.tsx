@@ -13,7 +13,7 @@ export const metadata = {
   description:
     "Découvrez notre sélection de randonnées autour de Digne-les-Bains, Sisteron, Manosque, Castellane, Forcalquier et Barcelonnette.",
   alternates: {
-    canonical: "https://neve-rando.fr/randos-sans-voiture",
+    canonical: "https://www.neve-rando.fr/randos-sans-voiture",
   },
 };
 

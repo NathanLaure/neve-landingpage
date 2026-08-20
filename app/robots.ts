@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/api/", "/auth/", "/reset-password", "/signin", "/signup"],
     },
-    sitemap: "https://neve-rando.fr/sitemap.xml",
+    sitemap: "https://www.neve-rando.fr/sitemap.xml",
   };
 }

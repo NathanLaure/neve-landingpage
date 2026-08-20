@@ -18,7 +18,10 @@ const bricolage = Bricolage_Grotesque({
 });
 
 export const metadata = {
-  metadataBase: new URL("https://neve-rando.fr"),
+  /* Avec le `www` : c'est l'hôte canonique, l'apex répond 308 vers lui. Sans
+     lui, chaque page annonçait un canonique qui redirige — un signal qui se
+     contredit lui-même. */
+  metadataBase: new URL("https://www.neve-rando.fr"),
   title: {
     default: "Névé - S'évader en randonnée sans voiture",
     template: "%s | Névé",
