@@ -9,11 +9,37 @@ import { useAuth } from "@/context/AuthContext";
 
 /** Ce que la suppression emporte, énuméré avant de la déclencher et non après. */
 const DELETED_ITEMS = [
-  "votre compte et vos identifiants de connexion",
-  "vos aventures planifiées et vos billets enregistrés",
-  "vos randonnées favorites",
-  "votre adresse de domicile et vos abonnements de transport",
-  "votre photo de profil",
+  "votre compte et vos identifiants de connexion (adresse e-mail, mot de passe, comptes Google, Apple ou Facebook associés)",
+  "votre nom et votre photo de profil",
+  "vos aventures planifiées, leurs trajets et leurs liens de partage",
+  "vos randonnées favorites et vos avis",
+  "votre adresse de domicile et vos abonnements de transport déclarés",
+  "vos randonnées téléchargées hors ligne et vos préférences de recherche, effacées de votre téléphone",
+];
+
+/**
+ * Ce qui subsiste, et pour combien de temps.
+ *
+ * Google exige cette liste au même titre que la précédente : une page qui
+ * n'énumère que ce qu'elle supprime laisse croire qu'il ne reste rien, ce qui
+ * n'est jamais tout à fait vrai d'un système sauvegardé.
+ */
+const RETAINED_ITEMS = [
+  {
+    what: "Sauvegardes automatiques",
+    detail:
+      "Nos bases de données sont sauvegardées de façon chiffrée. Des copies résiduelles de vos données peuvent y subsister jusqu'à 30 jours après la suppression, le temps que ces sauvegardes soient écrasées à leur tour. Elles ne sont ni consultées ni exploitées.",
+  },
+  {
+    what: "Cache des itinéraires",
+    detail:
+      "Les horaires de train calculés sont mis en cache pour éviter d'interroger le réseau deux fois pour le même trajet. Ce cache ne contient aucun identifiant, et les points de départ y sont arrondis à une centaine de mètres : rien n'y permet de remonter jusqu'à vous. Il est partagé entre tous les randonneurs et n'est donc pas supprimé.",
+  },
+  {
+    what: "Statistiques du site",
+    detail:
+      "Les mesures d'audience de neve-rando.fr sont anonymes et ne sont rattachées à aucun compte.",
+  },
 ];
 
 /**
@@ -95,10 +121,37 @@ export default function DeleteAccountClient() {
   return (
     <div className={body}>
       <p>
-        Vous pouvez supprimer votre compte Névé et l&apos;ensemble des données qui lui sont
-        associées, à tout moment et sans justification. La suppression est immédiate et
-        définitive : aucune sauvegarde n&apos;est conservée, et rien ne peut être restauré.
+        Névé est une application de randonnée sans voiture éditée par Nathan Laure. Vous pouvez
+        supprimer votre compte Névé et l&apos;ensemble des données qui lui sont associées, à tout
+        moment et sans avoir à vous justifier. La suppression est immédiate et définitive : rien
+        ne peut être restauré.
       </p>
+
+      <div>
+        <h2 className="text-xl font-bold text-slate-900 mt-8 mb-2">
+          Comment demander la suppression
+        </h2>
+        <p>Deux chemins, au choix. Le premier est le plus rapide.</p>
+        <ol className="mt-4 list-decimal space-y-2 pl-5 marker:font-bold marker:text-slate-900">
+          <li>
+            <span className="font-bold text-slate-900">Depuis l&apos;application Névé</span> —
+            ouvrez l&apos;onglet <span className="font-bold text-slate-900">Profil</span>, puis{" "}
+            <span className="font-bold text-slate-900">Paramètres</span>, et choisissez{" "}
+            <span className="font-bold text-slate-900">Supprimer mon compte</span> tout en bas de
+            la page. Une confirmation vous est demandée, puis la suppression est effectuée
+            immédiatement.
+          </li>
+          <li>
+            <span className="font-bold text-slate-900">Depuis cette page</span> — connectez-vous
+            ci-dessous et confirmez. Si vous n&apos;avez plus accès à votre compte, écrivez-nous à{" "}
+            <CustomLink href="mailto:info@neve-rando.fr?subject=Demande%20de%20suppression%20de%20compte">
+              info@neve-rando.fr
+            </CustomLink>{" "}
+            depuis l&apos;adresse associée au compte : nous procéderons à la suppression sous 30
+            jours, comme le prévoit le RGPD.
+          </li>
+        </ol>
+      </div>
 
       <div>
         <h2 className="text-xl font-bold text-slate-900 mt-8 mb-2">Ce qui est supprimé</h2>
@@ -107,25 +160,30 @@ export default function DeleteAccountClient() {
             <li key={item}>{item}</li>
           ))}
         </ul>
+      </div>
+
+      <div>
+        <h2 className="text-xl font-bold text-slate-900 mt-8 mb-2">
+          Ce qui est conservé, et pour combien de temps
+        </h2>
+        <dl className="space-y-4">
+          {RETAINED_ITEMS.map((item) => (
+            <div key={item.what}>
+              <dt className="font-bold text-slate-900">{item.what}</dt>
+              <dd className="mt-1">{item.detail}</dd>
+            </div>
+          ))}
+        </dl>
         <p className="mt-4">
-          Les randonnées téléchargées pour un usage hors ligne, ainsi que vos préférences de
-          recherche, sont effacées de votre téléphone au moment de la suppression. Les
-          statistiques d&apos;usage du site, qui sont anonymes, ne permettent pas de remonter
-          jusqu&apos;à vous et ne sont donc pas concernées.
+          Aucune autre donnée n&apos;est conservée : votre compte et tout ce qui s&apos;y rattache
+          disparaissent de nos bases au moment de la suppression.
         </p>
       </div>
 
       <div>
-        <h2 className="text-xl font-bold text-slate-900 mt-8 mb-2">Depuis l&apos;application</h2>
-        <p>
-          Ouvrez <span className="font-bold text-slate-900">Profil</span>, puis{" "}
-          <span className="font-bold text-slate-900">Paramètres</span>, et choisissez{" "}
-          <span className="font-bold text-slate-900">Supprimer mon compte</span> en bas de la page.
-        </p>
-      </div>
-
-      <div>
-        <h2 className="text-xl font-bold text-slate-900 mt-8 mb-2">Depuis cette page</h2>
+        <h2 className="text-xl font-bold text-slate-900 mt-8 mb-2">
+          Supprimer mon compte maintenant
+        </h2>
 
         {isLoading ? (
           <p className="flex items-center gap-2 text-gray-500">
