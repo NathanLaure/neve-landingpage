@@ -1,3 +1,5 @@
+import CustomLink from "@/components/ui/link";
+
 export const metadata = {
   title: "Politique de confidentialité - Névé",
   description: "Politique de confidentialité de l'application de randonnée Névé.",
@@ -47,6 +49,10 @@ export default function PrivacyPage() {
           <h2 className="text-xl font-bold text-slate-900 mt-8 mb-2">5. Vos droits (RGPD)</h2>
           <p>
             Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez à tout moment d'un droit d'accès, de rectification et d'effacement de vos données. Vous pouvez désactiver l'accès au GPS pour l'application Névé dans les paramètres de votre système d'exploitation mobile.
+          </p>
+          <p>
+            Le droit d'effacement s'exerce sans nous écrire ni attendre : depuis l'application, dans <span className="font-bold text-slate-900">Profil &rsaquo; Paramètres &rsaquo; Supprimer mon compte</span>, ou depuis notre{" "}
+            <CustomLink href="/suppression-compte">page de suppression de compte</CustomLink>. La suppression est immédiate et définitive, et emporte l'ensemble des données associées à votre compte.
           </p>
         </div>
       </div>

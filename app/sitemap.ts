@@ -9,6 +9,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/randos-sans-voiture",
     "/privacy",
     "/terms",
+    // Google vérifie que la page de suppression de compte est réellement
+    // atteignable : autant qu'elle soit annoncée au même titre que les autres.
+    "/suppression-compte",
   ].map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date(),
