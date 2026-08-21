@@ -23,7 +23,9 @@ export default function SharedAdventureGate({ token }: { token: string }) {
   const { user, isLoading: isAuthLoading } = useAuth();
 
   const [adventure, setAdventure] = useState<UserAdventure | null>(null);
-  const [status, setStatus] = useState<"idle" | "loading" | "ready" | "missing">("idle");
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "ready" | "missing"
+  >("idle");
 
   useEffect(() => {
     if (!user) return;
@@ -47,7 +49,7 @@ export default function SharedAdventureGate({ token }: { token: string }) {
 
   if (isAuthLoading) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
+      <div className="flex min-h-[80vh] items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
       </div>
     );
@@ -60,23 +62,29 @@ export default function SharedAdventureGate({ token }: { token: string }) {
     const signinUrl = `/signin?redirect=/share/${token}`;
 
     return (
-      <div className="mx-auto max-w-xl py-16 text-center">
-        <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-[#f5f3ec]">
-          <Lock className="h-6 w-6 text-[#1C1914]" />
-        </div>
-        <h2 className="font-bricolage text-2xl font-extrabold tracking-tight text-[#1C1914] sm:text-3xl">
-          Connectez-vous pour voir cette aventure
-        </h2>
-        <p className="mx-auto mt-3 max-w-md font-satoshi text-[#575246]">
-          Quelqu&apos;un vous a partagé sa feuille de route : horaires de train, correspondances et
-          itinéraire de la randonnée. Créez un compte gratuit ou connectez-vous pour la consulter,
-          et l&apos;ajouter à vos propres aventures.
-        </p>
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-          <Button href={signinUrl}>Se connecter</Button>
-          <Button href={`/signup?redirect=/share/${token}`} variant="secondary">
-            Créer un compte
-          </Button>
+      <div className="flex min-h-[80vh] items-center justify-center px-6">
+        <div className="mx-auto max-w-xl text-center">
+          <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-[#f5f3ec]">
+            <Lock className="h-6 w-6 text-[#1C1914]" />
+          </div>
+          <h2 className="font-bricolage text-2xl font-extrabold tracking-tight text-[#1C1914] sm:text-3xl">
+            Connectez-vous pour voir cette aventure
+          </h2>
+          <p className="mx-auto mt-3 max-w-md font-satoshi text-[#575246]">
+            Quelqu&apos;un vous a partagé sa feuille de route : horaires de
+            train, correspondances et itinéraire de la randonnée. Créez un
+            compte gratuit ou connectez-vous pour la consulter, et
+            l&apos;ajouter à vos propres aventures.
+          </p>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <Button href={signinUrl}>Se connecter</Button>
+            <Button
+              href={`/signup?redirect=/share/${token}`}
+              variant="secondary"
+            >
+              Créer un compte
+            </Button>
+          </div>
         </div>
       </div>
     );
@@ -84,7 +92,7 @@ export default function SharedAdventureGate({ token }: { token: string }) {
 
   if (status === "idle" || status === "loading") {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
+      <div className="flex min-h-[80vh] items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
       </div>
     );
@@ -92,14 +100,16 @@ export default function SharedAdventureGate({ token }: { token: string }) {
 
   if (status === "missing" || !adventure) {
     return (
-      <div className="mx-auto max-w-xl py-16 text-center">
-        <h2 className="font-bricolage text-2xl font-extrabold tracking-tight text-[#1C1914]">
-          Aventure introuvable
-        </h2>
-        <p className="mx-auto mt-3 max-w-md font-satoshi text-[#575246]">
-          Ce lien n&apos;est plus valide. Son auteur a peut-être annulé la sortie, ou l&apos;adresse
-          a été recopiée en partie.
-        </p>
+      <div className="flex min-h-[80vh] items-center justify-center px-6">
+        <div className="mx-auto max-w-xl text-center">
+          <h2 className="font-bricolage text-2xl font-extrabold tracking-tight text-[#1C1914]">
+            Aventure introuvable
+          </h2>
+          <p className="mx-auto mt-3 max-w-md font-satoshi text-[#575246]">
+            Ce lien n&apos;est plus valide. Son auteur a peut-être annulé la
+            sortie, ou l&apos;adresse a été recopiée en partie.
+          </p>
+        </div>
       </div>
     );
   }
