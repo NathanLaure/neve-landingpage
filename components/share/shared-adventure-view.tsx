@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   Calendar,
+  CalendarDays,
   Clock4,
   MapPin,
   Navigation,
@@ -20,7 +21,6 @@ import Logo from "@/components/ui/logo";
 import { TransportLineBadge } from "@/components/share/TransportLineBadge";
 import JourneyTimeline from "@/components/share/JourneyTimeline";
 import AdventureHikeCard from "@/components/share/AdventureHikeCard";
-import AuthRequiredModal from "@/components/share/AuthRequiredModal";
 import {
   AdventureStepConnector,
   AdventureTimelineCaption,
@@ -214,7 +214,7 @@ END:VCALENDAR`;
 }
 
 /**
- * Sous-composant affichant un trajet (Aller ou Retour) avec transitions douces
+ * Sous-composant affichant un trajet (Aller ou Retour) ultra-épuré sans cadre (frameless)
  */
 function JourneyCardBlock({
   phase,
@@ -233,109 +233,81 @@ function JourneyCardBlock({
 
   const isOutward = phase === "outward";
   const phaseLabel = isOutward ? "Aller" : "Retour";
-  const phaseBadgeClass = isOutward
-    ? "text-[#EB490B] bg-[#FFF0E8] border border-[#EB490B]/20"
-    : "text-[#292929] bg-gray-100 border border-gray-200";
 
   const departureTime = train?.departureTime || train?.time || "—";
   const arrivalTime = train?.arrivalTime || "—";
   const duration = train?.durationFormatted || train?.duration;
 
   const legs = Array.isArray(train?.legs) && train.legs.length > 0 ? train.legs : null;
+  const transfersCount = legs && legs.length > 1 ? legs.length - 1 : 0;
+  const transferLabel =
+    transfersCount === 0
+      ? "Direct"
+      : `${transfersCount} correspondance${transfersCount > 1 ? "s" : ""}`;
 
   return (
-    <div className="bg-white rounded-3xl p-4 sm:p-5 border border-gray-200/80 shadow-xs hover:shadow-md transition-all duration-300 flex flex-col gap-3">
-      {/* En-tête Phase & Date */}
-      <div className="flex items-center justify-between gap-2 flex-wrap pb-2 border-b border-gray-100">
-        <span className={`inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-md ${phaseBadgeClass} transition-colors`}>
-          {phaseLabel}
-        </span>
-        <span className="text-xs font-medium text-[#7C7C7C]">
-          {dateFormatted}
+    <div className="bg-white rounded-[8px] pt-3 overflow-hidden shadow-[0px_4px_12px_rgba(0,0,0,0.05)] border border-[#EAE6DC] flex flex-col w-full font-satoshi">
+      {/* En-tête Phase & Date (CalendarDays icon + Date) */}
+      <div className="flex items-center gap-2 px-4 pb-2.5">
+        <CalendarDays className="w-4 h-4 text-[#575246]" />
+        <span className="text-[13px] sm:text-[14px] font-bold text-[#575246] font-satoshi">
+          {phaseLabel} : {dateFormatted}
         </span>
       </div>
 
-      {/* Carte Trajet structurée (alignement vertical type app mobile) */}
-      <div className="bg-[#FAF8F5] p-3.5 sm:p-4 rounded-2xl border border-gray-200/60 flex flex-col gap-2.5 shadow-2xs">
-        
-        {/* Point de départ : Heure alignée à gauche + Lieu */}
-        <div className="flex items-center gap-3">
-          <span className="font-bricolage font-bold text-lg sm:text-xl text-[#111111] min-w-[56px] text-left shrink-0 leading-none">
+      {/* Corps du trajet */}
+      <div className="border-t border-[#EAE6DC] p-4 sm:p-5 flex flex-col gap-3.5 bg-white">
+        {/* Point de départ : Heure + Gare */}
+        <div className="flex items-center gap-3.5 py-0.5">
+          <span className="font-satoshi font-bold text-[18px] sm:text-[20px] text-[#1C1914] min-w-[56px] text-left shrink-0 leading-none">
             {departureTime}
           </span>
-          <span className="text-sm font-semibold text-[#111111] truncate">
+          <span className="text-[13px] sm:text-[14px] font-medium text-[#575246] truncate font-satoshi">
             {originName}
           </span>
         </div>
 
-        {/* Bandeau Accordéon Milieu : Durée + Lignes + Bouton Voir le trajet */}
+        {/* Bandeau Milieu : Durée + Divider + Correspondances + Chevron */}
         <button
           type="button"
           onClick={() => setIsExpanded(!isExpanded)}
-          className="flex items-center justify-between w-full bg-white hover:bg-gray-50/90 active:scale-[0.99] border border-gray-200/80 rounded-xl px-3 py-2 text-xs font-semibold text-[#111111] transition-all cursor-pointer shadow-2xs group"
+          className="flex items-center justify-between w-full bg-[#F5F3EC] hover:bg-[#EFECE3] active:scale-[0.99] rounded-[8px] px-3 py-2.5 text-xs text-[#1C1914] transition-colors cursor-pointer"
         >
-          <div className="flex items-center gap-2.5 min-w-0">
+          <div className="flex items-center gap-3 min-w-0">
             {duration ? (
-              <div className="flex items-center gap-1 text-[#525252] shrink-0 font-medium">
-                <Clock4 className="w-3.5 h-3.5 text-[#EB490B]" />
+              <div className="flex items-center gap-1.5 text-[#1C1914] shrink-0 font-medium font-satoshi text-[13px] sm:text-[14px]">
+                <Clock4 className="w-3.5 h-3.5 text-[#1C1914]" />
                 <span>{duration}</span>
               </div>
             ) : null}
 
-            {duration ? <div className="w-px h-3.5 bg-gray-200 shrink-0" /> : null}
+            <div className="w-px h-3.5 bg-[#D6D0C2] shrink-0" />
 
-            {/* Aperçu rapide des badges de ligne */}
-            {legs ? (
-              <div className="flex items-center gap-1 shrink-0 overflow-hidden">
-                {legs.slice(0, 3).map((leg, idx) => (
-                  <div key={idx} className="transition-transform duration-200 hover:scale-105">
-                    <TransportLineBadge
-                      mode={leg.mode}
-                      lineName={leg.lineName}
-                      lineColor={leg.lineColor}
-                      size={16}
-                      hideModeIcon={false}
-                    />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              (train?.line || train?.trainNumber) && (
-                <TransportLineBadge
-                  mode={train?.mode}
-                  lineName={train?.line || train?.trainNumber}
-                  lineColor={train?.lineColor}
-                  size={16}
-                  hideModeIcon={false}
-                />
-              )
-            )}
-
-            <span className="text-xs text-[#EB490B] font-semibold truncate ml-1 group-hover:underline">
-              {isExpanded ? "Masquer le détail" : "Détail du trajet"}
+            <span className="text-[13px] sm:text-[14px] font-medium text-[#1C1914] truncate font-satoshi">
+              {transferLabel}
             </span>
           </div>
 
           <ChevronRight
-            className={`w-4 h-4 text-gray-500 shrink-0 transition-transform duration-200 ${
-              isExpanded ? "rotate-90 text-[#EB490B]" : "group-hover:translate-x-0.5"
+            className={`w-4 h-4 text-[#575246] shrink-0 transition-transform duration-200 ${
+              isExpanded ? "rotate-90 text-[#1C1914]" : ""
             }`}
           />
         </button>
 
-        {/* Point d'arrivée : Heure alignée à gauche + Lieu */}
-        <div className="flex items-center gap-3">
-          <span className="font-bricolage font-bold text-lg sm:text-xl text-[#111111] min-w-[56px] text-left shrink-0 leading-none">
+        {/* Point d'arrivée : Heure + Gare */}
+        <div className="flex items-center gap-3.5 py-0.5">
+          <span className="font-satoshi font-bold text-[18px] sm:text-[20px] text-[#1C1914] min-w-[56px] text-left shrink-0 leading-none">
             {arrivalTime}
           </span>
-          <span className="text-sm font-semibold text-[#111111] truncate">
+          <span className="text-[13px] sm:text-[14px] font-medium text-[#575246] truncate font-satoshi">
             {destinationName}
           </span>
         </div>
 
-        {/* Détail pas-à-pas dépliable (JourneyTimeline) avec transition fluide */}
+        {/* Détail pas-à-pas dépliable (JourneyTimeline) */}
         {isExpanded && train && (
-          <div className="pt-3 border-t border-gray-200/80 mt-1 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="pt-4 border-t border-[#EAE6DC] mt-1 animate-in fade-in slide-in-from-top-2 duration-200">
             <JourneyTimeline
               train={train}
               originName={originName}
@@ -343,7 +315,6 @@ function JourneyCardBlock({
             />
           </div>
         )}
-
       </div>
     </div>
   );
@@ -362,7 +333,10 @@ export default function SharedAdventureView({
   const returnTrain = isOneWay ? null : adventure.return_train;
 
   const handleShare = async () => {
-    const shareUrl = typeof window !== "undefined" ? window.location.href : `https://www.neve-rando.fr/share/${adventure.share_token}`;
+    const shareUrl =
+      typeof window !== "undefined"
+        ? window.location.href
+        : `https://www.neve-rando.fr/share/${adventure.share_token}`;
     const title = `${hike.title || "Randonnée"} — Feuille de route Névé`;
     const text = `Consulte les horaires de train et l'itinéraire pour notre rando prévue le ${adventure.outward_date} !`;
 
@@ -371,7 +345,7 @@ export default function SharedAdventureView({
         await navigator.share({ title, text, url: shareUrl });
         return;
       } catch {
-        // User cancelled or fallback to copy
+        // User cancelled
       }
     }
 
@@ -380,14 +354,15 @@ export default function SharedAdventureView({
       setCopied(true);
       setTimeout(() => setCopied(false), 3000);
     } catch {
-      // Fallback
+      setTimeout(() => setCopied(false), 2500);
     }
   };
 
   const handleAddToCalendar = () => {
+    if (!adventure) return;
     downloadAdventureCalendar(adventure);
     setCalendarDownloaded(true);
-    setTimeout(() => setCalendarDownloaded(false), 3500);
+    setTimeout(() => setCalendarDownloaded(false), 3000);
   };
 
   const formattedOutwardDate = formatFullDate(adventure.outward_date);
@@ -403,63 +378,28 @@ export default function SharedAdventureView({
     "Randonnée";
 
   const outwardOrigin = adventure.departure_station_name;
-  const outwardDestination = outward?.arrivalStation || hike.startStation || "Gare d'arrivée";
+  const outwardDestination =
+    outward?.arrivalStation || hike.startStation || "Gare d'arrivée";
 
   const returnOrigin =
     returnTrain?.departureStation ||
     hike.endStation ||
     hike.startStation ||
-    "Gare de départ";
+    "Gare de retour";
   const returnDestination =
     adventure.return_station_name || adventure.departure_station_name;
 
   return (
-    <div className="min-h-screen bg-[#FFF7F2] text-[#292929] px-4 py-6 sm:py-10 animate-in fade-in duration-300">
-      <div className="max-w-xl mx-auto flex flex-col gap-6">
+    <div className="min-h-screen bg-white text-[#1C1914] px-4 sm:px-6 pt-28 sm:pt-36 pb-24 animate-in fade-in duration-300 font-satoshi">
+      <div className="max-w-xl mx-auto flex flex-col gap-8 sm:gap-10">
         
-        {/* 1. Header avec Logo Névé & Action Partage */}
-        <header className="flex items-center justify-between bg-white/80 backdrop-blur-md px-4 py-3 rounded-2xl border border-[#F0EAE1] shadow-xs transition-all hover:shadow-sm">
-          <div className="flex items-center gap-3">
-            <Logo
-              iconClassName="h-7 w-7"
-              typoClassName="h-5.5"
-              className="hover:opacity-85 transition-opacity"
-            />
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="hidden xs:inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 bg-[#FFEDD4] text-[#7B3306] rounded-full border border-amber-200/60 transition-transform hover:scale-105">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#EB490B] animate-pulse" />
-              Feuille de route
-            </span>
-
-            <button
-              onClick={handleShare}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-1.5 bg-[#F5F3EC] hover:bg-[#EAE6DC] active:scale-95 text-[#292929] rounded-xl transition-all cursor-pointer shadow-2xs hover:shadow-xs"
-              title="Partager le lien"
-            >
-              {copied ? (
-                <>
-                  <Check className="w-3.5 h-3.5 text-emerald-600 animate-in zoom-in duration-200" />
-                  <span className="text-emerald-700 font-bold">Copié !</span>
-                </>
-              ) : (
-                <>
-                  <Share2 className="w-3.5 h-3.5 text-[#525252] transition-transform group-hover:scale-110" />
-                  <span>Partager</span>
-                </>
-              )}
-            </button>
-          </div>
-        </header>
-
-        {/* 2. Titre de l'aventure & Calendrier */}
-        <div className="flex items-start justify-between gap-4 animate-in slide-in-from-bottom-2 duration-300">
-          <div className="flex flex-col gap-1">
-            <h1 className="font-bricolage font-extrabold text-2xl sm:text-3xl text-[#111111] leading-tight tracking-tight">
+        {/* 1. Titre de l'aventure & Actions d'en-tête discrètes */}
+        <div className="flex items-start justify-between gap-6 animate-in slide-in-from-bottom-2 duration-300 pb-1">
+          <div className="flex flex-col gap-1.5 min-w-0">
+            <h1 className="font-bricolage font-extrabold text-2xl sm:text-3xl text-[#1C1914] leading-tight tracking-tight">
               Votre aventure à {placeName}
             </h1>
-            <p className="text-sm font-medium text-[#7C7C7C] font-satoshi">
+            <p className="text-sm sm:text-base font-medium text-[#575246] font-satoshi">
               {formatAdventureRange(
                 adventure.outward_date,
                 isOneWay ? null : adventure.return_date
@@ -467,23 +407,36 @@ export default function SharedAdventureView({
             </p>
           </div>
 
-          <button
-            onClick={handleAddToCalendar}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl bg-white hover:bg-[#FFF0E8] active:scale-95 text-[#EB490B] border border-gray-200/80 shadow-2xs hover:shadow-xs transition-all shrink-0 cursor-pointer mt-1"
-            title="Ajouter les horaires à mon calendrier"
-          >
-            {calendarDownloaded ? (
-              <>
-                <Check className="w-3.5 h-3.5 text-emerald-600 animate-in zoom-in duration-200" />
-                <span className="text-emerald-700 font-bold">Ajouté !</span>
-              </>
-            ) : (
-              <>
-                <Calendar className="w-3.5 h-3.5" />
-                <span>Ajouter à l'agenda</span>
-              </>
-            )}
-          </button>
+          {/* Boutons d'actions circulaires minimalistes */}
+          <div className="flex items-center gap-2.5 shrink-0 pt-0.5">
+            <button
+              type="button"
+              onClick={handleAddToCalendar}
+              className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white hover:bg-[#FAF8F5] active:scale-95 text-[#1C1914] hover:text-[#EB490B] border border-[#D6D0C2]/80 flex items-center justify-center shadow-xs transition-all cursor-pointer"
+              title="Ajouter au calendrier"
+              aria-label="Ajouter au calendrier"
+            >
+              {calendarDownloaded ? (
+                <Check className="w-4 h-4 text-emerald-600 animate-in zoom-in duration-200" />
+              ) : (
+                <Calendar className="w-4 h-4" />
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleShare}
+              className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white hover:bg-[#FAF8F5] active:scale-95 text-[#1C1914] hover:text-[#EB490B] border border-[#D6D0C2]/80 flex items-center justify-center shadow-xs transition-all cursor-pointer group"
+              title="Copier le lien de partage"
+              aria-label="Partager"
+            >
+              {copied ? (
+                <Check className="w-4 h-4 text-emerald-600 animate-in zoom-in duration-200" />
+              ) : (
+                <Share2 className="w-4 h-4 text-[#1C1914] group-hover:text-[#EB490B] transition-transform group-hover:scale-110" />
+              )}
+            </button>
+          </div>
         </div>
 
         {/* 3. Frise Chronologique de l'Aventure (Aller -> Rando au centre -> Retour) */}
@@ -506,11 +459,11 @@ export default function SharedAdventureView({
           {/* Connecteur Aller -> Rando */}
           <AdventureStepConnector label={formatShortDate(adventure.outward_date)} />
 
-          {/* Étape 2 : Card Rando au centre de la timeline (ouvre la modale d'auth au clic) */}
+          {/* Étape 2 : Card Rando au centre de la timeline */}
           <AdventureHikeCard
             hike={hike}
+            hikeId={(adventure as any).hike_id || (hike as any).id || (hike as any).hike_id}
             shareToken={adventure.share_token}
-            onOpenAuth={() => setIsAuthModalOpen(true)}
           />
 
           {/* Étape 3 : Trajet Retour (si présent) */}
@@ -540,63 +493,36 @@ export default function SharedAdventureView({
 
         </section>
 
-        {/* Modale d'authentification demandée au clic sur la rando */}
-        <AuthRequiredModal
-          isOpen={isAuthModalOpen}
-          onClose={() => setIsAuthModalOpen(false)}
-          hike={hike}
-          shareToken={adventure.share_token}
-        />
-
-        {/* 4. Bandeau de Conversion / Call-to-Action (CTA) */}
-        <section className="bg-[#111111] text-white rounded-3xl p-6 sm:p-7 text-center flex flex-col items-center gap-5 shadow-lg relative overflow-hidden mt-2 transition-all hover:shadow-xl">
-          
-          {/* Subtle background glow */}
-          <div className="absolute -top-24 -right-24 w-48 h-48 bg-[#EB490B]/20 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-[#FA6415]/15 rounded-full blur-3xl pointer-events-none" />
-
-          {/* Compass / App badge */}
-          <div className="w-12 h-12 rounded-2xl bg-[#EB490B] flex items-center justify-center shadow-md transition-transform duration-300 hover:rotate-6 hover:scale-105">
-            <Navigation className="w-6 h-6 text-white" />
-          </div>
+        {/* 4. Carte d'accès & Téléchargement Névé */}
+        <section className="bg-white rounded-[8px] p-8 sm:p-10 shadow-[0px_4px_12px_rgba(0,0,0,0.05)] border border-[#EAE6DC] flex flex-col items-center text-center gap-5 sm:gap-6 mt-6 sm:mt-8 font-satoshi">
+          {/* Logo officiel Névé sans boîte */}
+          <Logo />
 
           <div className="max-w-md">
-            <h3 className="font-bricolage font-bold text-xl sm:text-2xl text-white leading-tight">
-              Prêt pour l'aventure ?
+            <h3 className="font-bricolage font-bold text-xl sm:text-2xl text-[#1C1914]">
+              Emportez cette aventure sur les sentiers
             </h3>
-            <p className="mt-2 text-xs sm:text-sm text-gray-300 leading-relaxed font-satoshi">
-              Téléchargez l'application <strong>Névé</strong> pour accéder au tracé GPX interactif, au guidage GPS hors-ligne et à la météo en direct.
+            <p className="font-satoshi font-medium text-sm sm:text-base text-[#575246] mt-2 leading-relaxed">
+              Guidage GPS hors-ligne, alertes train en direct et profil d'altitude avec l'application Névé.
             </p>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-            {/* Deep link into native app */}
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full justify-center pt-2">
             <a
               href={`neve://share/${adventure.share_token}`}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#EB490B] hover:bg-[#C3350B] active:scale-95 text-white font-semibold py-3 px-6 rounded-2xl transition-all shadow-md hover:shadow-lg cursor-pointer text-sm"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#EB490B] hover:bg-[#C3350B] active:scale-95 text-white font-bold py-3.5 px-7 rounded-[8px] transition-all shadow-xs cursor-pointer text-sm font-satoshi"
             >
               <Smartphone className="w-4 h-4" />
-              <span>Ouvrir dans l'app</span>
+              <span>Ouvrir dans l'application</span>
             </a>
-
-            {/* Website landing page link */}
-            <Link
-              href="/"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/15 active:scale-95 text-white font-medium py-3 px-5 rounded-2xl transition-all text-sm group"
-            >
-              <span>Découvrir Névé</span>
-              <ExternalLink className="w-3.5 h-3.5 text-gray-400 transition-transform group-hover:translate-x-0.5" />
-            </Link>
           </div>
 
-          {/* App Store / Play Store mini badges */}
-          <div className="pt-2 flex items-center justify-center gap-3 opacity-80 hover:opacity-100 transition-opacity">
+          <div className="flex items-center justify-center gap-4 pt-1 opacity-85 hover:opacity-100 transition-opacity">
             <Link href="/#download-ios" className="transition-transform hover:scale-105 active:scale-95">
               <Image
                 src="/images/app-apple-fr-FR.d5bac4a9.svg"
                 alt="Télécharger sur l'App Store"
-                width={120}
+                width={115}
                 height={36}
                 className="h-8 w-auto object-contain"
               />
@@ -605,20 +531,19 @@ export default function SharedAdventureView({
               <Image
                 src="/images/app-google-fr-FR.922a8286.svg"
                 alt="Disponible sur Google Play"
-                width={120}
+                width={115}
                 height={36}
                 className="h-8 w-auto object-contain"
               />
             </Link>
           </div>
-
         </section>
 
         {/* 5. Footer minimaliste */}
-        <footer className="text-center py-4 text-xs text-[#7C7C7C] flex flex-col items-center gap-1">
+        <footer className="text-center pt-2 pb-6 text-xs sm:text-sm text-[#7A7363] flex flex-col items-center gap-1 font-satoshi">
           <p>
             Feuille de route générée avec{" "}
-            <Link href="/" className="font-semibold text-[#EB490B] hover:underline">
+            <Link href="/" className="font-bold text-[#EB490B] hover:underline">
               Névé
             </Link>{" "}
             — L'application pour s'évader en rando sans voiture.

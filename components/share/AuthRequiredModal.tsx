@@ -93,22 +93,22 @@ export default function AuthRequiredModal({
 
         {/* Header Icon + Title */}
         <div className="flex flex-col items-center text-center gap-3 pt-1">
-          <div className="w-12 h-12 rounded-2xl bg-[#FFF0E8] border border-[#EB490B]/20 flex items-center justify-center text-[#EB490B] shadow-xs">
+          <div className="w-12 h-12 rounded-2xl bg-[#FFF7F2] border border-[#FED2AA]/60 flex items-center justify-center text-[#EB490B] shadow-xs">
             <Lock className="w-6 h-6" />
           </div>
 
           <div>
             <h2
               id="auth-modal-title"
-              className="font-bricolage font-extrabold text-2xl text-[#111111] leading-tight"
+              className="font-bricolage font-extrabold text-2xl text-[#1C1914] leading-tight"
             >
               Accédez au tracé complet
             </h2>
-            <p className="mt-1.5 text-xs sm:text-sm text-[#525252] leading-relaxed font-satoshi">
+            <p className="mt-1.5 text-xs sm:text-sm text-[#575246] leading-relaxed font-satoshi">
               {hike?.title ? (
                 <>
                   Connectez-vous ou créez un compte gratuit pour débloquer le tracé GPX de{" "}
-                  <strong>{hike.title}</strong> et profiter du guidage GPS en direct.
+                  <strong className="text-[#1C1914]">{hike.title}</strong> et profiter du guidage GPS en direct.
                 </>
               ) : (
                 "Créez un compte gratuit pour accéder au tracé GPX interactif et au guidage GPS en direct."
@@ -121,7 +121,7 @@ export default function AuthRequiredModal({
         {error && (
           <div className="flex items-start gap-2.5 rounded-2xl border border-rose-200 bg-rose-50 p-3.5 text-xs text-rose-800">
             <AlertCircle className="h-4 w-4 shrink-0 text-rose-600 mt-0.5" />
-            <div className="flex-1 font-medium">{error}</div>
+            <div className="flex-1 font-medium font-satoshi">{error}</div>
           </div>
         )}
 
@@ -132,10 +132,10 @@ export default function AuthRequiredModal({
             type="button"
             onClick={() => handleOAuth("google")}
             disabled={loadingProvider !== null}
-            className="flex items-center justify-center gap-3 w-full py-3 px-4 rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 active:scale-[0.99] text-xs sm:text-sm font-semibold text-[#111111] transition-all shadow-2xs cursor-pointer disabled:opacity-60"
+            className="flex items-center justify-center gap-3 w-full py-3 px-4 rounded-xl border border-[#D6D0C2]/80 bg-white hover:bg-[#FAF8F5] active:scale-[0.99] text-xs sm:text-sm font-bold text-[#1C1914] transition-all shadow-2xs cursor-pointer disabled:opacity-60 font-satoshi"
           >
             {loadingProvider === "google" ? (
-              <Loader2 className="w-4 h-4 animate-spin text-[#111111]" />
+              <Loader2 className="w-4 h-4 animate-spin text-[#1C1914]" />
             ) : (
               <GoogleIcon className="w-4 h-4" />
             )}
@@ -147,12 +147,12 @@ export default function AuthRequiredModal({
             type="button"
             onClick={() => handleOAuth("apple")}
             disabled={loadingProvider !== null}
-            className="flex items-center justify-center gap-3 w-full py-3 px-4 rounded-2xl border border-gray-200 bg-white hover:bg-gray-50 active:scale-[0.99] text-xs sm:text-sm font-semibold text-[#111111] transition-all shadow-2xs cursor-pointer disabled:opacity-60"
+            className="flex items-center justify-center gap-3 w-full py-3 px-4 rounded-xl border border-[#D6D0C2]/80 bg-white hover:bg-[#FAF8F5] active:scale-[0.99] text-xs sm:text-sm font-bold text-[#1C1914] transition-all shadow-2xs cursor-pointer disabled:opacity-60 font-satoshi"
           >
             {loadingProvider === "apple" ? (
-              <Loader2 className="w-4 h-4 animate-spin text-[#111111]" />
+              <Loader2 className="w-4 h-4 animate-spin text-[#1C1914]" />
             ) : (
-              <AppleIcon className="w-4 h-4 text-[#111111]" />
+              <AppleIcon className="w-4 h-4 text-[#1C1914]" />
             )}
             <span>Continuer avec Apple</span>
           </button>
@@ -160,9 +160,9 @@ export default function AuthRequiredModal({
 
         {/* Divider */}
         <div className="flex items-center gap-3">
-          <div className="h-px flex-1 bg-gray-200" />
-          <span className="text-xs font-medium text-[#7C7C7C]">ou</span>
-          <div className="h-px flex-1 bg-gray-200" />
+          <div className="h-px flex-1 bg-[#D6D0C2]/60" />
+          <span className="text-xs font-semibold text-[#7A7363] font-satoshi">ou</span>
+          <div className="h-px flex-1 bg-[#D6D0C2]/60" />
         </div>
 
         {/* Action Options: Email Signup / Signin */}
@@ -173,21 +173,21 @@ export default function AuthRequiredModal({
               onClose();
               openAuthModal({ initialStep: "entry" });
             }}
-            className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-2xl bg-[#EB490B] hover:bg-[#C3350B] active:scale-[0.99] text-white font-semibold text-xs sm:text-sm transition-all shadow-sm text-center cursor-pointer"
+            className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl bg-[#EB490B] hover:bg-[#C3350B] active:scale-[0.99] text-white font-bold text-xs sm:text-sm transition-all shadow-sm text-center cursor-pointer font-satoshi"
           >
             <span>Continuer avec mon e-mail</span>
             <ArrowRight className="w-4 h-4" />
           </button>
 
-          <div className="text-center pt-1">
-            <span className="text-xs text-[#525252]">Déjà inscrit ? </span>
+          <div className="text-center pt-1 font-satoshi">
+            <span className="text-xs text-[#575246]">Déjà inscrit ? </span>
             <button
               type="button"
               onClick={() => {
                 onClose();
                 openAuthModal({ initialStep: "entry" });
               }}
-              className="text-xs font-bold text-[#111111] hover:text-[#EB490B] underline transition-colors cursor-pointer"
+              className="text-xs font-bold text-[#1C1914] hover:text-[#EB490B] underline transition-colors cursor-pointer"
             >
               Se connecter
             </button>
@@ -195,10 +195,10 @@ export default function AuthRequiredModal({
         </div>
 
         {/* App Universal Link Callout */}
-        <div className="bg-[#FAF8F5] p-3 rounded-2xl border border-gray-200/60 flex items-center justify-between gap-3 mt-1">
+        <div className="bg-[#FAF8F5] p-3 rounded-xl border border-[#D6D0C2]/60 flex items-center justify-between gap-3 mt-1 font-satoshi">
           <div className="flex items-center gap-2.5 min-w-0">
             <Smartphone className="w-4 h-4 text-[#EB490B] shrink-0" />
-            <span className="text-xs font-medium text-[#525252] truncate">
+            <span className="text-xs font-medium text-[#575246] truncate">
               Déjà l'app Névé installée ?
             </span>
           </div>

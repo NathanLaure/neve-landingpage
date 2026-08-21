@@ -9,20 +9,14 @@ export interface AdventureStepConnectorProps {
 
 export function AdventureStepConnector({ label }: AdventureStepConnectorProps) {
   return (
-    <div className="flex flex-col items-center justify-center gap-1.5 py-2 select-none">
-      <div className="flex flex-col items-center gap-1">
-        <div className="w-0.5 h-2 rounded-full bg-gray-300" />
-        <div className="w-0.5 h-2 rounded-full bg-gray-300" />
-      </div>
+    <div className="flex flex-col items-center justify-center gap-2 py-4 sm:py-5 select-none">
+      <div className="w-0.5 h-4 sm:h-5 border-r-2 border-dashed border-[#A8A190]" />
 
-      <span className="text-[11px] font-bold tracking-wider text-[#7C7C7C] uppercase font-satoshi">
+      <span className="text-xs font-bold text-[#575246] font-satoshi py-0.5 tracking-wide">
         {label}
       </span>
 
-      <div className="flex flex-col items-center gap-1">
-        <div className="w-0.5 h-2 rounded-full bg-gray-300" />
-        <div className="w-0.5 h-2 rounded-full bg-gray-300" />
-      </div>
+      <div className="w-0.5 h-4 sm:h-5 border-r-2 border-dashed border-[#A8A190]" />
     </div>
   );
 }
@@ -35,15 +29,15 @@ export function AdventureTimelineCaption({
   arrow?: "above" | "below";
 }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-1.5 py-1 text-center select-none">
+    <div className="flex flex-col items-center justify-center gap-1.5 py-3 sm:py-4 text-center select-none">
       {arrow === "above" && (
-        <ArrowUp className="w-3.5 h-3.5 text-[#7C7C7C]" />
+        <ArrowDown className="w-3.5 h-3.5 text-[#7A7363]" />
       )}
-      <span className="text-xs font-semibold text-[#7C7C7C] font-satoshi">
+      <span className="text-xs font-semibold text-[#575246] font-satoshi">
         {label}
       </span>
       {arrow === "below" && (
-        <ArrowDown className="w-3.5 h-3.5 text-[#7C7C7C]" />
+        <ArrowDown className="w-3.5 h-3.5 text-[#7A7363]" />
       )}
     </div>
   );
