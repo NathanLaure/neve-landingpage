@@ -507,14 +507,37 @@ export default function SharedAdventureView({
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-3 w-full justify-center pt-2">
+          {/* Le bouton ne sert qu'au téléphone : `neve://` ne mène nulle part
+              depuis un ordinateur, où l'application n'existe pas. */}
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full justify-center pt-2 sm:hidden">
             <a
               href={`neve://share/${adventure.share_token}`}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#EB490B] hover:bg-[#C3350B] active:scale-95 text-white font-bold py-3.5 px-7 rounded-[8px] transition-all shadow-xs cursor-pointer text-sm font-satoshi"
             >
               <Smartphone className="w-4 h-4" />
-              <span>Ouvrir dans l'application</span>
+              <span>Ouvrir dans l&apos;application</span>
             </a>
+          </div>
+
+          {/* Sur ordinateur, le relais passe par le téléphone : même mécanisme
+              que la fiche randonnée. Le QR encode l'adresse `https` et non
+              `neve://` — scannée sans l'application installée, celle-ci ne
+              mènerait nulle part, là où l'adresse web retombe au moins sur cette
+              page. */}
+          <div className="hidden sm:flex flex-col items-center gap-3 pt-2">
+            <p className="font-satoshi font-medium text-sm text-[#575246]">
+              Scannez ce QR code pour ouvrir l&apos;aventure sur votre téléphone
+            </p>
+            <div className="inline-block p-4 rounded-2xl bg-white shadow-sm border border-[#EAE6DC] transition-transform hover:scale-[1.02] duration-200">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(
+                  `https://www.neve-rando.fr/share/${adventure.share_token}`
+                )}&color=1c1914&bgcolor=ffffff&margin=1`}
+                alt="QR code pour ouvrir cette aventure sur smartphone"
+                className="w-40 h-40"
+              />
+            </div>
           </div>
 
           <div className="flex items-center justify-center gap-4 pt-1 opacity-85 hover:opacity-100 transition-opacity">
