@@ -11,13 +11,32 @@ function CallbackContent() {
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  /*
+   * Destination d'apres connexion.
+   *
+   * Un aller-retour OAuth quitte la page et y revient par ici : sans se
+   * souvenir d'ou l'on partait, tout le monde atterrissait sur l'explorateur.
+   * Une invitation de randonnee ouverte sans compte se perdait donc au moment
+   * meme ou l'on venait de creer le compte pour la lire.
+   *
+   * Seuls les chemins internes sont acceptés : un « next » commençant par deux
+   * barres obliques, ou par un protocole, enverrait l'utilisateur fraîchement
+   * connecté sur un site tiers.
+   */
+  const destination = (() => {
+    if (typeof window === "undefined") return "/explorer";
+    const next = new URLSearchParams(window.location.search).get("next");
+    if (!next || !next.startsWith("/") || next.startsWith("//")) return "/explorer";
+    return next;
+  })();
+
   useEffect(() => {
     let isMounted = true;
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (!isMounted) return;
       if (event === "SIGNED_IN" && session) {
-        router.replace("/explorer");
+        router.replace(destination);
       }
     });
 
@@ -46,7 +65,7 @@ function CallbackContent() {
             if (isMounted) setErrorMessage(translateAuthError(error));
             return;
           }
-          router.replace("/explorer");
+          router.replace(destination);
           return;
         }
 
@@ -56,7 +75,7 @@ function CallbackContent() {
             if (isMounted) setErrorMessage(translateAuthError(error));
             return;
           }
-          router.replace("/explorer");
+          router.replace(destination);
           return;
         }
 
@@ -64,7 +83,7 @@ function CallbackContent() {
         // or there's simply already an active session.
         const { data } = await supabase.auth.getSession();
         if (data.session) {
-          router.replace("/explorer");
+          router.replace(destination);
         } else if (isMounted) {
           setErrorMessage("La connexion a échoué. Veuillez réessayer.");
         }
@@ -81,6 +100,8 @@ function CallbackContent() {
       isMounted = false;
       authListener.subscription.unsubscribe();
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- `destination` est lue
+  // une fois a l'arrivee : la relire changerait de cible en cours de route.
   }, [router]);
 
   return (

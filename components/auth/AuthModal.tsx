@@ -215,10 +215,16 @@ export default function AuthModal() {
     setInfoMessage(null);
     setLoadingProvider(provider);
 
+    /* La page courante voyage avec la demande : l'aller-retour OAuth quitte le
+       site et revient par `/auth/callback`, qui sans cela renvoie tout le monde
+       sur l'explorateur. Une invitation ouverte sans compte se perdait donc à
+       l'instant même où l'on créait le compte pour la lire. */
+    const next = `${window.location.pathname}${window.location.search}`;
+
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
         queryParams: provider === "google" ? { prompt: "select_account" } : undefined,
       },
     });
