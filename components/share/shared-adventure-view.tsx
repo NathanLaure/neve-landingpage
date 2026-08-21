@@ -528,7 +528,7 @@ export default function SharedAdventureView({
             <p className="font-satoshi font-medium text-sm text-[#575246]">
               Scannez ce QR code pour ouvrir l&apos;aventure sur votre téléphone
             </p>
-            <div className="inline-block p-4 rounded-2xl bg-white shadow-sm border border-[#EAE6DC] transition-transform hover:scale-[1.02] duration-200">
+            <div className="inline-block p-4 rounded-2xl bg-white shadow-sm border border-[#EAE6DC]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(

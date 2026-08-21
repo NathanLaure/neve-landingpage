@@ -20,7 +20,7 @@ import type { UserAdventure } from "@/types/adventure";
  * `authenticated`, et l'accès est donc réellement fermé — pas seulement caché.
  */
 export default function SharedAdventureGate({ token }: { token: string }) {
-  const { user, isLoading: isAuthLoading } = useAuth();
+  const { user, isLoading: isAuthLoading, openAuthModal } = useAuth();
 
   const [adventure, setAdventure] = useState<UserAdventure | null>(null);
   const [status, setStatus] = useState<
@@ -56,11 +56,13 @@ export default function SharedAdventureGate({ token }: { token: string }) {
   }
 
   if (!user) {
-    /* Le jeton voyage dans la redirection : après connexion, on revient sur
-       cette feuille de route et non sur l'accueil. Perdre le lien à la porte
-       serait la façon la plus sûre de perdre l'invité avec. */
-    const signinUrl = `/signin?redirect=/share/${token}`;
-
+    /*
+     * La modale s'ouvre par-dessus cette page, sans navigation : c'est ce qui
+     * rend la question du retour sans objet. Un lien vers `/signin` emmenait
+     * ailleurs, et l'on revenait connecté sur l'accueil — l'invitation perdue
+     * en chemin. Ici, la connexion faite, `user` change, ce composant se
+     * relance et charge la feuille de route. On n'a jamais quitté l'aventure.
+     */
     return (
       <div className="flex min-h-[80vh] items-center justify-center px-6">
         <div className="mx-auto max-w-xl text-center">
@@ -77,10 +79,12 @@ export default function SharedAdventureGate({ token }: { token: string }) {
             l&apos;ajouter à vos propres aventures.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Button href={signinUrl}>Se connecter</Button>
+            <Button onClick={() => openAuthModal({ initialStep: "login" })}>
+              Se connecter
+            </Button>
             <Button
-              href={`/signup?redirect=/share/${token}`}
               variant="secondary"
+              onClick={() => openAuthModal({ initialStep: "signup" })}
             >
               Créer un compte
             </Button>
