@@ -78,15 +78,15 @@ export default function SharedAdventureGate({ token }: { token: string }) {
             compte gratuit ou connectez-vous pour la consulter, et
             l&apos;ajouter à vos propres aventures.
           </p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Button onClick={() => openAuthModal({ initialStep: "login" })}>
-              Se connecter
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={() => openAuthModal({ initialStep: "signup" })}
-            >
-              Créer un compte
+          {/* Un seul bouton, sur l'étape d'entrée : celle-ci demande l'adresse,
+              regarde si le compte existe et bascule d'elle-même vers le mot de
+              passe ou vers l'inscription. Proposer les deux séparément ferait
+              choisir l'utilisateur à la place d'une vérification qui se fait
+              toute seule — et viser `login` ou `signup` directement le posait
+              devant un champ de mot de passe sans lui avoir demandé qui il est. */}
+          <div className="mt-8 flex items-center justify-center">
+            <Button onClick={() => openAuthModal({ initialStep: "entry" })}>
+              Se connecter ou créer un compte
             </Button>
           </div>
         </div>
