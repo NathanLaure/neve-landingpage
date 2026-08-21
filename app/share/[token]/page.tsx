@@ -1,7 +1,6 @@
-import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { supabase } from "@/lib/supabase";
-import SharedAdventureView from "@/components/share/shared-adventure-view";
+import SharedAdventureGate from "@/components/share/shared-adventure-gate";
 import type { UserAdventure } from "@/types/adventure";
 
 interface Props {
@@ -9,23 +8,24 @@ interface Props {
 }
 
 /**
- * Lit l'aventure désignée par un jeton de partage.
+ * Aperçu d'une aventure partagée : titre, image, dates. Rien d'autre.
  *
- * Passe par `get_shared_adventure` plutôt que par la table : la politique de
- * lecture publique qui existait auparavant disait « toute ligne pourvue d'un
- * jeton est lisible », sans jamais vérifier lequel — RLS ne voit pas le `WHERE`
- * de la requête. Elle ouvrait donc la table entière à quiconque détient la clé
- * anonyme, laquelle est publique par construction.
+ * C'est la seule lecture qui reste possible sans compte, et elle ne sert qu'à
+ * composer la vignette du lien — celle qu'un robot sans session vient chercher
+ * quand on colle l'adresse dans une messagerie. La feuille de route elle-même
+ * passe par `get_shared_adventure`, réservée aux comptes connectés, donc
+ * inaccessible depuis ce composant serveur qui est toujours anonyme.
  *
- * La fonction ne rend qu'une ligne, et seulement les colonnes que cette page
- * affiche : ni identifiant de compte, ni coordonnées de départ, ni voyageurs.
+ * Le point de départ n'en fait volontairement pas partie : c'est une adresse de
+ * rue, souvent le domicile de celui qui partage, et elle finissait jusqu'ici
+ * dans la description méta de la page — donc indexable.
  */
-async function fetchSharedAdventure(token: string) {
-  const { data, error } = await supabase
-    .rpc("get_shared_adventure", { p_token: token })
+async function fetchSharedPreview(token: string) {
+  const { data } = await supabase
+    .rpc("get_shared_adventure_preview", { p_token: token })
     .maybeSingle();
 
-  return { adventure: data as UserAdventure | null, error };
+  return { adventure: data as UserAdventure | null };
 }
 
 // Format date into French string for meta descriptions
@@ -66,7 +66,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1200&auto=format&fit=crop";
 
   try {
-    const { adventure } = await fetchSharedAdventure(token);
+    const { adventure } = await fetchSharedPreview(token);
 
     if (!adventure) {
       return {
@@ -100,9 +100,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const hikeTitle = adventure.hike_snapshot?.title || "Randonnée sans voiture";
     const dateFormatted = formatMetadataDate(adventure.outward_date);
     const title = `${hikeTitle} — Feuille de route Névé`;
+    /* Plus de point de départ dans la description : l'aperçu ne le connaît plus,
+       et une adresse de domicile n'a rien à faire dans une balise indexable. */
     const description = dateFormatted
-      ? `Consultez les horaires de train et l'itinéraire pour la rando prévue le ${dateFormatted} au départ de ${adventure.departure_station_name}.`
-      : `Consultez les horaires de train et l'itinéraire pour la rando au départ de ${adventure.departure_station_name}.`;
+      ? `On vous invite à découvrir « ${hikeTitle} » le ${dateFormatted} : horaires de train, correspondances et itinéraire, sans voiture.`
+      : `On vous invite à découvrir « ${hikeTitle} » : horaires de train, correspondances et itinéraire, sans voiture.`;
     const imageUrl =
       adventure.hike_snapshot?.imageUrl ||
       adventure.hike_snapshot?.cover_image_url ||
@@ -170,11 +172,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function SharedAdventurePage({ params }: Props) {
   const { token } = await params;
 
-  const { adventure, error } = await fetchSharedAdventure(token);
-
-  if (error || !adventure) {
-    notFound();
-  }
-
-  return <SharedAdventureView adventure={adventure} />;
+  /* Le contenu se charge côté client : c'est là que vit la session, et donc le
+     seul endroit où « réservé aux connectés » peut être autre chose qu'un
+     affichage. Le serveur, lui, est toujours anonyme. */
+  return <SharedAdventureGate token={token} />;
 }
