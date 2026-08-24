@@ -84,20 +84,20 @@ export default function MapStylePicker({ options, value, onChange }: MapStylePic
   return (
     <div ref={ref} className="pointer-events-auto relative">
       {isOpen && (
-        <div className="absolute bottom-full left-0 mb-3 w-[220px] rounded-2xl border border-neve-border bg-neve-card p-4 shadow-xl">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-bricolage text-base font-bold text-neve-text">Type de carte</h2>
+        <div className="absolute bottom-full left-0 mb-3 w-[390px] rounded-[20px] bg-neve-card p-7 shadow-2xl">
+          <div className="mb-6 flex items-center justify-between">
+            <h2 className="font-bricolage text-[22px] font-bold text-neve-text">Type de carte</h2>
             <button
               type="button"
               onClick={() => setIsOpen(false)}
               aria-label="Fermer"
-              className="flex size-6 cursor-pointer items-center justify-center text-neve-text-muted transition-colors hover:text-neve-text"
+              className="flex size-7 cursor-pointer items-center justify-center text-neve-text transition-colors hover:text-neve-text-muted"
             >
-              <X className="size-4" />
+              <X className="size-[22px]" />
             </button>
           </div>
 
-          <div className="flex items-start justify-between gap-2">
+          <div className="flex items-start justify-between gap-5">
             {options.map((option) => {
               const isSelected = option.url === value;
               return (
@@ -108,21 +108,17 @@ export default function MapStylePicker({ options, value, onChange }: MapStylePic
                     onChange(option.url);
                     setIsOpen(false);
                   }}
-                  className="flex cursor-pointer flex-col items-center gap-1.5"
+                  className="flex flex-1 cursor-pointer flex-col items-center gap-2.5"
                 >
                   <span
-                    className={`block size-[56px] overflow-hidden rounded-lg border-2 transition ${
+                    className={`block aspect-square w-full overflow-hidden rounded-xl border-2 transition ${
                       isSelected ? "border-neve-tint" : "border-transparent hover:border-neve-border"
                     }`}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={option.preview} alt="" className="size-full object-cover" />
                   </span>
-                  <span
-                    className={`font-satoshi text-[11px] ${
-                      isSelected ? "font-bold text-neve-text" : "text-neve-text-muted"
-                    }`}
-                  >
+                  <span className="font-satoshi text-sm font-medium text-neve-text">
                     {option.label}
                   </span>
                 </button>
@@ -136,11 +132,13 @@ export default function MapStylePicker({ options, value, onChange }: MapStylePic
         type="button"
         onClick={() => setIsOpen((open) => !open)}
         aria-expanded={isOpen}
-        className="relative block size-[64px] cursor-pointer overflow-hidden rounded-xl border-2 border-neve-card shadow-lg transition hover:brightness-95"
+        className="relative block size-[72px] cursor-pointer overflow-hidden rounded-xl shadow-lg transition hover:brightness-95"
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={current.preview} alt="" className="size-full object-cover" />
-        <span className="absolute inset-x-0 bottom-0 bg-black/45 py-1 text-center font-satoshi text-[11px] font-bold text-white">
+        {/* Bandeau sur le tiers bas, pas un filet : le libellé doit rester
+            lisible quel que soit l'aperçu, y compris le style sombre. */}
+        <span className="absolute inset-x-0 bottom-0 bg-black/55 py-1.5 text-center font-satoshi text-sm font-bold text-white">
           Calques
         </span>
       </button>
