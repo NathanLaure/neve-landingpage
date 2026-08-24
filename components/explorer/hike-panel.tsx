@@ -36,6 +36,10 @@ interface HikePanelProps {
   onSortChange: (sort: HikeSort) => void;
   /** Désactive « Le plus proche » quand aucune position n'est connue. */
   canSortByProximity?: boolean;
+  isFavorite?: (hikeId: string) => boolean;
+  isFavoritePending?: (hikeId: string) => boolean;
+  /** Absent, le cœur n'est pas rendu sur les cartes. */
+  onFavoriteClick?: (hikeId: string) => void;
 }
 
 /**
@@ -58,6 +62,9 @@ export default function HikePanel({
   sort,
   onSortChange,
   canSortByProximity = false,
+  isFavorite,
+  isFavoritePending,
+  onFavoriteClick,
 }: HikePanelProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [density, setDensity] = useState<PanelDensity>("cards");
@@ -194,6 +201,9 @@ export default function HikePanel({
                     key={hike.id}
                     hike={hike}
                     onClick={onSelect}
+                    isFavorited={isFavorite?.(hike.id)}
+                    isFavoritePending={isFavoritePending?.(hike.id)}
+                    onFavoriteClick={onFavoriteClick}
                     className={activeId === hike.id ? "rounded-2xl ring-2 ring-neve-tint" : ""}
                   />
                 ) : (
