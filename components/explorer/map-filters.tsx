@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, SlidersHorizontal, X } from "lucide-react";
 import type { HikeDifficulty } from "@/types/hike";
+import { RADIUS_OPTIONS } from "@/lib/explorer-filters";
 
 export type DistanceBucket = "all" | "short" | "medium" | "long" | "very-long";
 export type DurationBucket = "all" | "short" | "half-day" | "day" | "long";
@@ -123,8 +124,6 @@ function FilterPill<T extends string>({ label, value, options, onChange }: Filte
     </div>
   );
 }
-
-export const RADIUS_OPTIONS = [5, 10, 15, 25, 50] as const;
 
 interface MapFiltersProps {
   filters: ExplorerFilters;

@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import ExplorerMapView from "@/components/explorer-map-view";
 import { getAllHikes, getHikesNearby, DEFAULT_HIKE_RADIUS_KM } from "@/lib/hikes";
-import { RADIUS_OPTIONS } from "@/components/explorer/map-filters";
+import { parseRadius } from "@/lib/explorer-filters";
 
 export const metadata = {
   title: "Explorer les randonnées - Névé",
@@ -31,10 +31,7 @@ export default async function ExplorerPage({ searchParams }: Props) {
 
   /* Rayon borne aux valeurs proposees par le chip : une adresse forgee a la
      main ne doit pas pouvoir demander la France entiere. */
-  const requested = params.radius ? parseInt(params.radius, 10) : NaN;
-  const radiusKm = RADIUS_OPTIONS.includes(requested as (typeof RADIUS_OPTIONS)[number])
-    ? requested
-    : DEFAULT_HIKE_RADIUS_KM;
+  const radiusKm = parseRadius(params.radius, DEFAULT_HIKE_RADIUS_KM);
 
   const { hikes, error } = hasLocation
     ? await getHikesNearby({ lat: lat as number, lng: lng as number, radiusKm, limit: 1000 })
