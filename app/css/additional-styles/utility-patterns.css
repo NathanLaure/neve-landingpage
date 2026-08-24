@@ -53,3 +53,26 @@ input[type="search"]::-webkit-search-results-decoration {
 .form-checkbox {
     @apply rounded-xs;
 }
+/* Poignées du curseur à deux valeurs de la modale des filtres.
+   Le conteneur ne reçoit aucun pointeur — voir `RangeField` — il faut donc les
+   rendre aux poignées elles-mêmes, sinon rien n'est saisissable. */
+.range-thumb::-webkit-slider-thumb {
+  pointer-events: auto;
+  appearance: none;
+  height: 1.25rem;
+  width: 1.25rem;
+  border-radius: 9999px;
+  background-color: var(--color-neutral-900);
+  border: 2px solid var(--color-neutral-0);
+  cursor: grab;
+}
+
+.range-thumb::-moz-range-thumb {
+  pointer-events: auto;
+  height: 1.25rem;
+  width: 1.25rem;
+  border-radius: 9999px;
+  background-color: var(--color-neutral-900);
+  border: 2px solid var(--color-neutral-0);
+  cursor: grab;
+}

@@ -7,12 +7,13 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import Supercluster from "supercluster";
 import HikeDetailPanel from "@/components/hike-detail-panel";
 import HikePanel, { type HikeSort } from "@/components/explorer/hike-panel";
-import MapFilters, {
-  DISTANCE_BUCKETS,
-  DURATION_BUCKETS,
+import MapFilters from "@/components/explorer/map-filters";
+import FiltersModal from "@/components/explorer/filters-modal";
+import {
   EMPTY_FILTERS,
+  matchesFilters,
   type ExplorerFilters,
-} from "@/components/explorer/map-filters";
+} from "@/lib/explorer-filters";
 import MapControls from "@/components/explorer/map-controls";
 import MapStylePicker, { buildStyleOptions } from "@/components/explorer/map-style-picker";
 import type { HikeSummary } from "@/types/hike";
@@ -31,8 +32,10 @@ type Props = {
   /** Centre avant l'ajustement aux marqueurs, ou faute de randonnée. */
   centerLat: number;
   centerLng: number;
-  /** Rayon de recherche courant, `null` tant qu'aucun centre n'est connu. */
+  /** Rayon courant, `null` pour « depuis le marqueur ». */
   radiusKm?: number | null;
+  /** Un lieu est-il défini, par recherche ou géolocalisation ? */
+  hasLocation?: boolean;
 };
 
 /** Au-delà de ce zoom, supercluster rend les points un par un. */
@@ -50,36 +53,6 @@ function distanceKm(a: { lat: number; lng: number }, b: { lat: number; lng: numb
   const h =
     Math.sin(dLat / 2) ** 2 + Math.sin(dLng / 2) ** 2 * Math.cos(lat1) * Math.cos(lat2);
   return 2 * 6371 * Math.asin(Math.sqrt(h));
-}
-
-function matchesFilters(hike: HikeSummary, filters: ExplorerFilters): boolean {
-  if (filters.difficulty !== "all") {
-    /* « Difficile » englobe « expert » : la nuance n'a pas de sens pour qui
-       cherche simplement à savoir si la sortie sera dure. */
-    const matches =
-      filters.difficulty === "difficile"
-        ? hike.difficulty === "difficile" || hike.difficulty === "expert"
-        : hike.difficulty === filters.difficulty;
-    if (!matches) return false;
-  }
-
-  if (filters.distance !== "all") {
-    const index = DISTANCE_BUCKETS.findIndex((bucket) => bucket.value === filters.distance);
-    const min = DISTANCE_BUCKETS[index - 1]?.max ?? 0;
-    const max = DISTANCE_BUCKETS[index].max;
-    if (hike.distance_km < min) return false;
-    if (max !== null && hike.distance_km >= max) return false;
-  }
-
-  if (filters.duration !== "all") {
-    const index = DURATION_BUCKETS.findIndex((bucket) => bucket.value === filters.duration);
-    const min = DURATION_BUCKETS[index - 1]?.max ?? 0;
-    const max = DURATION_BUCKETS[index].max;
-    if (hike.duration_minutes < min) return false;
-    if (max !== null && hike.duration_minutes >= max) return false;
-  }
-
-  return true;
 }
 
 /**
@@ -101,6 +74,7 @@ export default function ExplorerMapView({
   centerLat,
   centerLng,
   radiusKm = null,
+  hasLocation = false,
 }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -143,6 +117,7 @@ export default function ExplorerMapView({
      expiration se règlent tous les trois ailleurs que sur cette page. */
   const [locationError, setLocationError] = useState<string | null>(null);
   const [bearing, setBearing] = useState(0);
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
   const styleOptions = useMemo(() => buildStyleOptions(mapboxToken ?? ""), [mapboxToken]);
@@ -425,9 +400,12 @@ export default function ExplorerMapView({
    * 15 km d'Annecy » se copie et se retrouve.
    */
   const handleRadiusChange = useCallback(
-    (nextRadius: number) => {
+    (nextRadius: number | null) => {
       const params = new URLSearchParams(searchParams.toString());
-      params.set("radius", String(nextRadius));
+      /* « Depuis le marqueur » retire le paramètre plutôt que d'en poser un :
+         c'est l'absence de borne, et l'adresse le dit ainsi. */
+      if (nextRadius === null) params.delete("radius");
+      else params.set("radius", String(nextRadius));
       router.replace(`/explorer?${params.toString()}`, { scroll: false });
     },
     [router, searchParams],
@@ -519,8 +497,9 @@ export default function ExplorerMapView({
           <MapFilters
             filters={filters}
             onChange={setFilters}
-            resultCount={filteredHikes.length}
+            onOpenAll={() => setIsFiltersOpen(true)}
             radiusKm={radiusKm}
+            hasLocation={hasLocation}
             onRadiusChange={handleRadiusChange}
             onRequestLocation={handleSearchAroundMe}
           />
@@ -563,6 +542,15 @@ export default function ExplorerMapView({
           </div>
         </div>
       </div>
+
+      {/* Rendue hors des colonnes : elle couvre l'écran entier, panneau compris. */}
+      <FiltersModal
+        open={isFiltersOpen}
+        filters={filters}
+        onChange={setFilters}
+        onClose={() => setIsFiltersOpen(false)}
+        resultCount={filteredHikes.length}
+      />
 
       {detailHike && (
         <HikeDetailPanel summary={detailHike} onClose={() => setDetailHikeId(null)} />

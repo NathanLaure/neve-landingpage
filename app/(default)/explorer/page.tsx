@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import ExplorerMapView from "@/components/explorer-map-view";
-import { getAllHikes, getHikesNearby, DEFAULT_HIKE_RADIUS_KM } from "@/lib/hikes";
+import { getAllHikes, getHikesNearby } from "@/lib/hikes";
 import { parseRadius } from "@/lib/explorer-filters";
 
 export const metadata = {
@@ -29,19 +29,23 @@ export default async function ExplorerPage({ searchParams }: Props) {
   const lng = params.lng ? parseFloat(params.lng) : null;
   const hasLocation = lat !== null && lng !== null && !Number.isNaN(lat) && !Number.isNaN(lng);
 
-  /* Rayon borne aux valeurs proposees par le chip : une adresse forgee a la
-     main ne doit pas pouvoir demander la France entiere. */
-  const radiusKm = parseRadius(params.radius, DEFAULT_HIKE_RADIUS_KM);
+  /*
+   * `null` vaut « depuis le marqueur » : on garde le centre pour la carte et on
+   * cesse de borner la recherche. Sans lieu du tout, c'est aussi ce qu'on fait.
+   */
+  const radiusKm = parseRadius(params.radius);
 
-  const { hikes, error } = hasLocation
-    ? await getHikesNearby({ lat: lat as number, lng: lng as number, radiusKm, limit: 1000 })
-    : await getAllHikes();
+  const { hikes, error } =
+    hasLocation && radiusKm !== null
+      ? await getHikesNearby({ lat: lat as number, lng: lng as number, radiusKm, limit: 1000 })
+      : await getAllHikes();
 
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-brand-light text-brand-dark">Chargement...</div>}>
       <ExplorerMapView
         areaName={params.name}
-        radiusKm={hasLocation ? radiusKm : null}
+        radiusKm={radiusKm}
+        hasLocation={hasLocation}
         hikes={hikes}
         fetchError={error}
         centerLat={hasLocation ? (lat as number) : FRANCE_CENTER.lat}
