@@ -139,6 +139,9 @@ export default function ExplorerMapView({
   const [detailHikeId, setDetailHikeId] = useState<string | null>(null);
   const [userPosition, setUserPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [isLocating, setIsLocating] = useState(false);
+  /* Un échec de géolocalisation doit se voir : refus, indisponibilité et
+     expiration se règlent tous les trois ailleurs que sur cette page. */
+  const [locationError, setLocationError] = useState<string | null>(null);
   const [bearing, setBearing] = useState(0);
 
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
@@ -402,8 +405,17 @@ export default function ExplorerMapView({
         setIsLocating(false);
         mapRef.current?.flyTo({ center: [coords.lng, coords.lat], zoom: 12, duration: 900 });
       },
-      () => setIsLocating(false),
-      { enableHighAccuracy: true },
+      (error) => {
+        setIsLocating(false);
+        setLocationError(
+          error.code === error.PERMISSION_DENIED
+            ? "Autorise la géolocalisation dans ton navigateur pour te situer sur la carte."
+            : "Ta position n’a pas pu être déterminée.",
+        );
+      },
+      /* Même réglage que « Autour de moi » : sans `timeout`, la demande reste
+         en attente indéfiniment sur un poste sans GPS. */
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 },
     );
   }, []);
 
@@ -421,10 +433,22 @@ export default function ExplorerMapView({
     [router, searchParams],
   );
 
-  /* Aucun centre encore : on en demande un plutôt que d'afficher un rayon
-     autour de rien. */
+  /*
+   * Aucun centre encore : on en demande un plutôt que d'afficher un rayon
+   * autour de rien.
+   *
+   * `timeout` est indispensable : sans lui la demande reste en attente
+   * indéfiniment sur un poste sans GPS, et l'écran ne bouge jamais. Et
+   * `enableHighAccuracy` ne sert à rien ici — on cherche une ville, pas un
+   * mètre carré ; il ne fait qu'allonger l'attente.
+   */
   const handleSearchAroundMe = useCallback(() => {
-    if (!navigator.geolocation) return;
+    if (!navigator.geolocation) {
+      setLocationError("Ton navigateur ne sait pas donner ta position.");
+      return;
+    }
+
+    setLocationError(null);
     setIsLocating(true);
 
     navigator.geolocation.getCurrentPosition(
@@ -436,8 +460,17 @@ export default function ExplorerMapView({
         params.set("name", "ma position");
         router.replace(`/explorer?${params.toString()}`, { scroll: false });
       },
-      () => setIsLocating(false),
-      { enableHighAccuracy: true },
+      (error) => {
+        setIsLocating(false);
+        /* Dire lequel des trois échecs s'est produit : « ça ne marche pas »
+           n'indique pas que la réponse est dans les réglages du navigateur. */
+        setLocationError(
+          error.code === error.PERMISSION_DENIED
+            ? "Autorise la géolocalisation dans ton navigateur pour chercher autour de toi."
+            : "Ta position n’a pas pu être déterminée. Réessaie ou cherche un lieu.",
+        );
+      },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 },
     );
   }, [router, searchParams]);
 
@@ -492,6 +525,14 @@ export default function ExplorerMapView({
             onRequestLocation={handleSearchAroundMe}
           />
         </div>
+
+        {(isLocating || locationError) && (
+          <div className="pointer-events-none flex justify-center pb-2">
+            <p className="pointer-events-auto rounded-full border border-neve-border bg-neve-card px-3.5 py-1.5 font-satoshi text-[13px] text-neve-text-muted">
+              {isLocating ? "Recherche de ta position…" : locationError}
+            </p>
+          </div>
+        )}
 
         <div className="relative flex-1 overflow-hidden rounded-xl bg-neve-surface">
           {mapboxToken ? (
