@@ -18,6 +18,7 @@ import MapStylePicker, { buildStyleOptions } from "@/components/explorer/map-sty
 import type { HikeSummary } from "@/types/hike";
 import { useAuth } from "@/context/AuthContext";
 import { useFavorites } from "@/context/FavoritesContext";
+import { hasNavigoPass, isInNavigoZone } from "@/lib/navigo";
 import { formatDifficultyLabel, formatDistance, formatDuration, formatElevation } from "@/lib/format-hike";
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || "";
@@ -104,7 +105,7 @@ export default function ExplorerMapView({
   const router = useRouter();
   const searchParams = useSearchParams();
   const hikeQuery = searchParams.get("hike");
-  const { user, openAuthModal } = useAuth();
+  const { user, profile, openAuthModal } = useAuth();
   const { isFavorite, isPending: isFavoritePending, toggleFavorite } = useFavorites();
 
   /* Le visiteur anonyme est invité à se connecter plutôt qu'ignoré : un cœur
@@ -118,6 +119,18 @@ export default function ExplorerMapView({
       toggleFavorite(hikeId);
     },
     [user, openAuthModal, toggleFavorite],
+  );
+
+  /* Le pass se lit une fois pour tout l'ecran ; la zone, randonnee par
+     randonnee. Sans pass declare, aucun badge : qui n'a pas d'abonnement n'a
+     que faire de savoir lesquelles il couvrirait. */
+  const userHasNavigo = useMemo(() => hasNavigoPass(user, profile), [user, profile]);
+
+  const showsNavigoBadge = useCallback(
+    (hike: HikeSummary) =>
+      userHasNavigo &&
+      isInNavigoZone({ lat: hike.start_lat, lng: hike.start_lng, locationName: hike.location_name }),
+    [userHasNavigo],
   );
 
   const [filters, setFilters] = useState<ExplorerFilters>(EMPTY_FILTERS);
@@ -443,6 +456,7 @@ export default function ExplorerMapView({
       isFavorite={isFavorite}
       isFavoritePending={isFavoritePending}
       onFavoriteClick={handleFavoriteClick}
+      showsNavigoBadge={showsNavigoBadge}
     />
   );
 
@@ -479,7 +493,7 @@ export default function ExplorerMapView({
           />
         </div>
 
-        <div className="relative flex-1 overflow-hidden rounded-3xl bg-neve-surface">
+        <div className="relative flex-1 overflow-hidden rounded-xl bg-neve-surface">
           {mapboxToken ? (
             <div ref={mapContainerRef} className="size-full" />
           ) : (

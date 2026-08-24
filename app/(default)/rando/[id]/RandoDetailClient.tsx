@@ -47,6 +47,7 @@ import {
 } from "@/lib/format-hike";
 import { useAuth } from "@/context/AuthContext";
 import { useFavorites } from "@/context/FavoritesContext";
+import { hasNavigoPass, isInNavigoZone } from "@/lib/navigo";
 
 interface Props {
   hike: HikeDetail;
@@ -158,52 +159,11 @@ export default function RandoDetailClient({ hike }: Props) {
   const [newReviewRating, setNewReviewRating] = useState(5);
   const [isReviewFormOpen, setIsReviewFormOpen] = useState(false);
 
-  // Condition Navigo : uniquement si l'utilisateur a déclaré posséder le pass Navigo et si la rando est dans la zone couverte
-  const userHasNavigo = useMemo(() => {
-    if (profile?.hasNavigo || profile?.transportPasses?.includes("navigo")) {
-      return true;
-    }
-    if (!user) return false;
-    const meta = user.user_metadata || {};
-    const passes = meta.transport_passes || meta.transportPasses || meta.passes;
-    if (Array.isArray(passes)) {
-      return passes.includes("navigo");
-    }
-    if (meta.has_navigo !== undefined) {
-      return Boolean(meta.has_navigo);
-    }
-    return false;
-  }, [user, profile]);
-
-  const isNavigoZone = useMemo(() => {
-    if (hike.is_navigo_accessible !== undefined) return Boolean(hike.is_navigo_accessible);
-    if (hike.geometry?.coordinates) {
-      const coords =
-        hike.geometry.type === "LineString"
-          ? (hike.geometry.coordinates[0] as [number, number])
-          : (hike.geometry.coordinates[0]?.[0] as [number, number]);
-      if (coords && coords.length >= 2) {
-        const [lng, lat] = coords;
-        return lat >= 48.12 && lat <= 49.24 && lng >= 1.44 && lng <= 3.56;
-      }
-    }
-    const loc = (hike.location_name || "").toLowerCase();
-    return (
-      loc.includes("île-de-france") ||
-      loc.includes("ile-de-france") ||
-      loc.includes("paris") ||
-      loc.includes("seine-et-marne") ||
-      loc.includes("yvelines") ||
-      loc.includes("essonne") ||
-      loc.includes("hauts-de-seine") ||
-      loc.includes("seine-saint-denis") ||
-      loc.includes("val-de-marne") ||
-      loc.includes("val-d'oise") ||
-      loc.includes("fontainebleau")
-    );
-  }, [hike]);
-
-  const showNavigoBadge = userHasNavigo && isNavigoZone;
+  /* Regle partagee avec l'explorateur : voir lib/navigo.ts. Elle vivait ici
+     en cinquante lignes, recopiees des que le badge apparaissait ailleurs. */
+  const showNavigoBadge =
+    hasNavigoPass(user, profile) &&
+    isInNavigoZone({ lat: hike.start_lat, lng: hike.start_lng, locationName: hike.location_name });
 
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);

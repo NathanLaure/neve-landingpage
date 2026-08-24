@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { Heart, Route, TrendingUp, Clock } from "lucide-react";
+import { CheckCircle2, Heart, Route, TrendingUp, Clock } from "lucide-react";
 import type { HikeDifficulty, HikeSummary } from "@/types/hike";
 import {
   formatDifficultyLabel,
@@ -22,6 +22,11 @@ interface RandoCardProps {
   isFavoritePending?: boolean;
   onFavoriteClick?: (hikeId: string) => void;
   onClick?: (hikeId: string) => void;
+  /**
+   * Badge « Pass Navigo ». Calcule par l'appelant : il depend du randonneur
+   * autant que de la randonnee, et la carte ne connait ni l'un ni l'autre.
+   */
+  showNavigoBadge?: boolean;
   className?: string;
 }
 
@@ -48,6 +53,7 @@ export default function RandoCard({
   isFavoritePending = false,
   onFavoriteClick,
   onClick,
+  showNavigoBadge = false,
   className = "",
 }: RandoCardProps) {
   const router = useRouter();
@@ -95,6 +101,16 @@ export default function RandoCard({
 
         {/* Subtle bottom gradient for readability */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent pointer-events-none" />
+
+        {/* Pass Navigo : mêmes teintes que la fiche randonnée, en plus court —
+            sur une vignette, « Accessible avec le pass Navigo » ne tiendrait
+            pas et n'apprendrait rien de plus. */}
+        {showNavigoBadge && (
+          <span className="absolute bottom-2.5 left-2.5 inline-flex items-center gap-1 rounded-md bg-[#DCFCE7] px-2 py-1 text-[11px] font-medium text-[#0D542B]">
+            <CheckCircle2 className="h-3.5 w-3.5" />
+            Pass Navigo
+          </span>
+        )}
 
         {/* Favorite Heart Button (Top-Right pastille) */}
         {onFavoriteClick && (

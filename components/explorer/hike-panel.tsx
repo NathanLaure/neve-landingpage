@@ -40,6 +40,8 @@ interface HikePanelProps {
   isFavoritePending?: (hikeId: string) => boolean;
   /** Absent, le cœur n'est pas rendu sur les cartes. */
   onFavoriteClick?: (hikeId: string) => void;
+  /** Le badge Navigo depend du randonneur : c'est a l'appelant de trancher. */
+  showsNavigoBadge?: (hike: HikeSummary) => boolean;
 }
 
 /**
@@ -65,6 +67,7 @@ export default function HikePanel({
   isFavorite,
   isFavoritePending,
   onFavoriteClick,
+  showsNavigoBadge,
 }: HikePanelProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [density, setDensity] = useState<PanelDensity>("cards");
@@ -211,6 +214,7 @@ export default function HikePanel({
                     isFavorited={isFavorite?.(hike.id)}
                     isFavoritePending={isFavoritePending?.(hike.id)}
                     onFavoriteClick={onFavoriteClick}
+                    showNavigoBadge={showsNavigoBadge?.(hike)}
                     className={`rounded-2xl p-2 transition-colors hover:bg-neve-surface ${
                       activeId === hike.id ? "bg-neve-surface" : ""
                     }`}
