@@ -1,5 +1,5 @@
 import { supabase } from "./supabase";
-import type { HikeDetail, HikeSummary } from "@/types/hike";
+import type { HikeDetail, HikeGeometry, HikeSummary } from "@/types/hike";
 
 /** Default search radius for a "randos autour de [lieu]" page. */
 export const DEFAULT_HIKE_RADIUS_KM = 35;
@@ -176,4 +176,33 @@ export async function getHikesInBounds({
 
   if (error) return { hikes: [], error: error.message };
   return { hikes: (data ?? []) as unknown as HikeSummary[], error: null };
+}
+
+/**
+ * Tracés GPS de randonnées données.
+ *
+ * Requête à part, et non une colonne de plus dans la liste : une géométrie
+ * porte des milliers de points, et les charger pour tout le catalogue
+ * reviendrait à télécharger la France entière pour dessiner un écran.
+ *
+ * Appelée depuis le client, au-delà du seuil de zoom, et par lots plafonnés —
+ * voir `TRACE_MIN_ZOOM` et `MAX_TRACES_PER_REQUEST` côté vue.
+ */
+export async function getHikeTraces(
+  ids: string[]
+): Promise<{ traces: { id: string; geometry: HikeGeometry }[]; error: string | null }> {
+  if (ids.length === 0) return { traces: [], error: null };
+
+  const { data, error } = await supabase
+    .from("hikes")
+    .select("id, geometry")
+    .in("id", ids)
+    .not("geometry", "is", null);
+
+  if (error) return { traces: [], error: error.message };
+
+  return {
+    traces: (data ?? []) as unknown as { id: string; geometry: HikeGeometry }[],
+    error: null,
+  };
 }

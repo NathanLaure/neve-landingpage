@@ -6,7 +6,7 @@ import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import Supercluster from "supercluster";
 import { RotateCcw } from "lucide-react";
-import { getHikesInBounds } from "@/lib/hikes";
+import { getHikeTraces, getHikesInBounds } from "@/lib/hikes";
 import HikeDetailPanel from "@/components/hike-detail-panel";
 import HikePanel, { type HikeSort } from "@/components/explorer/hike-panel";
 import MapFilters from "@/components/explorer/map-filters";
@@ -42,6 +42,28 @@ type Props = {
 
 /** Au-delà de ce zoom, supercluster rend les points un par un. */
 const CLUSTER_MAX_ZOOM = 13;
+
+/**
+ * Seuil d'apparition des tracés, et plafond par requête. Mêmes valeurs que
+ * `hikeTraceService` dans l'application.
+ *
+ * Plus le seuil est bas, plus le cadre est large et plus le plafond mord : au
+ * delà de soixante randonnées visibles, les tracés dessinés ne sont qu'un
+ * échantillon de ce qu'on voit.
+ */
+const TRACE_MIN_ZOOM = 9;
+const MAX_TRACES_PER_REQUEST = 60;
+
+/**
+ * Couleur du tracé selon la difficulté, avec les jetons des étiquettes de
+ * difficulté des cartes — c'est le mode retenu par l'application.
+ */
+const TRACE_COLORS: Record<string, string> = {
+  facile: "#0D542B",
+  modere: "#7B3306",
+  difficile: "#82181A",
+  expert: "#82181A",
+};
 
 type HikePointProps = { hikeId: string };
 
@@ -153,6 +175,9 @@ export default function ExplorerMapView({
   /* La carte se cree une fois ; passer le callback par une ref evite de le
      mettre dans les dependances de cet effet, ce qui la recreerait. */
   const searchThisAreaRef = useRef<(() => Promise<void>) | null>(null);
+  /* Meme raison : la carte se cree une fois, le rafraichissement des traces
+     change a chaque rendu. */
+  const refreshTracesRef = useRef<(() => Promise<void>) | null>(null);
 
   useEffect(() => setAreaHikes(hikes), [hikes]);
 
@@ -313,7 +338,45 @@ export default function ExplorerMapView({
     });
 
     mapRef.current = map;
+
+    /*
+     * Source et couches des tracés, posées dès que le style est prêt et
+     * recréées à chaque changement de style — Mapbox vide tout en le
+     * remplaçant.
+     *
+     * Deux couches : un liseré blanc dessous, la ligne colorée dessus. C'est ce
+     * qui garde un tracé lisible sur une photo satellite comme sur un fond
+     * clair. Le `minzoom` est porté par la couche : en deçà, Mapbox ne dessine
+     * simplement pas.
+     */
+    const addTraceLayers = () => {
+      if (map.getSource("hike-traces")) return;
+
+      map.addSource("hike-traces", {
+        type: "geojson",
+        data: { type: "FeatureCollection", features: [] },
+      });
+      map.addLayer({
+        id: "hike-traces-casing",
+        type: "line",
+        source: "hike-traces",
+        minzoom: TRACE_MIN_ZOOM,
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: { "line-color": "#FFFFFF", "line-width": 6, "line-opacity": 0.9 },
+      });
+      map.addLayer({
+        id: "hike-traces-line",
+        type: "line",
+        source: "hike-traces",
+        minzoom: TRACE_MIN_ZOOM,
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: { "line-color": ["get", "color"], "line-width": 3 },
+      });
+    };
+
+    map.on("style.load", addTraceLayers);
     map.on("moveend", renderMarkers);
+    map.on("moveend", () => void refreshTracesRef.current?.());
     map.on("rotate", () => setBearing(map.getBearing()));
 
     /* Le bouton n'apparaît qu'au-delà des seuils, et jamais avant la première
@@ -485,6 +548,75 @@ export default function ExplorerMapView({
   useEffect(() => {
     searchThisAreaRef.current = handleSearchThisArea;
   }, [handleSearchThisArea]);
+
+  /**
+   * Tracés des randonnées visibles, au-delà de `TRACE_MIN_ZOOM`.
+   *
+   * Le cache est une ref et non un état : il grossit à chaque déplacement, et
+   * le redessin ne dépend pas de lui mais de la source GeoJSON qu'on met à
+   * jour à la main. Un tracé déjà connu n'est jamais redemandé.
+   */
+  const tracesRef = useRef<Map<string, number[][]>>(new Map());
+
+  const refreshTraces = useCallback(async () => {
+    const map = mapRef.current;
+    const source = map?.getSource("hike-traces") as mapboxgl.GeoJSONSource | undefined;
+    if (!map || !source) return;
+
+    /* En deçà du seuil, on vide plutôt que de laisser un dessin périmé : les
+       couches ont bien un `minzoom`, mais la source garderait des tracés d'une
+       zone qu'on a quittée. */
+    if (map.getZoom() < TRACE_MIN_ZOOM) {
+      source.setData({ type: "FeatureCollection", features: [] });
+      return;
+    }
+
+    const bounds = map.getBounds();
+    if (!bounds) return;
+
+    const visible = areaHikes
+      .filter(
+        (hike) =>
+          hike.start_lat >= bounds.getSouth() &&
+          hike.start_lat <= bounds.getNorth() &&
+          hike.start_lng >= bounds.getWest() &&
+          hike.start_lng <= bounds.getEast(),
+      )
+      .slice(0, MAX_TRACES_PER_REQUEST);
+
+    const missing = visible.filter((hike) => !tracesRef.current.has(hike.id)).map((h) => h.id);
+    if (missing.length > 0) {
+      const { traces } = await getHikeTraces(missing);
+      traces.forEach(({ id, geometry }) => {
+        /* Un `MultiLineString` est aplati sur son premier segment : le rendu
+           n'a pas à connaître deux formes pour dessiner la même chose. */
+        const coordinates =
+          geometry.type === "LineString"
+            ? (geometry.coordinates as number[][])
+            : ((geometry.coordinates as number[][][])[0] ?? []);
+        if (coordinates.length > 1) tracesRef.current.set(id, coordinates);
+      });
+    }
+
+    source.setData({
+      type: "FeatureCollection",
+      features: visible
+        .filter((hike) => tracesRef.current.has(hike.id))
+        .map((hike) => ({
+          type: "Feature" as const,
+          properties: { color: TRACE_COLORS[hike.difficulty] ?? TRACE_COLORS.modere },
+          geometry: {
+            type: "LineString" as const,
+            coordinates: tracesRef.current.get(hike.id) as number[][],
+          },
+        })),
+    });
+  }, [areaHikes]);
+
+  useEffect(() => {
+    refreshTracesRef.current = refreshTraces;
+    void refreshTraces();
+  }, [refreshTraces]);
 
   const handleLocate = useCallback(() => {
     if (!navigator.geolocation) return;
