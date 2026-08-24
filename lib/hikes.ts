@@ -141,3 +141,39 @@ export async function getHikeById(id: string): Promise<HikeDetailResult> {
 
   return { hike: data as unknown as HikeDetail, error: null };
 }
+
+/**
+ * Randonnées dont le départ tombe dans le cadre visible de la carte.
+ *
+ * Appelée depuis le client, contrairement aux autres : c'est le déplacement de
+ * la carte qui la déclenche, et le serveur ne connaît pas le cadre. La clé
+ * anonyme suffit, la table étant en lecture publique.
+ *
+ * Le plafond est là pour un dézoom sur la France entière : mieux vaut un
+ * millier de marqueurs tronqués qu'une page qui ne répond plus.
+ */
+export async function getHikesInBounds({
+  minLat,
+  maxLat,
+  minLng,
+  maxLng,
+  limit = 500,
+}: {
+  minLat: number;
+  maxLat: number;
+  minLng: number;
+  maxLng: number;
+  limit?: number;
+}): Promise<HikesNearbyResult> {
+  const { data, error } = await supabase
+    .from("hikes")
+    .select(MAP_LIST_COLUMNS)
+    .gte("start_lat", minLat)
+    .lte("start_lat", maxLat)
+    .gte("start_lng", minLng)
+    .lte("start_lng", maxLng)
+    .limit(limit);
+
+  if (error) return { hikes: [], error: error.message };
+  return { hikes: (data ?? []) as unknown as HikeSummary[], error: null };
+}

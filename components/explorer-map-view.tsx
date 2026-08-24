@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import Supercluster from "supercluster";
+import { RotateCcw } from "lucide-react";
+import { getHikesInBounds } from "@/lib/hikes";
 import HikeDetailPanel from "@/components/hike-detail-panel";
 import HikePanel, { type HikeSort } from "@/components/explorer/hike-panel";
 import MapFilters from "@/components/explorer/map-filters";
@@ -132,9 +134,24 @@ export default function ExplorerMapView({
      ouvre son infobulle une fois le zoom l'en ayant sortie. */
   const pendingPopupHikeIdRef = useRef<string | null>(null);
 
+  /*
+   * Randonnées réellement affichées. Elles arrivent du serveur au premier
+   * rendu — c'est ce que voient les moteurs — puis c'est le cadre de la carte
+   * qui les renouvelle.
+   */
+  const [areaHikes, setAreaHikes] = useState<HikeSummary[]>(hikes);
+  const [isSearchingArea, setIsSearchingArea] = useState(false);
+  const [showSearchArea, setShowSearchArea] = useState(false);
+
+  /* Centre et zoom de la dernière recherche, pour mesurer ce qui a bougé
+     depuis. En ref : les comparer ne doit pas provoquer de rendu. */
+  const lastSearchRef = useRef<{ lat: number; lng: number; zoom: number } | null>(null);
+
+  useEffect(() => setAreaHikes(hikes), [hikes]);
+
   const filteredHikes = useMemo(
-    () => hikes.filter((hike) => matchesFilters(hike, filters)),
-    [hikes, filters],
+    () => areaHikes.filter((hike) => matchesFilters(hike, filters)),
+    [areaHikes, filters],
   );
 
   const sortedHikes = useMemo(() => {
@@ -292,6 +309,24 @@ export default function ExplorerMapView({
     map.on("moveend", renderMarkers);
     map.on("rotate", () => setBearing(map.getBearing()));
 
+    /* Le bouton n'apparaît qu'au-delà des seuils, et jamais avant la première
+       recherche : `fitBounds` déplace la carte au montage, ce n'est pas
+       l'utilisateur qui l'a bougée. */
+    map.on("moveend", () => {
+      const last = lastSearchRef.current;
+      if (!last) return;
+
+      const center = map.getCenter();
+      const moved = distanceKm(last, { lat: center.lat, lng: center.lng });
+      const zoomed = Math.abs(last.zoom - map.getZoom());
+      if (moved > 0.8 || zoomed > 0.4) setShowSearchArea(true);
+    });
+
+    map.once("idle", () => {
+      const center = map.getCenter();
+      lastSearchRef.current = { lat: center.lat, lng: center.lng, zoom: map.getZoom() };
+    });
+
     return () => {
       map.off("moveend", renderMarkers);
       map.remove();
@@ -397,6 +432,39 @@ export default function ExplorerMapView({
       marker.remove();
     };
   }, [userPosition]);
+
+  /**
+   * Recherche dans le cadre visible.
+   *
+   * Mêmes seuils que l'accueil de l'application : le bouton n'apparaît qu'au-delà
+   * de 800 m de déplacement ou de 0,4 de zoom. En deçà, on regarde toujours la
+   * même chose, et un bouton qui clignote à chaque frémissement de la carte
+   * finit par ne plus rien vouloir dire.
+   */
+  const handleSearchThisArea = useCallback(async () => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const bounds = map.getBounds();
+    if (!bounds) return;
+
+    setIsSearchingArea(true);
+    setShowSearchArea(false);
+
+    const { hikes: found, error } = await getHikesInBounds({
+      minLat: bounds.getSouth(),
+      maxLat: bounds.getNorth(),
+      minLng: bounds.getWest(),
+      maxLng: bounds.getEast(),
+    });
+
+    setIsSearchingArea(false);
+    if (error) return;
+
+    setAreaHikes(found);
+    const center = map.getCenter();
+    lastSearchRef.current = { lat: center.lat, lng: center.lng, zoom: map.getZoom() };
+  }, []);
 
   const handleLocate = useCallback(() => {
     if (!navigator.geolocation) return;
@@ -573,6 +641,22 @@ export default function ExplorerMapView({
           <div className="pointer-events-none absolute bottom-6 left-4 z-20">
             <MapStylePicker options={styleOptions} value={mapStyle} onChange={setMapStyle} />
           </div>
+
+          {/* Bouton de recherche de zone, centré en bas du cadre comme sur
+              mobile. Il ne se montre qu'une fois la carte réellement déplacée. */}
+          {(showSearchArea || isSearchingArea) && (
+            <div className="pointer-events-none absolute inset-x-0 bottom-6 z-20 flex justify-center">
+              <button
+                type="button"
+                onClick={handleSearchThisArea}
+                disabled={isSearchingArea}
+                className="pointer-events-auto inline-flex cursor-pointer items-center gap-2 rounded-full bg-neve-button-secondary px-5 py-2.5 font-satoshi text-sm font-bold text-neve-button-secondary-text shadow-lg transition disabled:opacity-70"
+              >
+                <RotateCcw className={`size-4 ${isSearchingArea ? "animate-spin" : ""}`} />
+                {isSearchingArea ? "Recherche…" : "Rechercher dans cette zone"}
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
