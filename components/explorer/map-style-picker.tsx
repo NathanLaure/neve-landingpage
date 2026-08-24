@@ -91,7 +91,7 @@ export default function MapStylePicker({ options, value, onChange }: MapStylePic
               type="button"
               onClick={() => setIsOpen(false)}
               aria-label="Fermer"
-              className="flex size-6 cursor-pointer items-center justify-center rounded-full text-neve-text-muted transition hover:bg-neve-surface"
+              className="flex size-6 cursor-pointer items-center justify-center text-neve-text-muted transition-colors hover:text-neve-text"
             >
               <X className="size-4" />
             </button>

@@ -117,7 +117,7 @@ export default function HikePanel({
             type="button"
             onClick={() => setIsCollapsed(false)}
             aria-label="Déplier la liste des itinéraires"
-            className="flex size-9 cursor-pointer items-center justify-center rounded-lg text-neve-text transition hover:bg-neve-surface"
+            className="flex size-9 cursor-pointer items-center justify-center text-neve-text-muted transition-colors hover:text-neve-text"
           >
             <PanelLeftOpen className="size-5" />
           </button>
@@ -138,7 +138,7 @@ export default function HikePanel({
           type="button"
           onClick={() => setIsCollapsed(true)}
           aria-label="Replier la liste des itinéraires"
-          className="hidden size-9 cursor-pointer items-center justify-center rounded-lg text-neve-text transition hover:bg-neve-surface md:flex"
+          className="hidden size-9 cursor-pointer items-center justify-center text-neve-text-muted transition-colors hover:text-neve-text md:flex"
         >
           <PanelLeftClose className="size-5" />
         </button>
@@ -176,7 +176,7 @@ export default function HikePanel({
             aria-label={
               density === "cards" ? "Afficher en liste compacte" : "Afficher en cartes"
             }
-            className="flex size-8 cursor-pointer items-center justify-center rounded-lg text-neve-text transition hover:bg-neve-surface"
+            className="flex size-8 cursor-pointer items-center justify-center text-neve-text-muted transition-colors hover:text-neve-text"
           >
             {density === "cards" ? (
               <Rows3 className="size-[18px]" />
