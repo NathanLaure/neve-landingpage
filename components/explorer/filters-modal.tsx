@@ -154,7 +154,7 @@ export default function FiltersModal({
         className="absolute inset-0 cursor-default bg-black/40"
       />
 
-      <div className="relative flex max-h-[85vh] w-full max-w-[440px] flex-col overflow-hidden rounded-[20px] bg-neve-card shadow-2xl">
+      <div className="relative flex max-h-[85vh] w-full max-w-[570px] flex-col overflow-hidden rounded-[20px] bg-neve-card shadow-2xl">
         <header className="flex items-center justify-between px-7 pt-7 pb-4">
           <h2 className="font-bricolage text-[22px] font-bold text-neve-text">Filtres</h2>
           <button
