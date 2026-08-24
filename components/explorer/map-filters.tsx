@@ -17,16 +17,15 @@ const PILL =
   "inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-[12px] border px-3.5 font-satoshi text-[13px] font-medium transition";
 const PILL_IDLE = "border-neve-border bg-neve-card text-neve-text hover:bg-neve-surface";
 /*
- * État sélectionné, tel que la barre de chips de l'accueil de l'application le
- * rend : seule la bordure passe à la teinte de marque, à 1,5 px. Le texte et
- * l'icône restent neutres — `FilterChipsBar` force d'ailleurs
- * `textStyle={{ color: theme.text }}` pour écraser l'orange que `Chip`
- * appliquerait au libellé.
+ * L'état sélectionné ne touche ni au fond ni à la bordure : seule l'icône
+ * passe à la teinte de marque.
  *
- * Le fond ne bouge pas. Un fond sombre était une invention de ma part.
+ * Sur l'accueil de l'application, ces chips n'ont d'ailleurs aucune bordure —
+ * `mapChipStyle` impose `borderWidth: 0`. La faire changer de couleur etait une
+ * invention, la seconde apres le fond sombre.
  */
-const PILL_ACTIVE =
-  "border-[1.5px] border-neve-tint bg-neve-card text-neve-text hover:bg-neve-surface";
+const ICON_IDLE = "text-neve-text";
+const ICON_ACTIVE = "text-neve-tint";
 const MENU =
   "absolute top-full left-0 z-30 mt-2 min-w-[200px] rounded-[12px] border border-neve-border bg-neve-card p-1.5 shadow-lg";
 const MENU_ITEM =
@@ -102,11 +101,11 @@ function Pill({
         type="button"
         onClick={() => setIsOpen((open) => !open)}
         aria-expanded={isOpen}
-        className={`${PILL} ${activeLabel ? PILL_ACTIVE : PILL_IDLE}`}
+        className={`${PILL} ${PILL_IDLE}`}
       >
-        {/* L'icône garde la couleur du texte, sélectionnée ou non : c'est la
-            bordure qui porte l'état. */}
-        {icon}
+        {/* Seule l'icône porte l'état : les icônes lucide héritent de
+            `currentColor`, il suffit donc de colorer leur conteneur. */}
+        <span className={activeLabel ? ICON_ACTIVE : ICON_IDLE}>{icon}</span>
         {activeLabel ?? label}
         <ChevronDown className="size-4" />
       </button>
@@ -180,9 +179,11 @@ function RadiusPill({
         type="button"
         onClick={() => setIsOpen((open) => !open)}
         aria-expanded={isOpen}
-        className={`${PILL} ${radiusKm !== null ? PILL_ACTIVE : PILL_IDLE}`}
+        className={`${PILL} ${PILL_IDLE}`}
       >
-        <CircleDotDashed className="size-4" />
+        <span className={radiusKm !== null ? ICON_ACTIVE : ICON_IDLE}>
+          <CircleDotDashed className="size-4" />
+        </span>
         {label}
         <ChevronDown className="size-4" />
       </button>
@@ -271,22 +272,29 @@ export default function MapFilters({
 
   return (
     <div className="pointer-events-auto flex flex-wrap items-center gap-2">
-      <button
-        type="button"
-        onClick={onOpenAll}
-        className={`${PILL} ${activeCount > 0 ? PILL_ACTIVE : PILL_IDLE}`}
-      >
-        <SlidersHorizontal className="size-4" />
-        Filtres
-        {/* Badge du nombre de filtres actifs, comme sur l'application : une fois
-            la modale refermée, c'est le seul indice qu'un réglage invisible
-            restreint encore la liste. */}
+      {/* Le badge déborde de la chip : il lui faut un conteneur positionné,
+          la chip elle-même ne pouvant pas le porter sans le rogner. */}
+      <div className="relative">
+        <button
+          type="button"
+          onClick={onOpenAll}
+          className={`${PILL} ${PILL_IDLE}`}
+        >
+          <span className={activeCount > 0 ? ICON_ACTIVE : ICON_IDLE}>
+            <SlidersHorizontal className="size-4" />
+          </span>
+          Filtres
+        </button>
+
+        {/* Cotes de `chipCornerBadge` dans `Chip.tsx` : 18 px de haut, rayon 9,
+            décalé de 2 px hors de l'angle. Une fois la modale refermée, c'est
+            le seul indice qu'un réglage invisible restreint encore la liste. */}
         {activeCount > 0 && (
-          <span className="ml-0.5 inline-flex size-5 items-center justify-center rounded-full bg-neve-button-primary text-[11px] font-bold text-neve-text-on-brand">
+          <span className="pointer-events-none absolute -top-0.5 -right-0.5 z-10 inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-neve-button-primary px-1 font-satoshi text-[10px] leading-[11px] font-bold text-neve-text-on-brand">
             {activeCount}
           </span>
         )}
-      </button>
+      </div>
 
       <RadiusPill
         radiusKm={radiusKm}
