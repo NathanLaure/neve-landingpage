@@ -369,6 +369,35 @@ export default function ExplorerMapView({
     });
   }, [activeHikeId, filteredHikes, mapboxToken]);
 
+  /*
+   * Point de position, aux cotes de `ExplorerMap` dans l'application : un point
+   * de 14 px en `Primary/500` bordé de blanc, sur un halo de 28 px à 35 %.
+   *
+   * Marqueur maintenu dans une ref plutôt que recréé : il survit aux rendus, et
+   * `setLngLat` le déplace sans le retirer de la carte.
+   */
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !userPosition) return;
+
+    const halo = document.createElement("div");
+    halo.className = "flex size-8 items-center justify-center";
+    halo.innerHTML = `
+      <span style="width:28px;height:28px;border-radius:14px;background:#FA6415;opacity:0.35;position:absolute"></span>
+      <span style="width:14px;height:14px;border-radius:7px;background:#FA6415;border:2px solid #FFFFFF;position:absolute"></span>
+    `;
+
+    const marker = new mapboxgl.Marker({ element: halo })
+      .setLngLat([userPosition.lng, userPosition.lat])
+      .addTo(map);
+
+    /* Accolades : `remove()` rend le marqueur, et un nettoyage d'effet doit
+       ne rien rendre du tout. */
+    return () => {
+      marker.remove();
+    };
+  }, [userPosition]);
+
   const handleLocate = useCallback(() => {
     if (!navigator.geolocation) return;
     setIsLocating(true);
@@ -432,6 +461,10 @@ export default function ExplorerMapView({
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setIsLocating(false);
+        /* Retenue ici aussi, et pas seulement dans l'adresse : c'est elle qui
+           pose le point sur la carte et qui débloque le tri par proximité. */
+        setUserPosition({ lat: position.coords.latitude, lng: position.coords.longitude });
+
         const params = new URLSearchParams(searchParams.toString());
         params.set("lat", position.coords.latitude.toFixed(5));
         params.set("lng", position.coords.longitude.toFixed(5));
@@ -489,7 +522,7 @@ export default function ExplorerMapView({
 
       {/* Colonne de droite : les filtres en bande, puis la carte encadrée.
           Absente sur mobile — voir l'en-tête du composant. */}
-      <div className="hidden flex-1 flex-col pr-6 pb-6 pl-2 md:flex">
+      <div className="hidden flex-1 flex-col pr-6 pb-6 md:flex">
         {/* Les filtres sont posés au-dessus du cadre et non sur la carte : la
             bande les aligne sur le titre du panneau, et la carte garde son
             fond entier. */}
