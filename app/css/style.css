@@ -67,6 +67,34 @@
   --color-brand-dark: var(--color-neutral-900);
   --color-brand-light: var(--color-neutral-0);
 
+  /* Boutons — repris à l'identique de `constants/Colors.ts` de l'application,
+     pour que l'explorateur du site et celui de l'app se ressemblent vraiment.
+
+     L'orange ne désigne que l'action qui convertit ou fait avancer. Ce qui
+     confirme sur place — un filtre qu'on applique, un choix qu'on referme —
+     prend le style secondaire. */
+  --color-neve-button-primary: var(--color-primary-600);
+  --color-neve-button-primary-hover: var(--color-primary-700);
+  --color-neve-button-secondary: var(--color-primary-950);
+  --color-neve-button-secondary-text: var(--color-neutral-0);
+  --color-neve-button-tertiary: var(--color-primary-950);
+  --color-neve-button-tertiary-text: var(--color-neutral-0);
+  --color-neve-button-disabled: var(--color-neutral-200);
+  --color-neve-button-text-disabled: var(--color-neutral-400);
+  --color-neve-text-on-brand: var(--color-neutral-0);
+
+  /* Surface d'appui d'un élément sélectionné : plage de dates, segment actif.
+     Passée de Neutral/100 à Neutral/300 avec la mise à jour de la palette —
+     l'ancienne ne se distinguait pas du fond. */
+  --color-neve-surface-secondary: var(--color-neutral-300);
+
+  /* Texte, repris des mêmes jetons que l'app. */
+  --color-neve-text: var(--color-neutral-900);
+  --color-neve-text-muted: var(--color-neutral-600);
+  --color-neve-text-tertiary: var(--color-neutral-400);
+  --color-neve-tint: var(--color-primary-600);
+  --color-neve-tint-strong: var(--color-primary-700);
+
   --text-xs: 0.875rem;
   --text-xs--line-height: 1.4285;
   --text-sm: 0.875rem;
