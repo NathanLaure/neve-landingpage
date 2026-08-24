@@ -268,13 +268,13 @@ export default function FiltersModal({
                     key={value}
                     type="button"
                     onClick={() => toggleRouteType(value)}
-                    /* Même état que le `Chip` de l'application : le fond ne
-                       change pas, seuls la bordure et le texte passent à la
-                       teinte de marque. */
-                    className={`cursor-pointer rounded-[12px] border px-3 py-1.5 font-satoshi text-[13px] transition ${
+                    /* Même état que la barre de chips de l'accueil : seule la
+                       bordure passe à la teinte de marque, le libellé reste
+                       neutre. */
+                    className={`cursor-pointer rounded-[12px] border px-3 py-1.5 font-satoshi text-[13px] text-neve-text transition ${
                       isSelected
-                        ? "border-[1.5px] border-neve-tint bg-neve-card text-neve-tint"
-                        : "border-neve-border-strong bg-neve-card text-neve-text hover:bg-neve-surface"
+                        ? "border-[1.5px] border-neve-tint bg-neve-card"
+                        : "border-neve-border-strong bg-neve-card hover:bg-neve-surface"
                     }`}
                   >
                     {label}

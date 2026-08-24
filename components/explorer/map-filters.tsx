@@ -16,10 +16,17 @@ import {
 const PILL =
   "inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-[12px] border px-3.5 font-satoshi text-[13px] font-medium transition";
 const PILL_IDLE = "border-neve-border bg-neve-card text-neve-text hover:bg-neve-surface";
-/* État sélectionné du composant `Chip` de l'application : le fond ne change
-   pas, la bordure et le texte passent à la teinte de marque. Jamais de fond
-   sombre — c'était une invention. */
-const PILL_ACTIVE = "border-neve-tint bg-neve-card text-neve-tint hover:bg-neve-surface";
+/*
+ * État sélectionné, tel que la barre de chips de l'accueil de l'application le
+ * rend : seule la bordure passe à la teinte de marque, à 1,5 px. Le texte et
+ * l'icône restent neutres — `FilterChipsBar` force d'ailleurs
+ * `textStyle={{ color: theme.text }}` pour écraser l'orange que `Chip`
+ * appliquerait au libellé.
+ *
+ * Le fond ne bouge pas. Un fond sombre était une invention de ma part.
+ */
+const PILL_ACTIVE =
+  "border-[1.5px] border-neve-tint bg-neve-card text-neve-text hover:bg-neve-surface";
 const MENU =
   "absolute top-full left-0 z-30 mt-2 min-w-[200px] rounded-[12px] border border-neve-border bg-neve-card p-1.5 shadow-lg";
 const MENU_ITEM =
