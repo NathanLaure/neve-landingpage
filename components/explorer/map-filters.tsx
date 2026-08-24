@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, SlidersHorizontal } from "lucide-react";
+import { ChevronDown, CircleDotDashed, Clock, Route, Signal, SlidersHorizontal } from "lucide-react";
 import type { HikeDifficulty } from "@/types/hike";
 import {
   DIFFICULTY_LABELS,
@@ -85,10 +85,12 @@ interface PillOption {
 function Pill({
   label,
   activeLabel,
+  icon,
   options,
 }: {
   label: string;
   activeLabel: string | null;
+  icon: React.ReactNode;
   options: PillOption[];
 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -102,6 +104,9 @@ function Pill({
         aria-expanded={isOpen}
         className={`${PILL} ${activeLabel ? PILL_ACTIVE : PILL_IDLE}`}
       >
+        {/* L'icône garde la couleur du texte, sélectionnée ou non : c'est la
+            bordure qui porte l'état. */}
+        {icon}
         {activeLabel ?? label}
         <ChevronDown className="size-4" />
       </button>
@@ -157,7 +162,7 @@ function RadiusPill({
   const label = !hasLocation
     ? "Autour de moi"
     : radiusKm === null
-      ? "Depuis le marqueur"
+      ? "Position actuelle"
       : `Dans un rayon de ${radiusKm} km`;
 
   const select = (next: number | null) => {
@@ -177,6 +182,7 @@ function RadiusPill({
         aria-expanded={isOpen}
         className={`${PILL} ${radiusKm !== null ? PILL_ACTIVE : PILL_IDLE}`}
       >
+        <CircleDotDashed className="size-4" />
         {label}
         <ChevronDown className="size-4" />
       </button>
@@ -190,7 +196,7 @@ function RadiusPill({
               radiusKm === null ? "font-bold text-neve-tint" : "text-neve-text"
             }`}
           >
-            depuis le marqueur
+            Position actuelle
           </button>
           {RADIUS_OPTIONS.map((option) => (
             <button
@@ -292,6 +298,7 @@ export default function MapFilters({
       <Pill
         label="Difficulté"
         activeLabel={difficultyLabel}
+        icon={<Signal className="size-4" />}
         options={[
           {
             label: "Toutes",
@@ -309,6 +316,7 @@ export default function MapFilters({
       <Pill
         label="Distance"
         activeLabel={rangeLabel(filters.distanceKm, DISTANCE_SHORTCUTS, "km")}
+        icon={<Route className="size-4" />}
         options={DISTANCE_SHORTCUTS.map(({ label, range }) => ({
           label,
           isSelected: filters.distanceKm[0] === range[0] && filters.distanceKm[1] === range[1],
@@ -319,6 +327,7 @@ export default function MapFilters({
       <Pill
         label="Durée"
         activeLabel={rangeLabel(filters.durationMin, DURATION_SHORTCUTS, "min")}
+        icon={<Clock className="size-4" />}
         options={DURATION_SHORTCUTS.map(({ label, range }) => ({
           label,
           isSelected: filters.durationMin[0] === range[0] && filters.durationMin[1] === range[1],
