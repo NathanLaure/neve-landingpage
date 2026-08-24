@@ -133,6 +133,10 @@ export default function ExplorerMapView({
   /* Posé quand la randonnée visée est encore dans un agrégat : `renderMarkers`
      ouvre son infobulle une fois le zoom l'en ayant sortie. */
   const pendingPopupHikeIdRef = useRef<string | null>(null);
+  /* Le cadrage automatique n'a lieu qu'a l'arrivee : apres une recherche de
+     zone, recadrer sur les resultats deplacerait la carte que l'utilisateur
+     vient de choisir, et rappellerait aussitot le bouton. */
+  const hasAutoFittedRef = useRef(false);
 
   /*
    * Randonnées réellement affichées. Elles arrivent du serveur au premier
@@ -146,6 +150,9 @@ export default function ExplorerMapView({
   /* Centre et zoom de la dernière recherche, pour mesurer ce qui a bougé
      depuis. En ref : les comparer ne doit pas provoquer de rendu. */
   const lastSearchRef = useRef<{ lat: number; lng: number; zoom: number } | null>(null);
+  /* La carte se cree une fois ; passer le callback par une ref evite de le
+     mettre dans les dependances de cet effet, ce qui la recreerait. */
+  const searchThisAreaRef = useRef<(() => Promise<void>) | null>(null);
 
   useEffect(() => setAreaHikes(hikes), [hikes]);
 
@@ -168,7 +175,7 @@ export default function ExplorerMapView({
     return list.sort((a, b) => a.distance_km - b.distance_km);
   }, [filteredHikes, sort, userPosition]);
 
-  const detailHike = detailHikeId ? hikes.find((hike) => hike.id === detailHikeId) : undefined;
+  const detailHike = detailHikeId ? areaHikes.find((hike) => hike.id === detailHikeId) : undefined;
 
   /* Arrivée par `?hike=` : la fiche s'ouvre directement, c'est ce que promet un
      lien qui nomme une randonnée. */
@@ -322,9 +329,15 @@ export default function ExplorerMapView({
       if (moved > 0.8 || zoomed > 0.4) setShowSearchArea(true);
     });
 
+    /*
+     * Première recherche automatique, sans bouton : c'est l'arrivée sur la
+     * page, personne n'a rien déplacé. Le bouton n'a de sens que pour un
+     * cadre qu'on a soi-même choisi.
+     */
     map.once("idle", () => {
       const center = map.getCenter();
       lastSearchRef.current = { lat: center.lat, lng: center.lng, zoom: map.getZoom() };
+      if (!hasLocation) void searchThisAreaRef.current?.();
     });
 
     return () => {
@@ -362,9 +375,12 @@ export default function ExplorerMapView({
       return;
     }
 
-    const bounds = new mapboxgl.LngLatBounds();
-    located.forEach((hike) => bounds.extend([hike.start_lng, hike.start_lat]));
-    map.fitBounds(bounds, { padding: 60, maxZoom: 12, duration: 800 });
+    if (!hasAutoFittedRef.current) {
+      hasAutoFittedRef.current = true;
+      const bounds = new mapboxgl.LngLatBounds();
+      located.forEach((hike) => bounds.extend([hike.start_lng, hike.start_lat]));
+      map.fitBounds(bounds, { padding: 60, maxZoom: 12, duration: 800 });
+    }
 
     /* `fitBounds` déclenchera `moveend`, mais on rend tout de suite : sinon les
        marqueurs n'apparaissent qu'au bout de l'animation. */
@@ -465,6 +481,10 @@ export default function ExplorerMapView({
     const center = map.getCenter();
     lastSearchRef.current = { lat: center.lat, lng: center.lng, zoom: map.getZoom() };
   }, []);
+
+  useEffect(() => {
+    searchThisAreaRef.current = handleSearchThisArea;
+  }, [handleSearchThisArea]);
 
   const handleLocate = useCallback(() => {
     if (!navigator.geolocation) return;
