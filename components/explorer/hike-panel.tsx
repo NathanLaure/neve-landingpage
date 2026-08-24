@@ -194,7 +194,14 @@ export default function HikePanel({
           </p>
         ) : (
           <>
-            <div className={density === "cards" ? "flex flex-col gap-7" : "flex flex-col gap-1"}>
+            {/* `-mx-2` en mode cartes : le rembourrage qui porte le fond de
+                survol déborderait sinon vers l'intérieur, et les images ne
+                seraient plus alignées sur les bords du panneau. */}
+            <div
+              className={
+                density === "cards" ? "-mx-2 flex flex-col gap-5" : "flex flex-col gap-1"
+              }
+            >
               {visibleHikes.map((hike) =>
                 density === "cards" ? (
                   <RandoCard
@@ -204,7 +211,9 @@ export default function HikePanel({
                     isFavorited={isFavorite?.(hike.id)}
                     isFavoritePending={isFavoritePending?.(hike.id)}
                     onFavoriteClick={onFavoriteClick}
-                    className={activeId === hike.id ? "rounded-2xl ring-2 ring-neve-tint" : ""}
+                    className={`rounded-2xl p-2 transition-colors hover:bg-neve-surface ${
+                      activeId === hike.id ? "bg-neve-surface" : ""
+                    }`}
                   />
                 ) : (
                   <HikeListRow
