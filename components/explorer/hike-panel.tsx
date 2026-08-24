@@ -111,7 +111,7 @@ export default function HikePanel({
 
   if (isCollapsed) {
     return (
-      <aside className="hidden h-full w-[92px] shrink-0 flex-col border-r border-neve-border bg-neve-card md:flex">
+      <aside className="hidden h-full w-[92px] shrink-0 flex-col bg-neve-card md:flex">
         <div className="flex items-center justify-center px-3 py-4">
           <button
             type="button"
@@ -131,7 +131,7 @@ export default function HikePanel({
   }
 
   return (
-    <aside className="flex h-full w-full shrink-0 flex-col border-neve-border bg-neve-card md:w-[420px] md:border-r lg:w-[452px]">
+    <aside className="flex h-full w-full shrink-0 flex-col bg-neve-card md:w-[420px] lg:w-[452px]">
       <header className="flex items-center justify-between px-5 pt-5 pb-3">
         <h1 className="font-bricolage text-2xl font-bold text-neve-text">Itinéraires</h1>
         <button

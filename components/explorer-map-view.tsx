@@ -419,37 +419,43 @@ export default function ExplorerMapView({ hikes, fetchError = null, centerLat, c
         panel
       )}
 
-      {/* Carte absente sur mobile : voir l'en-tête du composant. */}
-      <div className="relative hidden flex-1 md:block">
-        {mapboxToken ? (
-          <div ref={mapContainerRef} className="size-full" />
-        ) : (
-          <div className="flex size-full items-center justify-center bg-neve-surface px-8 text-center">
-            <p className="font-satoshi text-sm text-neve-text-muted">
-              La carte a besoin d’une clé Mapbox (`NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN`).
-            </p>
-          </div>
-        )}
-
-        {/* Habillage flottant. `pointer-events-none` sur les conteneurs : sans
-            lui, leurs zones vides captureraient le glissement de la carte. */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-20 flex justify-center p-4">
+      {/* Colonne de droite : les filtres en bande, puis la carte encadrée.
+          Absente sur mobile — voir l'en-tête du composant. */}
+      <div className="hidden flex-1 flex-col pr-6 pb-6 pl-2 md:flex">
+        {/* Les filtres sont posés au-dessus du cadre et non sur la carte : la
+            bande les aligne sur le titre du panneau, et la carte garde son
+            fond entier. */}
+        <div className="flex items-center justify-center py-4">
           <MapFilters filters={filters} onChange={setFilters} resultCount={filteredHikes.length} />
         </div>
 
-        <div className="pointer-events-none absolute top-1/2 right-4 z-20 -translate-y-1/2">
-          <MapControls
-            bearing={bearing}
-            isLocating={isLocating}
-            onZoomIn={() => mapRef.current?.zoomIn({ duration: 300 })}
-            onZoomOut={() => mapRef.current?.zoomOut({ duration: 300 })}
-            onLocate={handleLocate}
-            onResetBearing={() => mapRef.current?.easeTo({ bearing: 0, duration: 400 })}
-          />
-        </div>
+        <div className="relative flex-1 overflow-hidden rounded-3xl bg-neve-surface">
+          {mapboxToken ? (
+            <div ref={mapContainerRef} className="size-full" />
+          ) : (
+            <div className="flex size-full items-center justify-center px-8 text-center">
+              <p className="font-satoshi text-sm text-neve-text-muted">
+                La carte a besoin d’une clé Mapbox (`NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN`).
+              </p>
+            </div>
+          )}
 
-        <div className="pointer-events-none absolute bottom-6 left-4 z-20">
-          <MapStylePicker options={styleOptions} value={mapStyle} onChange={setMapStyle} />
+          {/* `pointer-events-none` sur les conteneurs : sans lui, leurs zones
+              vides captureraient le glissement de la carte. */}
+          <div className="pointer-events-none absolute right-4 bottom-6 z-20">
+            <MapControls
+              bearing={bearing}
+              isLocating={isLocating}
+              onZoomIn={() => mapRef.current?.zoomIn({ duration: 300 })}
+              onZoomOut={() => mapRef.current?.zoomOut({ duration: 300 })}
+              onLocate={handleLocate}
+              onResetBearing={() => mapRef.current?.easeTo({ bearing: 0, duration: 400 })}
+            />
+          </div>
+
+          <div className="pointer-events-none absolute bottom-6 left-4 z-20">
+            <MapStylePicker options={styleOptions} value={mapStyle} onChange={setMapStyle} />
+          </div>
         </div>
       </div>
 
