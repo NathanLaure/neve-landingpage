@@ -268,10 +268,13 @@ export default function FiltersModal({
                     key={value}
                     type="button"
                     onClick={() => toggleRouteType(value)}
-                    className={`cursor-pointer rounded-[12px] px-3 py-1.5 font-satoshi text-[13px] transition ${
+                    /* Même état que le `Chip` de l'application : le fond ne
+                       change pas, seuls la bordure et le texte passent à la
+                       teinte de marque. */
+                    className={`cursor-pointer rounded-[12px] border px-3 py-1.5 font-satoshi text-[13px] transition ${
                       isSelected
-                        ? "bg-neve-button-secondary text-neve-button-secondary-text"
-                        : "bg-neve-surface text-neve-text hover:bg-neve-border"
+                        ? "border-[1.5px] border-neve-tint bg-neve-card text-neve-tint"
+                        : "border-neve-border-strong bg-neve-card text-neve-text hover:bg-neve-surface"
                     }`}
                   >
                     {label}

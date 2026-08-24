@@ -16,8 +16,10 @@ import {
 const PILL =
   "inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-[12px] border px-3.5 font-satoshi text-[13px] font-medium transition";
 const PILL_IDLE = "border-neve-border bg-neve-card text-neve-text hover:bg-neve-surface";
-const PILL_ACTIVE =
-  "border-neve-button-secondary bg-neve-button-secondary text-neve-button-secondary-text";
+/* État sélectionné du composant `Chip` de l'application : le fond ne change
+   pas, la bordure et le texte passent à la teinte de marque. Jamais de fond
+   sombre — c'était une invention. */
+const PILL_ACTIVE = "border-neve-tint bg-neve-card text-neve-tint hover:bg-neve-surface";
 const MENU =
   "absolute top-full left-0 z-30 mt-2 min-w-[200px] rounded-[12px] border border-neve-border bg-neve-card p-1.5 shadow-lg";
 const MENU_ITEM =
