@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import ExplorerMapView from "@/components/explorer-map-view";
 import { getAllHikes, getHikesNearby, DEFAULT_HIKE_RADIUS_KM } from "@/lib/hikes";
+import { RADIUS_OPTIONS } from "@/components/explorer/map-filters";
 
 export const metadata = {
   title: "Explorer les randonnées - Névé",
@@ -15,7 +16,7 @@ export const metadata = {
 export const dynamic = "force-dynamic";
 
 type Props = {
-  searchParams: Promise<{ lat?: string; lng?: string; name?: string }>;
+  searchParams: Promise<{ lat?: string; lng?: string; name?: string; radius?: string }>;
 };
 
 // Roughly the geographic center of mainland France, used only as a fallback
@@ -28,14 +29,22 @@ export default async function ExplorerPage({ searchParams }: Props) {
   const lng = params.lng ? parseFloat(params.lng) : null;
   const hasLocation = lat !== null && lng !== null && !Number.isNaN(lat) && !Number.isNaN(lng);
 
+  /* Rayon borne aux valeurs proposees par le chip : une adresse forgee a la
+     main ne doit pas pouvoir demander la France entiere. */
+  const requested = params.radius ? parseInt(params.radius, 10) : NaN;
+  const radiusKm = RADIUS_OPTIONS.includes(requested as (typeof RADIUS_OPTIONS)[number])
+    ? requested
+    : DEFAULT_HIKE_RADIUS_KM;
+
   const { hikes, error } = hasLocation
-    ? await getHikesNearby({ lat: lat as number, lng: lng as number, radiusKm: DEFAULT_HIKE_RADIUS_KM, limit: 100 })
+    ? await getHikesNearby({ lat: lat as number, lng: lng as number, radiusKm, limit: 1000 })
     : await getAllHikes();
 
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-brand-light text-brand-dark">Chargement...</div>}>
       <ExplorerMapView
         areaName={params.name}
+        radiusKm={hasLocation ? radiusKm : null}
         hikes={hikes}
         fetchError={error}
         centerLat={hasLocation ? (lat as number) : FRANCE_CENTER.lat}

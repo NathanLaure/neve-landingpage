@@ -124,11 +124,85 @@ function FilterPill<T extends string>({ label, value, options, onChange }: Filte
   );
 }
 
+export const RADIUS_OPTIONS = [5, 10, 15, 25, 50] as const;
+
 interface MapFiltersProps {
   filters: ExplorerFilters;
   onChange: (filters: ExplorerFilters) => void;
   /** Nombre d'itinéraires restants, montré quand un filtre est actif. */
   resultCount: number;
+  /** Rayon courant en kilomètres, ou `null` faute de point de référence. */
+  radiusKm: number | null;
+  onRadiusChange: (radiusKm: number) => void;
+  /** Demande la position quand aucun centre n'est encore connu. */
+  onRequestLocation: () => void;
+}
+
+/**
+ * Chip de rayon.
+ *
+ * D'une autre nature que les trois autres : ceux-là trient ce qui est déjà
+ * chargé, celui-ci change la requête — et un rayon suppose un centre. Sans
+ * point de référence il ne ment pas en affichant une distance, il propose d'en
+ * obtenir un.
+ */
+function RadiusPill({
+  radiusKm,
+  onChange,
+  onRequestLocation,
+}: {
+  radiusKm: number | null;
+  onChange: (radiusKm: number) => void;
+  onRequestLocation: () => void;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const ref = useDismissOnOutside(() => setIsOpen(false));
+
+  if (radiusKm === null) {
+    return (
+      <button
+        type="button"
+        onClick={onRequestLocation}
+        className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-neve-border bg-neve-card px-3.5 font-satoshi text-[13px] font-medium text-neve-text transition hover:bg-neve-surface"
+      >
+        Autour de moi
+      </button>
+    );
+  }
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setIsOpen((open) => !open)}
+        aria-expanded={isOpen}
+        className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-neve-border bg-neve-card px-3.5 font-satoshi text-[13px] font-medium text-neve-text transition hover:bg-neve-surface"
+      >
+        Dans un rayon de {radiusKm} km
+        <ChevronDown className="size-4" />
+      </button>
+
+      {isOpen && (
+        <div className="absolute top-full left-0 z-30 mt-2 min-w-[180px] rounded-xl border border-neve-border bg-neve-card p-1.5 shadow-lg">
+          {RADIUS_OPTIONS.map((option) => (
+            <button
+              key={option}
+              type="button"
+              onClick={() => {
+                onChange(option);
+                setIsOpen(false);
+              }}
+              className={`block w-full cursor-pointer rounded-lg px-3 py-2 text-left font-satoshi text-[13px] transition hover:bg-neve-surface ${
+                option === radiusKm ? "font-bold text-neve-tint" : "text-neve-text"
+              }`}
+            >
+              {option} km
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 /**
@@ -138,7 +212,14 @@ interface MapFiltersProps {
  * porte pour qui ne sait pas encore ce qu'il cherche, et le bouton de remise à
  * zéro dès qu'un filtre est actif.
  */
-export default function MapFilters({ filters, onChange, resultCount }: MapFiltersProps) {
+export default function MapFilters({
+  filters,
+  onChange,
+  resultCount,
+  radiusKm,
+  onRadiusChange,
+  onRequestLocation,
+}: MapFiltersProps) {
   const hasActiveFilter =
     filters.difficulty !== "all" || filters.distance !== "all" || filters.duration !== "all";
 
@@ -159,6 +240,12 @@ export default function MapFilters({ filters, onChange, resultCount }: MapFilter
           Filtres
         </span>
       )}
+
+      <RadiusPill
+        radiusKm={radiusKm}
+        onChange={onRadiusChange}
+        onRequestLocation={onRequestLocation}
+      />
 
       <FilterPill
         label="Difficulté"

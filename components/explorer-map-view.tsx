@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import Supercluster from "supercluster";
@@ -30,6 +30,8 @@ type Props = {
   /** Centre avant l'ajustement aux marqueurs, ou faute de randonnée. */
   centerLat: number;
   centerLng: number;
+  /** Rayon de recherche courant, `null` tant qu'aucun centre n'est connu. */
+  radiusKm?: number | null;
 };
 
 /** Au-delà de ce zoom, supercluster rend les points un par un. */
@@ -92,7 +94,14 @@ function matchesFilters(hike: HikeSummary, filters: ExplorerFilters): boolean {
  * vient chercher. Le tracé d'une randonnée reste consultable sur sa fiche, et
  * l'application fait le reste.
  */
-export default function ExplorerMapView({ hikes, fetchError = null, centerLat, centerLng }: Props) {
+export default function ExplorerMapView({
+  hikes,
+  fetchError = null,
+  centerLat,
+  centerLng,
+  radiusKm = null,
+}: Props) {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const hikeQuery = searchParams.get("hike");
   const { user, openAuthModal } = useAuth();
@@ -385,6 +394,40 @@ export default function ExplorerMapView({ hikes, fetchError = null, centerLat, c
     );
   }, []);
 
+  /*
+   * Le rayon passe par l'adresse et non par un état local : c'est le serveur
+   * qui refait la requête, et l'adresse reste partageable — « les randonnées à
+   * 15 km d'Annecy » se copie et se retrouve.
+   */
+  const handleRadiusChange = useCallback(
+    (nextRadius: number) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("radius", String(nextRadius));
+      router.replace(`/explorer?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams],
+  );
+
+  /* Aucun centre encore : on en demande un plutôt que d'afficher un rayon
+     autour de rien. */
+  const handleSearchAroundMe = useCallback(() => {
+    if (!navigator.geolocation) return;
+    setIsLocating(true);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setIsLocating(false);
+        const params = new URLSearchParams(searchParams.toString());
+        params.set("lat", position.coords.latitude.toFixed(5));
+        params.set("lng", position.coords.longitude.toFixed(5));
+        params.set("name", "ma position");
+        router.replace(`/explorer?${params.toString()}`, { scroll: false });
+      },
+      () => setIsLocating(false),
+      { enableHighAccuracy: true },
+    );
+  }, [router, searchParams]);
+
   const panel = (
     <HikePanel
       hikes={sortedHikes}
@@ -426,7 +469,14 @@ export default function ExplorerMapView({ hikes, fetchError = null, centerLat, c
             bande les aligne sur le titre du panneau, et la carte garde son
             fond entier. */}
         <div className="flex items-center justify-center py-4">
-          <MapFilters filters={filters} onChange={setFilters} resultCount={filteredHikes.length} />
+          <MapFilters
+            filters={filters}
+            onChange={setFilters}
+            resultCount={filteredHikes.length}
+            radiusKm={radiusKm}
+            onRadiusChange={handleRadiusChange}
+            onRequestLocation={handleSearchAroundMe}
+          />
         </div>
 
         <div className="relative flex-1 overflow-hidden rounded-3xl bg-neve-surface">
