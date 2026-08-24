@@ -24,7 +24,8 @@ export interface HikeSummary {
   start_lng: number;
   location_name: string;
   cover_image_url: string | null;
-  gallery_urls: string[] | null;
+  /** Absente des requetes de liste : 164 kB pour 923 lignes, que seule la fiche lit. */
+  gallery_urls?: string[] | null;
   is_navigo_accessible?: boolean;
 }
 

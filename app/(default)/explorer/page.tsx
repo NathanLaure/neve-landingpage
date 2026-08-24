@@ -30,7 +30,7 @@ export default async function ExplorerPage({ searchParams }: Props) {
 
   const { hikes, error } = hasLocation
     ? await getHikesNearby({ lat: lat as number, lng: lng as number, radiusKm: DEFAULT_HIKE_RADIUS_KM, limit: 100 })
-    : await getAllHikes({ limit: 500 });
+    : await getAllHikes();
 
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-brand-light text-brand-dark">Chargement...</div>}>

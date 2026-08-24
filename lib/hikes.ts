@@ -69,8 +69,27 @@ export async function getHikesNearby({
 }
 
 /** All hikes (light columns), used by the Explorer page when no location is given. */
-export async function getAllHikes({ limit = 500 }: { limit?: number } = {}): Promise<HikesNearbyResult> {
-  const { data, error } = await supabase.from("hikes").select(LIST_COLUMNS).limit(limit);
+/**
+ * Colonnes de l'explorateur : les mêmes, sans les galeries.
+ *
+ * Elles pèsent 164 kB pour les 923 lignes et personne ne les lit avant
+ * d'ouvrir une fiche — qui recharge la ligne complète de toute façon. C'est ce
+ * qui laisse la place de charger le catalogue entier plutôt qu'une tranche, et
+ * donc d'annoncer un nombre d'itinéraires vrai.
+ */
+const MAP_LIST_COLUMNS =
+  "id, title, distance_km, elevation_gain_m, elevation_loss_m, duration_minutes, difficulty, start_lat, start_lng, location_name, cover_image_url";
+
+/**
+ * Tout le catalogue, pour l'explorateur : la carte pose ses marqueurs sur
+ * l'ensemble et la liste annonce un compte réel.
+ *
+ * Plafond à 1000, qui est aussi celui que Supabase applique par défaut. Au-delà
+ * il faudra paginer — et le compte affiché deviendrait faux sans qu'on s'en
+ * aperçoive, puisqu'il se lit sur ce qui est chargé.
+ */
+export async function getAllHikes({ limit = 1000 }: { limit?: number } = {}): Promise<HikesNearbyResult> {
+  const { data, error } = await supabase.from("hikes").select(MAP_LIST_COLUMNS).limit(limit);
 
   if (error) {
     return { hikes: [], error: error.message };

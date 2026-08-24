@@ -404,7 +404,11 @@ export default function ExplorerMapView({ hikes, fetchError = null, centerLat, c
   );
 
   return (
-    <div className="flex h-[calc(100vh-64px)] bg-neve-card">
+    /* `pt-16` et non une hauteur amputée : l'en-tête est en `fixed`, il ne
+       prend aucune place dans le flux. Retrancher sa hauteur laissait autant de
+       vide en bas de page. Il mesure 64 px partout hors de l'accueil, où il
+       s'affiche d'emblée dans son état défilé. */
+    <div className="flex h-screen bg-neve-card pt-16">
       {fetchError ? (
         <div className="flex w-full items-center justify-center px-6">
           <p className="text-center font-satoshi text-sm text-neve-text-muted">
