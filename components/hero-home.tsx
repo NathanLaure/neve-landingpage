@@ -393,7 +393,10 @@ export default function HeroHome() {
 
                               return (
                                 <button
-                                  key={place.name}
+                                  /* Le nom ne suffit pas : deux communes
+                                     s'appellent Leval, trois Sainte-Marie. Le
+                                     point, lui, est unique. */
+                                  key={`${place.lat},${place.lng}`}
                                   type="button"
                                   onClick={() => handleSelectPlace(place)}
                                   className="flex items-center justify-between w-full px-4 py-3 text-left transition hover:bg-slate-50 cursor-pointer"
