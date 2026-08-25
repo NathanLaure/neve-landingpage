@@ -135,7 +135,7 @@ export default function HikePanel({
 
   return (
     <aside className="flex h-full w-full shrink-0 flex-col bg-neve-card md:w-[420px] lg:w-[452px]">
-      <header className="flex items-center justify-between px-5 pt-5 pb-3">
+      <header className="flex items-center justify-between px-6 pt-4 pb-4">
         <h1 className="font-bricolage text-2xl font-bold text-neve-text">Itinéraires</h1>
         <button
           type="button"
@@ -147,7 +147,7 @@ export default function HikePanel({
         </button>
       </header>
 
-      <div className="flex items-center justify-between gap-3 px-5 pb-3">
+      <div className="flex items-center justify-between gap-3 px-6 pb-3">
         <p className="font-satoshi text-[13px] text-neve-text-muted">
           {hikes.length} {hikes.length > 1 ? "itinéraires" : "itinéraire"}
         </p>
@@ -190,7 +190,7 @@ export default function HikePanel({
         </div>
       </div>
 
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 pb-8">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 pb-8">
         {hikes.length === 0 ? (
           <p className="py-12 text-center font-satoshi text-sm text-neve-text-muted">
             Aucun itinéraire dans cette zone. Élargis la recherche ou déplace la carte.
@@ -202,13 +202,19 @@ export default function HikePanel({
                 seraient plus alignées sur les bords du panneau. */}
             <div
               className={
-                density === "cards" ? "-mx-2 flex flex-col gap-5" : "flex flex-col gap-1"
+                density === "cards" ? "-mx-2 flex flex-col gap-6" : "flex flex-col gap-1"
               }
             >
               {visibleHikes.map((hike) =>
                 density === "cards" ? (
-                  <RandoCard
+                  /* Le survol passe par une enveloppe : `RandoCard` sert aussi
+                     ailleurs sur le site, et n'a pas à connaître la carte. */
+                  <div
                     key={hike.id}
+                    onMouseEnter={() => onHover?.(hike.id)}
+                    onMouseLeave={() => onHover?.(null)}
+                  >
+                  <RandoCard
                     hike={hike}
                     onClick={onSelect}
                     isFavorited={isFavorite?.(hike.id)}
@@ -219,6 +225,7 @@ export default function HikePanel({
                       activeId === hike.id ? "bg-neve-surface" : ""
                     }`}
                   />
+                  </div>
                 ) : (
                   <HikeListRow
                     key={hike.id}

@@ -166,6 +166,9 @@ export default function ExplorerMapView({
    * qui les renouvelle.
    */
   const [areaHikes, setAreaHikes] = useState<HikeSummary[]>(hikes);
+  /* Randonnée survolée dans le panneau, dont le tracé passe devant les autres.
+     Distincte de la sélection : survoler montre, cliquer choisit. */
+  const [hoveredHikeId, setHoveredHikeId] = useState<string | null>(null);
   const [isSearchingArea, setIsSearchingArea] = useState(false);
   const [showSearchArea, setShowSearchArea] = useState(false);
 
@@ -350,10 +353,14 @@ export default function ExplorerMapView({
      * simplement pas.
      */
     const addTraceLayers = () => {
-      if (map.getSource("hike-traces")) return;
+      if (!map.isStyleLoaded() || map.getSource("hike-traces")) return;
 
+      /* `promoteId` : l'état de survol se pose par identifiant de figure, et
+         mapbox n'accepte que des nombres pour une source GeoJSON. Promouvoir
+         la propriété laisse s'en servir avec nos UUID. */
       map.addSource("hike-traces", {
         type: "geojson",
+        promoteId: "hikeId",
         data: { type: "FeatureCollection", features: [] },
       });
       map.addLayer({
@@ -362,7 +369,11 @@ export default function ExplorerMapView({
         source: "hike-traces",
         minzoom: TRACE_MIN_ZOOM,
         layout: { "line-cap": "round", "line-join": "round" },
-        paint: { "line-color": "#FFFFFF", "line-width": 6, "line-opacity": 0.9 },
+        paint: {
+          "line-color": "#FFFFFF",
+          "line-width": ["case", ["boolean", ["feature-state", "hovered"], false], 9, 6],
+          "line-opacity": ["case", ["boolean", ["feature-state", "dimmed"], false], 0.25, 0.9],
+        },
       });
       map.addLayer({
         id: "hike-traces-line",
@@ -370,11 +381,27 @@ export default function ExplorerMapView({
         source: "hike-traces",
         minzoom: TRACE_MIN_ZOOM,
         layout: { "line-cap": "round", "line-join": "round" },
-        paint: { "line-color": ["get", "color"], "line-width": 3 },
+        paint: {
+          "line-color": ["get", "color"],
+          "line-width": ["case", ["boolean", ["feature-state", "hovered"], false], 5, 3],
+          "line-opacity": ["case", ["boolean", ["feature-state", "dimmed"], false], 0.25, 1],
+        },
       });
+
+      /* Les couches renaissent vides : c'est au rafraîchissement de les
+         repeupler, le cache ayant déjà les tracés. */
+      void refreshTracesRef.current?.();
     };
 
+    /*
+     * `styledata` autant que `style.load` : changer de fond de carte ne
+     * recharge pas le style, il le diffe — et le diff supprime toute source
+     * posée à la main, sans réémettre `style.load`. C'est ce qui effaçait les
+     * tracés. La garde de `addTraceLayers` rend le second appel gratuit quand
+     * les couches sont déjà en place.
+     */
     map.on("style.load", addTraceLayers);
+    map.on("styledata", addTraceLayers);
     map.on("moveend", renderMarkers);
     map.on("moveend", () => void refreshTracesRef.current?.());
     map.on("rotate", () => setBearing(map.getBearing()));
@@ -411,7 +438,17 @@ export default function ExplorerMapView({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- création unique
   }, [mapboxToken, renderMarkers]);
 
+  /*
+   * Fond de carte déjà appliqué. Sans cette garde, l'effet rejouait au montage
+   * un `setStyle` vers le style que la carte venait de recevoir : mapbox le
+   * traite par diff, et le diff supprimait la source des tracés à l'instant où
+   * `style.load` venait de la poser.
+   */
+  const appliedStyleRef = useRef(styleOptions[0].url);
+
   useEffect(() => {
+    if (appliedStyleRef.current === mapStyle) return;
+    appliedStyleRef.current = mapStyle;
     mapRef.current?.setStyle(mapStyle);
   }, [mapStyle]);
 
@@ -558,6 +595,36 @@ export default function ExplorerMapView({
    */
   const tracesRef = useRef<Map<string, number[][]>>(new Map());
 
+  /*
+   * Tracés réellement posés dans la source, et celui à mettre en avant.
+   *
+   * Les deux sont des refs : la surbrillance passe par l'état de figure de
+   * mapbox, qui se règle sur la carte sans repasser par un rendu React. En
+   * dépendance de `refreshTraces`, le survol relancerait un `setData` de
+   * soixante tracés — dix-huit mille points redessinés pour épaissir un trait.
+   */
+  const drawnTraceIdsRef = useRef<string[]>([]);
+  const highlightedIdRef = useRef<string | null>(null);
+
+  /**
+   * Applique la surbrillance aux tracés posés.
+   *
+   * Rappelée après chaque `setData` : changer les données d'une source GeoJSON
+   * remet à zéro l'état de ses figures.
+   */
+  const applyTraceHighlight = useCallback(() => {
+    const map = mapRef.current;
+    if (!map || !map.getSource("hike-traces")) return;
+
+    const highlighted = highlightedIdRef.current;
+    drawnTraceIdsRef.current.forEach((id) => {
+      map.setFeatureState(
+        { source: "hike-traces", id },
+        { hovered: id === highlighted, dimmed: highlighted !== null && id !== highlighted },
+      );
+    });
+  }, []);
+
   const refreshTraces = useCallback(async () => {
     const map = mapRef.current;
     const source = map?.getSource("hike-traces") as mapboxgl.GeoJSONSource | undefined;
@@ -586,7 +653,8 @@ export default function ExplorerMapView({
 
     const missing = visible.filter((hike) => !tracesRef.current.has(hike.id)).map((h) => h.id);
     if (missing.length > 0) {
-      const { traces } = await getHikeTraces(missing);
+      const { traces, error } = await getHikeTraces(missing);
+      if (error) console.warn("[tracés] chargement impossible", error);
       traces.forEach(({ id, geometry }) => {
         /* Un `MultiLineString` est aplati sur son premier segment : le rendu
            n'a pas à connaître deux formes pour dessiner la même chose. */
@@ -598,25 +666,36 @@ export default function ExplorerMapView({
       });
     }
 
+    const drawn = visible.filter((hike) => tracesRef.current.has(hike.id));
+    drawnTraceIdsRef.current = drawn.map((hike) => hike.id);
+
     source.setData({
       type: "FeatureCollection",
-      features: visible
-        .filter((hike) => tracesRef.current.has(hike.id))
-        .map((hike) => ({
-          type: "Feature" as const,
-          properties: { color: TRACE_COLORS[hike.difficulty] ?? TRACE_COLORS.modere },
-          geometry: {
-            type: "LineString" as const,
-            coordinates: tracesRef.current.get(hike.id) as number[][],
-          },
-        })),
+      features: drawn.map((hike) => ({
+        type: "Feature" as const,
+        properties: {
+          hikeId: hike.id,
+          color: TRACE_COLORS[hike.difficulty] ?? TRACE_COLORS.modere,
+        },
+        geometry: {
+          type: "LineString" as const,
+          coordinates: tracesRef.current.get(hike.id) as number[][],
+        },
+      })),
     });
-  }, [areaHikes]);
+
+    applyTraceHighlight();
+  }, [areaHikes, applyTraceHighlight]);
 
   useEffect(() => {
     refreshTracesRef.current = refreshTraces;
     void refreshTraces();
   }, [refreshTraces]);
+
+  useEffect(() => {
+    highlightedIdRef.current = hoveredHikeId;
+    applyTraceHighlight();
+  }, [hoveredHikeId, applyTraceHighlight]);
 
   const handleLocate = useCallback(() => {
     if (!navigator.geolocation) return;
@@ -713,7 +792,7 @@ export default function ExplorerMapView({
         setActiveHikeId(id);
         setDetailHikeId(id);
       }}
-      onHover={setActiveHikeId}
+      onHover={setHoveredHikeId}
       sort={sort}
       onSortChange={setSort}
       canSortByProximity={userPosition !== null}
