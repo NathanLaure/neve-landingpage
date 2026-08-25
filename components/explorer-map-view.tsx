@@ -8,7 +8,11 @@ import Supercluster from "supercluster";
 import { RotateCcw } from "lucide-react";
 import { getHikeTraces, getHikesInBounds } from "@/lib/hikes";
 import HikeDetailPanel from "@/components/hike-detail-panel";
-import HikePanel, { type HikeSort } from "@/components/explorer/hike-panel";
+import HikePanel, {
+  PANEL_TRANSITION_MS,
+  panelWidthPx,
+  type HikeSort,
+} from "@/components/explorer/hike-panel";
 import MapFilters from "@/components/explorer/map-filters";
 import FiltersModal from "@/components/explorer/filters-modal";
 import {
@@ -495,6 +499,35 @@ export default function ExplorerMapView({
     return () => observer.disconnect();
   }, [mapboxToken]);
 
+  /**
+   * Amortit le repli du panneau : le canevas garde la plus grande des deux
+   * tailles pendant toute l'animation.
+   *
+   * Redimensionner un canevas WebGL vide sa mémoire graphique, et mapbox ne
+   * repeint qu'à l'image suivante. Chaque redimensionnement laisse donc une
+   * image de cadre nu — et comme la largeur change à chaque image pendant les
+   * trois cents millisecondes, la carte blanchit tout du long.
+   *
+   * En figeant ici la largeur du conteneur, l'observateur ne se déclenche plus
+   * pendant l'animation : c'est le cadre, qui rogne déjà, qui fait le travail.
+   * Il ne reste qu'un seul redimensionnement par bascule, et il tombe du côté
+   * où rien ne se voit — au début quand la carte s'élargit, à la fin quand elle
+   * rétrécit.
+   */
+  const handleCollapseChange = useCallback((isCollapsed: boolean) => {
+    const container = mapContainerRef.current;
+    if (!container) return;
+
+    const gained = panelWidthPx(!isCollapsed) - panelWidthPx(isCollapsed);
+    container.style.width = `${container.clientWidth + Math.max(0, gained)}px`;
+
+    /* La transition porte sur le panneau et non sur ce conteneur : aucun
+       `transitionend` ne remontera jusqu'ici, on se cale sur sa durée. */
+    window.setTimeout(() => {
+      container.style.width = "";
+    }, PANEL_TRANSITION_MS + 20);
+  }, []);
+
   /*
    * Fond de carte déjà appliqué. Sans cette garde, l'effet rejouait au montage
    * un `setStyle` vers le style que la carte venait de recevoir : mapbox le
@@ -931,6 +964,7 @@ export default function ExplorerMapView({
         setDetailHikeId(id);
       }}
       onHover={setHoveredHikeId}
+      onCollapseChange={handleCollapseChange}
       sort={sort}
       onSortChange={setSort}
       canSortByProximity={userPosition !== null}

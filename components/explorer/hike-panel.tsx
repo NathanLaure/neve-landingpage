@@ -17,6 +17,27 @@ const SORT_LABELS: Record<HikeSort, string> = {
   duration: "Le plus rapide",
 };
 
+/** Durée du repli, en millisecondes. Recopie la classe `duration-300`. */
+export const PANEL_TRANSITION_MS = 300;
+
+/*
+ * Largeurs du panneau, en nombres et non en classes.
+ *
+ * Elles font doublon avec `w-[92px]`, `md:w-[420px]` et `lg:w-[452px]` plus
+ * bas, faute de mieux : Tailwind veut des classes littérales, et la carte veut
+ * un nombre — elle doit connaître la largeur qu'elle gagnera avant que
+ * l'animation ne la lui donne.
+ */
+const RAIL_WIDTH_PX = 92;
+const PANEL_WIDTH_MD_PX = 420;
+const PANEL_WIDTH_LG_PX = 452;
+
+/** Largeur qu'aura le panneau dans cet état, au point d'arrêt courant. */
+export function panelWidthPx(isCollapsed: boolean): number {
+  if (isCollapsed) return RAIL_WIDTH_PX;
+  return window.innerWidth >= 1024 ? PANEL_WIDTH_LG_PX : PANEL_WIDTH_MD_PX;
+}
+
 /**
  * Nombre de randonnées montées d'emblée, puis ajoutées à chaque palier.
  *
@@ -32,6 +53,8 @@ interface HikePanelProps {
   activeId?: string | null;
   onSelect?: (hikeId: string) => void;
   onHover?: (hikeId: string | null) => void;
+  /** Prévient la carte du repli, pour qu'elle amortisse son redimensionnement. */
+  onCollapseChange?: (isCollapsed: boolean) => void;
   sort: HikeSort;
   onSortChange: (sort: HikeSort) => void;
   /** Désactive « Le plus proche » quand aucune position n'est connue. */
@@ -61,6 +84,7 @@ export default function HikePanel({
   activeId,
   onSelect,
   onHover,
+  onCollapseChange,
   sort,
   onSortChange,
   canSortByProximity = false,
@@ -121,6 +145,9 @@ export default function HikePanel({
    * cents millisecondes, les cartes se replieraient sur deux lignes puis
    * reviendraient. Là, il garde sa largeur et se laisse découvrir.
    */
+  /* `duration-300` en toutes lettres : Tailwind lit les classes dans le source
+     et n'en fabriquerait aucune depuis une interpolation. C'est
+     `PANEL_TRANSITION_MS` qui recopie cette valeur, pas l'inverse. */
   const SHELL =
     "h-full shrink-0 flex-col overflow-hidden bg-neve-card transition-[width] duration-300 ease-out";
 
@@ -130,7 +157,10 @@ export default function HikePanel({
         <div className="flex w-[92px] items-center justify-center px-3 py-4">
           <button
             type="button"
-            onClick={() => setIsCollapsed(false)}
+            onClick={() => {
+              setIsCollapsed(false);
+              onCollapseChange?.(false);
+            }}
             aria-label="Déplier la liste des itinéraires"
             className="flex size-9 cursor-pointer items-center justify-center text-neve-text-muted transition-colors hover:text-neve-text"
           >
@@ -151,7 +181,10 @@ export default function HikePanel({
         <h1 className="font-bricolage text-2xl font-bold text-neve-text">Itinéraires</h1>
         <button
           type="button"
-          onClick={() => setIsCollapsed(true)}
+          onClick={() => {
+            setIsCollapsed(true);
+            onCollapseChange?.(true);
+          }}
           aria-label="Replier la liste des itinéraires"
           className="hidden size-9 cursor-pointer items-center justify-center text-neve-text-muted transition-colors hover:text-neve-text md:flex"
         >
