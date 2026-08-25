@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, Heart, Route, TrendingUp, Clock } from "lucide-react";
 import type { HikeDifficulty, HikeSummary } from "@/types/hike";
@@ -145,8 +146,27 @@ export default function RandoCard({
       <div className="pt-3 px-0.5 flex flex-col gap-1.5">
         {/* Title and Location */}
         <div>
+          {/*
+            * Le titre est un vrai lien, et pas seulement la carte cliquable.
+            *
+            * La carte entière réagit au clic depuis un `onClick`, ce qu'aucun
+            * robot n'exécute : sans cette ancre, les neuf cent vingt-trois
+            * fiches n'étaient reliées depuis nulle part. Le lien porte sur le
+            * titre plutôt que sur la carte parce que celle-ci contient déjà un
+            * bouton — un `button` dans un `a` n'est pas du HTML valide.
+            */}
           <h3 className="font-bricolage font-semibold text-lg sm:text-[19px] text-[#1C1914] leading-snug line-clamp-1">
-            {hike.title}
+            <Link
+              href={`/rando/${hike.id}`}
+              onClick={(event) => {
+                /* La carte gère déjà le clic : on la laisse faire pour ne pas
+                   naviguer deux fois, ou ailleurs qu'elle ne veut. */
+                event.preventDefault();
+              }}
+              className="hover:underline"
+            >
+              {hike.title}
+            </Link>
           </h3>
           <p className="font-satoshi text-sm text-[#575246] mt-0.5 line-clamp-1">
             {hike.location_name || "Lieu non précisé"}

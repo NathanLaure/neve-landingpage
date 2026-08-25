@@ -1,30 +1,78 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import CustomLink from "@/components/ui/link";
 import HikeGrid from "@/components/hike-grid";
 import EscapeCity from "@/components/escape-city";
 import { geocodePlace, slugToPlaceQuery } from "@/lib/geocode";
-import { getHikesNearby, DEFAULT_HIKE_RADIUS_KM } from "@/lib/hikes";
-import { formatDistance, formatDuration } from "@/lib/format-hike";
+import { getHikesNearby, countHikesNearby, DEFAULT_HIKE_RADIUS_KM } from "@/lib/hikes";
+import { computeCityStats, spellDuration } from "@/lib/city-stats";
+import { formatDistance } from "@/lib/format-hike";
 
-// Renders on demand for any place name in the URL — no static param list, no
-// build-time freeze. New rows added to Supabase show up on the next request.
-export const dynamic = "force-dynamic";
+const SITE_URL = "https://www.neve-rando.fr";
+
+/*
+ * Rendu à la demande, puis gardé une heure.
+ *
+ * La page était en `force-dynamic` : chaque passage d'un robot rejouait le
+ * géocodage et la requête Supabase, pour un contenu qui ne bouge qu'au rythme
+ * des ajouts en base. Une heure de cache rend la page instantanée sans jamais
+ * la figer, et les lignes nouvelles apparaissent au pire soixante minutes plus
+ * tard.
+ */
+export const revalidate = 3600;
+
+/** Les six villes où le catalogue est dense sont construites d'avance. */
+export function generateStaticParams() {
+  return ["paris", "lyon", "grenoble", "marseille", "bordeaux", "strasbourg"].map((city) => ({
+    city,
+  }));
+}
 
 type Props = {
   params: Promise<{ city: string }>;
 };
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { city } = await params;
   const place = await geocodePlace(slugToPlaceQuery(city));
-  if (!place) return {};
+
+  /* Un slug qu'on ne sait pas résoudre mène à un 404 : autant le dire aux
+     robots plutôt que de leur servir une page sans titre. */
+  if (!place) {
+    return { title: "Lieu introuvable - Névé", robots: { index: false, follow: false } };
+  }
+
+  /* Un comptage, pas une page de resultats : la description n'a besoin que
+     du nombre, et le plafond de 30 le rendait faux des que la zone en portait
+     davantage. */
+  const total = await countHikesNearby({
+    lat: place.lat,
+    lng: place.lng,
+    radiusKm: DEFAULT_HIKE_RADIUS_KM,
+  });
+
+  const url = `${SITE_URL}/randos-sans-voiture/${city.toLowerCase()}`;
+  const title = `Randonnées autour de ${place.name} accessibles en train`;
+  /* La description porte le compte réel : c'est ce que l'extrait de résultat
+     affiche, et un nombre y fait plus qu'une promesse. */
+  const description =
+    total > 0
+      ? `${total} itinéraires de randonnée dans un rayon de ${DEFAULT_HIKE_RADIUS_KM} km autour de ${place.name}, avec distance, dénivelé et durée calculés sur le tracé GPS réel. Départs accessibles sans voiture.`
+      : `Névé référence les randonnées accessibles en transports autour de ${place.name}. Distance, dénivelé et durée calculés sur le tracé GPS réel.`;
 
   return {
-    title: `Randonnées autour de ${place.name} - Névé`,
-    description: `Sélection d'itinéraires de randonnée autour de ${place.name}, avec distance, dénivelé et durée précis. Partez explorer l'esprit tranquille avec Névé.`,
-    alternates: {
-      canonical: `https://www.neve-rando.fr/randos-sans-voiture/${city.toLowerCase()}`,
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: "Névé",
+      locale: "fr_FR",
+      type: "website",
     },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 
@@ -38,48 +86,138 @@ export default async function CityPage({ params }: Props) {
     notFound();
   }
 
+  /*
+   * Tout ce que le rayon contient, et non les trente premières.
+   *
+   * Le plafond de trente faisait annoncer « 30 itinéraires » quel que soit le
+   * lieu : un chiffre faux dès que la zone en porte davantage, et c'est
+   * précisément le genre de nombre qu'un moteur génératif reprend tel quel.
+   * Cinq cents couvre le pire cas — l'Île-de-France en compte trois cent
+   * cinquante-neuf — et la page est mise en cache une heure.
+   */
   const { hikes, error } = await getHikesNearby({
     lat: place.lat,
     lng: place.lng,
     radiusKm: DEFAULT_HIKE_RADIUS_KM,
-    limit: 30,
+    limit: 500,
   });
 
+  /* Affichées : les plus proches. Les autres restent comptées, décrites et
+     atteignables par la carte — mais cent cartes de plus n'apprendraient rien
+     à personne et alourdiraient la page d'autant. */
+  const shownHikes = hikes.slice(0, 48);
+  const stats = computeCityStats(hikes);
+  const pageUrl = `${SITE_URL}/randos-sans-voiture/${city.toLowerCase()}`;
   const exploreHref = `/explorer?lat=${place.lat}&lng=${place.lng}&name=${encodeURIComponent(place.name)}`;
 
-  // Generate Google-compliant Rich Snippet Schema (JSON-LD)
-  const websiteUrl = "https://www.neve-rando.fr"; // placeholder brand url
-  const pageUrl = `${websiteUrl}/randos-sans-voiture/${city.toLowerCase()}`;
+  /*
+   * Réponses aux questions qu'on pose vraiment, chiffres à l'appui.
+   *
+   * Elles servent deux fois : rendues en clair plus bas, et déclarées en
+   * `FAQPage`. Les deux doivent dire la même chose — une donnée structurée qui
+   * n'a pas d'équivalent visible est une donnée que Google ignore, quand il ne
+   * la sanctionne pas.
+   */
+  const faq: { question: string; answer: string }[] = stats
+    ? [
+        {
+          question: `Combien y a-t-il de randonnées autour de ${place.name} ?`,
+          answer: `Névé référence ${stats.count} itinéraire${stats.count > 1 ? "s" : ""} dans un rayon de ${DEFAULT_HIKE_RADIUS_KM} km autour de ${place.name}. La plupart mesurent entre ${formatDistance(stats.typicalDistance[0])} et ${formatDistance(stats.typicalDistance[1])} ; le plus court fait ${formatDistance(stats.distanceRange[0])} et le plus long ${formatDistance(stats.distanceRange[1])}.`,
+        },
+        {
+          question: `Quelles randonnées autour de ${place.name} sont accessibles sans voiture ?`,
+          answer:
+            stats.navigoCount > 0
+              ? stats.navigoCount === stats.count
+                ? `Tous les ${stats.count} itinéraires partent d'un point couvert par un pass Navigo, donc atteignable en train ou en RER depuis Paris.`
+                : `${stats.navigoCount} des ${stats.count} itinéraires partent d'un point couvert par un pass Navigo, donc atteignable en train ou en RER depuis Paris. Les autres demandent un trajet régional.`
+              : `Tous les itinéraires listés indiquent leur commune de départ, ce qui permet de vérifier la desserte ferroviaire avant de partir. ${place.name} n'est pas dans la zone du pass Navigo.`,
+        },
+        {
+          question: `Quel est le dénivelé des randonnées autour de ${place.name} ?`,
+          answer: `Le dénivelé positif va jusqu'à ${stats.maxElevation} m sur les itinéraires référencés. ${stats.byDifficulty
+            .map((entry) => `${entry.count} de difficulté ${entry.label}`)
+            .join(", ")}.`,
+        },
+        {
+          question: "Comment obtenir le tracé GPS d'une randonnée ?",
+          answer:
+            "Chaque fiche affiche le tracé sur la carte. L'application mobile Névé permet de le télécharger pour l'utiliser hors connexion, y compris là où le réseau ne passe pas.",
+        },
+      ]
+    : [
+        {
+          question: `Y a-t-il des randonnées autour de ${place.name} ?`,
+          answer: `Aucun itinéraire n'est encore référencé dans un rayon de ${DEFAULT_HIKE_RADIUS_KM} km autour de ${place.name}. Le catalogue s'étend régulièrement ; la carte interactive permet de chercher au-delà de ce rayon.`,
+        },
+      ];
 
+  /*
+   * Données structurées.
+   *
+   * `TouristTrip` plutôt que `Trip`, et des `QuantitativeValue` plutôt que des
+   * chaînes déjà mises en forme : « 12,4 km » ne se compare pas, `12.4` avec
+   * son unité si. L'ancienne version déclarait aussi une `Offer` à zéro euro,
+   * ce qui annonçait un produit gratuit là où il n'y a rien à vendre.
+   */
   const schema = {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": "BreadcrumbList",
         "@id": `${pageUrl}#breadcrumb`,
-        "itemListElement": [
-          { "@type": "ListItem", "position": 1, "name": "Accueil", "item": websiteUrl },
-          { "@type": "ListItem", "position": 2, "name": `Randonnées autour de ${place.name}`, "item": pageUrl },
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Accueil", item: SITE_URL },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Randos sans voiture",
+            item: `${SITE_URL}/randos-sans-voiture`,
+          },
+          { "@type": "ListItem", position: 3, name: place.name, item: pageUrl },
         ],
       },
       {
+        "@type": "Place",
+        "@id": `${pageUrl}#place`,
+        name: place.name,
+        geo: {
+          "@type": "GeoCoordinates",
+          latitude: place.lat,
+          longitude: place.lng,
+        },
+      },
+      {
         "@type": "ItemList",
-        "@id": `${pageUrl}#hikeslist`,
-        "name": `Sélection de randonnées autour de ${place.name}`,
-        "numberOfItems": hikes.length,
-        "itemListElement": hikes.map((hike, index) => ({
+        "@id": `${pageUrl}#hikes`,
+        name: `Randonnées autour de ${place.name}`,
+        numberOfItems: shownHikes.length,
+        itemListElement: shownHikes.map((hike, index) => ({
           "@type": "ListItem",
-          "position": index + 1,
-          "item": {
-            "@type": "Trip",
-            "name": hike.title,
-            "touristType": "Randonneur",
-            "distance": formatDistance(hike.distance_km),
-            "offers": {
-              "@type": "Offer",
-              "price": "0",
-              "priceCurrency": "EUR",
-              "seller": { "@type": "Organization", "name": "Névé" },
+          position: index + 1,
+          url: `${SITE_URL}/rando/${hike.id}`,
+          item: {
+            "@type": "TouristTrip",
+            "@id": `${SITE_URL}/rando/${hike.id}#trip`,
+            name: hike.title,
+            url: `${SITE_URL}/rando/${hike.id}`,
+            touristType: "Randonneur",
+            distance: {
+              "@type": "QuantitativeValue",
+              value: hike.distance_km,
+              unitCode: "KMT",
+            },
+            ...(hike.duration_minutes
+              ? { estimatedDuration: `PT${Math.round(hike.duration_minutes)}M` }
+              : {}),
+            itinerary: {
+              "@type": "Place",
+              name: hike.location_name || place.name,
+              geo: {
+                "@type": "GeoCoordinates",
+                latitude: hike.start_lat,
+                longitude: hike.start_lng,
+              },
             },
           },
         })),
@@ -87,29 +225,11 @@ export default async function CityPage({ params }: Props) {
       {
         "@type": "FAQPage",
         "@id": `${pageUrl}#faq`,
-        "mainEntity": [
-          {
-            "@type": "Question",
-            "name": `Combien de temps durent les randonnées autour de ${place.name} ?`,
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text":
-                hikes.length > 0
-                  ? `Les itinéraires autour de ${place.name} durent en moyenne ${formatDuration(
-                      hikes.reduce((sum, h) => sum + h.duration_minutes, 0) / hikes.length
-                    )}, avec des options adaptées à tous les niveaux.`
-                  : `Névé référence des itinéraires de randonnée de toutes durées autour de ${place.name}.`,
-            },
-          },
-          {
-            "@type": "Question",
-            "name": "Comment retrouver le tracé GPS complet d'une randonnée ?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Le tracé GPS complet, téléchargeable hors-ligne, est disponible dans l'application mobile Névé pour chaque itinéraire.",
-            },
-          },
-        ],
+        mainEntity: faq.map((entry) => ({
+          "@type": "Question",
+          name: entry.question,
+          acceptedAnswer: { "@type": "Answer", text: entry.answer },
+        })),
       },
     ],
   };
@@ -119,7 +239,7 @@ export default async function CityPage({ params }: Props) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
 
       {/* Breadcrumb + Hero */}
-      <div className="mx-auto max-w-6xl px-6 sm:px-10 md:px-16 mb-12">
+      <div className="mx-auto max-w-6xl px-6 sm:px-10 md:px-16 mb-10">
         <nav className="mb-5 text-xs text-slate-400 flex items-center gap-1.5" aria-label="Fil d'Ariane">
           <CustomLink href="/" className="hover:text-[color:var(--color-brand-orange)] transition">Accueil</CustomLink>
           <span className="text-slate-300">/</span>
@@ -133,10 +253,38 @@ export default async function CityPage({ params }: Props) {
             <h1 className="text-3xl font-extrabold text-slate-900 md:text-4xl tracking-tight mb-3 leading-tight">
               Randonnées autour de <span className="text-[color:var(--color-brand-orange)]">{place.name}</span>
             </h1>
-            <p className="font-satoshi text-[#525252] text-[16px] max-w-xl leading-relaxed font-medium">
-              {hikes.length > 0
-                ? `${hikes.length} itinéraire${hikes.length > 1 ? "s" : ""} référencé${hikes.length > 1 ? "s" : ""} par Névé dans un rayon de ${DEFAULT_HIKE_RADIUS_KM} km autour de ${place.name}, avec distance, dénivelé et durée calculés à partir du tracé GPS réel de chaque sentier.`
-                : `Nous n'avons pas encore de randonnée référencée autour de ${place.name}. La base s'enrichit régulièrement, revenez bientôt.`}
+
+            {/*
+              * Le premier paragraphe répond, il n'annonce pas.
+              *
+              * C'est celui que les moteurs génératifs citent : il porte donc le
+              * compte, les bornes de distance et de durée, et la desserte —
+              * autant de faits vérifiables plutôt qu'une intention.
+              */}
+            <p className="font-satoshi text-[#525252] text-[16px] max-w-2xl leading-relaxed font-medium">
+              {stats ? (
+                <>
+                  Névé référence <strong>{stats.count} itinéraires</strong> dans un rayon de{" "}
+                  {DEFAULT_HIKE_RADIUS_KM} km autour de {place.name}, la plupart entre{" "}
+                  {formatDistance(stats.typicalDistance[0])} et{" "}
+                  {formatDistance(stats.typicalDistance[1])}, pour des durées de{" "}
+                  {spellDuration(stats.durationRange[0])} à {spellDuration(stats.durationRange[1])}.
+                  Distance, dénivelé et durée sont calculés sur le tracé GPS réel de chaque sentier.
+                  {stats.navigoCount > 0 && (
+                    <>
+                      {" "}
+                      {stats.navigoCount === stats.count ? "Tous" : stats.navigoCount} partent d’un
+                      point couvert par un pass Navigo.
+                    </>
+                  )}
+                </>
+              ) : (
+                <>
+                  Aucun itinéraire n’est encore référencé dans un rayon de {DEFAULT_HIKE_RADIUS_KM} km
+                  autour de {place.name}. Le catalogue s’étend régulièrement, et la carte interactive
+                  permet de chercher au-delà de ce rayon.
+                </>
+              )}
             </p>
           </div>
 
@@ -144,13 +292,53 @@ export default async function CityPage({ params }: Props) {
             href={exploreHref}
             className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-slate-950 hover:bg-slate-800 text-white text-sm font-bold shadow-sm transition duration-150 cursor-pointer flex-shrink-0"
           >
-            🗺️ Voir sur la carte interactive
+            Voir sur la carte interactive
           </CustomLink>
         </div>
       </div>
 
+      {/* Chiffres clés — les mêmes que ceux du paragraphe, en lecture rapide. */}
+      {stats && (
+        <div className="mx-auto max-w-6xl px-6 sm:px-10 md:px-16 mb-12">
+          <dl className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[
+              { label: "Itinéraires", value: String(stats.count) },
+              {
+                label: "Du plus court au plus long",
+                value: `${formatDistance(stats.distanceRange[0])} – ${formatDistance(stats.distanceRange[1])}`,
+              },
+              {
+                label: "Durées",
+                value: `${spellDuration(stats.durationRange[0])} – ${spellDuration(stats.durationRange[1])}`,
+              },
+              { label: "Dénivelé max", value: `${stats.maxElevation} m` },
+            ].map((item) => (
+              <div key={item.label} className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                <dt className="font-satoshi text-xs font-medium text-slate-500">{item.label}</dt>
+                <dd className="font-bricolage text-xl font-bold text-slate-900 mt-1">{item.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      )}
+
       {/* Hike Grid */}
       <div className="mx-auto max-w-6xl px-6 sm:px-10 md:px-16 mb-20">
+        {/* Le compte affiché diffère du compte annoncé dès qu'il y a plus de
+            quarante-huit itinéraires : le taire laisserait croire que la page
+            se contredit. */}
+        {stats && stats.count > shownHikes.length && (
+          <p className="font-satoshi text-sm text-slate-500 mb-5">
+            Les {shownHikes.length} itinéraires les plus proches sur {stats.count}.{" "}
+            <CustomLink
+              href={exploreHref}
+              className="font-semibold text-[color:var(--color-brand-orange)] hover:underline"
+            >
+              Voir les autres sur la carte
+            </CustomLink>
+          </p>
+        )}
+        <h2 className="sr-only">Liste des itinéraires autour de {place.name}</h2>
         {error ? (
           <div className="text-center py-16 border border-dashed border-rose-200 rounded-2xl bg-rose-50">
             <p className="text-rose-600 font-bold mb-1 text-sm">Impossible de charger les randonnées</p>
@@ -164,31 +352,53 @@ export default async function CityPage({ params }: Props) {
             </CustomLink>
           </div>
         ) : (
-          <HikeGrid hikes={hikes} />
+          <HikeGrid hikes={shownHikes} />
         )}
       </div>
+
+      {/* Communes de départ — du texte utile, et autant de liens internes. */}
+      {stats && stats.topPlaces.length > 1 && (
+        <div className="mx-auto max-w-6xl px-6 sm:px-10 md:px-16 mb-20">
+          <h2 className="text-xl font-bold text-slate-900 mb-3">
+            D’où partent ces randonnées ?
+          </h2>
+          <p className="font-satoshi text-[#525252] text-[15px] max-w-2xl leading-relaxed mb-5">
+            Les départs se concentrent sur {stats.topPlaces.length} communes autour de {place.name}.
+            Chacune a sa propre page, avec les itinéraires qui en partent.
+          </p>
+          <ul className="flex flex-wrap gap-2">
+            {stats.topPlaces.map((entry) => (
+              <li key={entry.name}>
+                <CustomLink
+                  href={`/randos-sans-voiture/${encodeURIComponent(
+                    entry.name.toLowerCase().replace(/\s+/g, "-"),
+                  )}`}
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 hover:border-slate-300 transition"
+                >
+                  {entry.name}
+                  <span className="text-xs text-slate-400">{entry.count}</span>
+                </CustomLink>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* Testimonials */}
       <div className="mx-auto max-w-6xl px-6 sm:px-10 md:px-16 mb-20">
         <EscapeCity cityName={place.name} layout="full" />
       </div>
 
-      {/* FAQ */}
+      {/* FAQ — le même texte que la donnée structurée, mot pour mot. */}
       <div className="mx-auto max-w-3xl px-6 sm:px-10 md:px-16 mb-20">
         <h2 className="text-xl font-bold text-slate-900 mb-5">Randonner autour de {place.name}</h2>
         <div className="space-y-4">
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
-            <h3 className="font-bold text-slate-900 mb-1 text-sm">📍 Comment sont sélectionnés ces itinéraires ?</h3>
-            <p className="text-sm text-slate-600 leading-relaxed">
-              Les randonnées affichées sont triées par proximité autour de {place.name}, avec distance, dénivelé et durée calculés à partir du tracé GPS réel de chaque sentier.
-            </p>
-          </div>
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
-            <h3 className="font-bold text-slate-900 mb-1 text-sm">🎒 Comment accéder au tracé GPS complet ?</h3>
-            <p className="text-sm text-slate-600 leading-relaxed">
-              Ouvrez la fiche d'une randonnée pour voir sa description complète, puis téléchargez le tracé GPS hors-ligne depuis l'application mobile Névé.
-            </p>
-          </div>
+          {faq.map((entry) => (
+            <div key={entry.question} className="bg-slate-50 p-5 rounded-xl border border-slate-100">
+              <h3 className="font-bold text-slate-900 mb-1.5 text-sm">{entry.question}</h3>
+              <p className="text-sm text-slate-600 leading-relaxed">{entry.answer}</p>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -198,7 +408,8 @@ export default async function CityPage({ params }: Props) {
           <div className="absolute inset-0 bg-radial-gradient from-[color:var(--color-brand-orange)] to-transparent opacity-10 pointer-events-none" />
           <h2 className="text-2xl font-bold md:text-3xl mb-3 relative z-10">Débloquez le tracé GPS</h2>
           <p className="font-satoshi text-slate-300 text-[16px] mb-6 leading-relaxed font-medium max-w-xl mx-auto relative z-10">
-            Téléchargez l'application Névé pour afficher les cartes 100% hors-ligne et randonner sans stress de réseau.
+            Téléchargez l&apos;application Névé pour afficher les cartes 100 % hors-ligne et randonner
+            sans stress de réseau.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 relative z-10">
             <a href="#download-ios-seo" className="px-5 py-2.5 rounded-lg bg-white hover:bg-slate-100 text-slate-900 text-sm font-bold transition duration-150">
