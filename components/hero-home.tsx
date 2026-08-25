@@ -10,167 +10,26 @@ import Avatar03 from "@/public/images/avatar-03.jpg";
 import Avatar04 from "@/public/images/avatar-04.jpg";
 import Avatar05 from "@/public/images/avatar-05.jpg";
 import Avatar06 from "@/public/images/avatar-06.jpg";
-import { Trees, Mountain, Waves, Compass, MapPin, Loader2 } from "lucide-react";
+import { MapPin, Loader2 } from "lucide-react";
 import { searchPlaces } from "@/lib/geocode";
 
+/**
+ * Un lieu proposé par le géocodeur.
+ *
+ * Réduit à ce qu'il sait réellement : un nom, de quoi lever les homonymes, et
+ * un point. L'ancienne forme portait un type de paysage et une gare de départ,
+ * renseignés à la main pour dix-sept destinations — rien de tel n'existe pour
+ * les trente-cinq mille communes françaises.
+ */
 type Place = {
   name: string;
-  city: string;
-  /* `commune` est le type des résultats du géocodeur, qui ne dit rien du
-     paysage : il retombe sur la boussole, faute de mieux. */
-  type: "foret" | "sommet" | "lac" | "mer" | "plaine" | "commune";
-  typeName: string;
-  icon: string;
+  /** « Annecy, Haute-Savoie, France ». */
+  label: string;
   lat: number;
   lng: number;
 };
 
-const PLACES: Place[] = [
-  {
-    name: "Les Gorges de Franchard (Fontainebleau)",
-    city: "paris",
-    type: "foret",
-    typeName: "Forêt",
-    icon: "🌲",
-    lat: 48.4116,
-    lng: 2.6288,
-  },
-  {
-    name: "La Vallée de la Chevreuse",
-    city: "paris",
-    type: "foret",
-    typeName: "Forêt",
-    icon: "🌲",
-    lat: 48.7056,
-    lng: 2.0673,
-  },
-  {
-    name: "Les Étangs de Hollande (Rambouillet)",
-    city: "paris",
-    type: "lac",
-    typeName: "Lac",
-    icon: "🌊",
-    lat: 48.6366,
-    lng: 1.8385,
-  },
-  {
-    name: "Le Crêt de la Perdrix (Pilat)",
-    city: "lyon",
-    type: "sommet",
-    typeName: "Sommet",
-    icon: "🏔️",
-    lat: 45.3712,
-    lng: 4.5772,
-  },
-  {
-    name: "Balcon de la Chartreuse (Passage de la Clé)",
-    city: "lyon",
-    type: "sommet",
-    typeName: "Sommet",
-    icon: "🏔️",
-    lat: 45.2447,
-    lng: 5.6297,
-  },
-  {
-    name: "Le Sentier des Monts d'Or",
-    city: "lyon",
-    type: "foret",
-    typeName: "Forêt",
-    icon: "🌲",
-    lat: 45.8458,
-    lng: 4.8116,
-  },
-  {
-    name: "Le Moucherotte (Massif du Vercors)",
-    city: "grenoble",
-    type: "sommet",
-    typeName: "Sommet",
-    icon: "🏔️",
-    lat: 45.1553,
-    lng: 5.6375,
-  },
-  {
-    name: "Le Lac Achard (Belledonne)",
-    city: "grenoble",
-    type: "lac",
-    typeName: "Lac",
-    icon: "🌊",
-    lat: 45.1114,
-    lng: 5.8753,
-  },
-  {
-    name: "La Dent de Crolles (Chartreuse)",
-    city: "grenoble",
-    type: "sommet",
-    typeName: "Sommet",
-    icon: "🏔️",
-    lat: 45.3125,
-    lng: 5.8547,
-  },
-  {
-    name: "Les Calanques de Port-Pin et d'En-Vau",
-    city: "marseille",
-    type: "mer",
-    typeName: "Mer / Calanques",
-    icon: "🌊",
-    lat: 43.2025,
-    lng: 5.5186,
-  },
-  {
-    name: "La Montagne Sainte-Victoire (Prieuré)",
-    city: "marseille",
-    type: "sommet",
-    typeName: "Sommet",
-    icon: "🏔️",
-    lat: 43.5325,
-    lng: 5.6120,
-  },
-  {
-    name: "Le Cap Canaille",
-    city: "marseille",
-    type: "sommet",
-    typeName: "Sommet / Falaise",
-    icon: "🏔️",
-    lat: 43.1979,
-    lng: 5.5539,
-  },
-  {
-    name: "La Dune du Pilat et forêt landaise",
-    city: "bordeaux",
-    type: "lac",
-    typeName: "Dune / Océan",
-    icon: "🌊",
-    lat: 44.5902,
-    lng: -1.2131,
-  },
-  {
-    name: "Le Tour du Lac de Lacanau",
-    city: "bordeaux",
-    type: "lac",
-    typeName: "Lac",
-    icon: "🌊",
-    lat: 44.9782,
-    lng: -1.0805,
-  },
-  {
-    name: "Les Trois Châteaux d'Ottrott",
-    city: "strasbourg",
-    type: "foret",
-    typeName: "Forêt / Château",
-    icon: "🌲",
-    lat: 48.4608,
-    lng: 7.4089,
-  },
-  {
-    name: "Le Mont Sainte-Odile (Sentier des Merveilles)",
-    city: "strasbourg",
-    type: "sommet",
-    typeName: "Sommet",
-    icon: "🏔️",
-    lat: 48.4375,
-    lng: 7.4045,
-  },
-];
+
 
 const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
   const R = 6371; // Earth's radius in km
@@ -276,20 +135,20 @@ export default function HeroHome() {
    * Résultats du géocodeur pour la saisie en cours.
    *
    * L'ancienne recherche filtrait dix-sept destinations écrites en dur : taper
-   * « Annecy » ne rendait rien, alors que la carte sait s'y rendre. Elles
-   * restent la proposition d'accueil, champ vide — une liste choisie vaut mieux
-   * qu'un champ muet — mais dès qu'on tape, c'est toute la France qui répond.
+   * « Annecy » ne rendait rien, alors que la carte sait s'y rendre. Le
+   * géocodeur est désormais la seule source, y compris champ vide — une liste
+   * choisie mentirait sur ce que le catalogue contient.
    */
   const [geoResults, setGeoResults] = useState<Place[]>([]);
   const abortRef = useRef<AbortController | null>(null);
-  /* Choisir écrit le nom dans le champ, ce qui relancerait une recherche. */
-  const justChoseRef = useRef(false);
+  /* Saisie qu'on a écrite soi-même en choisissant un lieu, et qui ne doit pas
+     relancer de recherche. Une valeur comparée plutôt qu'un drapeau consommé :
+     React joue les effets deux fois en développement, et le second passage
+     chercherait quand même. */
+  const skipQueryRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (justChoseRef.current) {
-      justChoseRef.current = false;
-      return;
-    }
+    if (skipQueryRef.current === searchQuery) return;
 
     const trimmed = searchQuery.trim();
     if (trimmed.length < 2) {
@@ -311,17 +170,7 @@ export default function HeroHome() {
       if (controller.signal.aborted) return;
 
       setIsLoading(false);
-      setGeoResults(
-        found.map((place) => ({
-          name: place.name,
-          city: place.name,
-          type: "commune" as const,
-          typeName: place.label,
-          icon: "",
-          lat: place.lat,
-          lng: place.lng,
-        })),
-      );
+      setGeoResults(found);
     }, 250);
 
     return () => window.clearTimeout(timer);
@@ -336,7 +185,7 @@ export default function HeroHome() {
    * tenable.
    */
   const handleSelectPlace = (place: Place) => {
-    justChoseRef.current = true;
+    skipQueryRef.current = place.name;
     setSearchQuery(place.name);
     setIsDropdownOpen(false);
     setGeoResults([]);
@@ -516,25 +365,17 @@ export default function HeroHome() {
                     }}
                   >
                     {(() => {
-                      /* Le géocodeur dès qu'on tape, la sélection d'accueil
-                         sinon. Ses résultats arrivent déjà classés par
-                         pertinence : les retrier par distance ferait remonter
-                         un homonyme proche devant le lieu demandé. */
-                      const filtered = searchQuery.trim() ? geoResults : PLACES;
-                      const sorted = searchQuery.trim()
-                        ? filtered
-                        : userCoords
-                        ? [...filtered].sort((a, b) => {
-                            const distA = getDistance(userCoords.lat, userCoords.lng, a.lat, a.lng);
-                            const distB = getDistance(userCoords.lat, userCoords.lng, b.lat, b.lng);
-                            return distA - distB;
-                          })
-                        : [...filtered].sort((a, b) => a.name.localeCompare(b.name));
+                      /* Rien à proposer avant qu'on ait tapé : le géocodeur est
+                         la seule source, et une liste écrite en dur mentirait
+                         sur ce que le catalogue contient. */
+                      const sorted = searchQuery.trim() ? geoResults : [];
 
                       if (sorted.length === 0) {
                         return (
                           <div className="px-5 py-4 text-sm text-brand-dark/50 text-center">
-                            Aucune destination trouvée
+                            {searchQuery.trim()
+                              ? "Aucun lieu trouvé"
+                              : "Tapez le nom d’une ville ou d’un lieu"}
                           </div>
                         );
                       }
@@ -542,7 +383,7 @@ export default function HeroHome() {
                       return (
                         <div>
                           <div className="px-4 py-2 text-sm font-semibold text-brand-dark tracking-wider text-left">
-                            {searchQuery ? "Résultats de recherche" : userCoords ? "Destinations les plus proches" : "Destinations proposées"}
+                            Résultats de recherche
                           </div>
                           <div className="divide-y divide-brand-dark/5">
                             {sorted.map((place) => {
@@ -559,10 +400,11 @@ export default function HeroHome() {
                                 >
                                   <div className="flex items-center gap-3">
                                     <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-neve-gray border border-brand-dark/5 flex items-center justify-center transition">
-                                      {place.type === "foret" && <Trees className="w-4 h-4 text-emerald-600" />}
-                                      {place.type === "sommet" && <Mountain className="w-4 h-4 text-amber-600" />}
-                                      {(place.type === "lac" || place.type === "mer") && <Waves className="w-4 h-4 text-sky-500" />}
-                                      {place.type !== "foret" && place.type !== "sommet" && place.type !== "lac" && place.type !== "mer" && <Compass className="w-4 h-4 text-slate-400" />}
+                                      {/* Une seule icône : le géocodeur rend des
+                                          lieux, pas des paysages, et rien ne
+                                          dit si l'on pointe une forêt ou un
+                                          sommet. */}
+                                      <MapPin className="w-4 h-4 text-slate-400" />
                                     </span>
                                     <div>
                                       <span className="font-bold text-brand-dark text-sm block">
@@ -573,9 +415,7 @@ export default function HeroHome() {
                                           qui est ce qu'on cherche à savoir
                                           entre deux homonymes. */}
                                       <span className="text-xs text-brand-dark/50 block">
-                                        {place.type === "commune"
-                                          ? place.typeName
-                                          : `Gare de départ : ${place.city.charAt(0).toUpperCase() + place.city.slice(1)} • ${place.typeName}`}
+                                        {place.label}
                                       </span>
                                     </div>
                                   </div>

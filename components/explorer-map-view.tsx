@@ -191,7 +191,9 @@ export default function ExplorerMapView({
   /* Le cadrage automatique n'a lieu qu'a l'arrivee : apres une recherche de
      zone, recadrer sur les resultats deplacerait la carte que l'utilisateur
      vient de choisir, et rappellerait aussitot le bouton. */
-  const hasAutoFittedRef = useRef(false);
+  /* Vrai d'emblee quand un lieu est demande : c'est lui le cadre voulu, et le
+     recadrage sur les resultats trouves le remplacerait par un autre. */
+  const hasAutoFittedRef = useRef(hasLocation);
 
   /*
    * Randonnées réellement affichées. Elles arrivent du serveur au premier
@@ -379,7 +381,9 @@ export default function ExplorerMapView({
       container: mapContainerRef.current,
       style: styleOptions[0].url,
       center: located ? [located.start_lng, located.start_lat] : [centerLng, centerLat],
-      zoom: 10,
+      /* Un lieu demande se regarde de pres : le zoom par defaut cadrait une
+         region entiere. */
+      zoom: hasLocation ? SEARCH_ZOOM : 10,
       /* Les contrôles maison remplacent ceux de mapbox : deux jeux de boutons
          pour les mêmes gestes seraient deux fois trop. */
       attributionControl: true,
@@ -479,7 +483,17 @@ export default function ExplorerMapView({
       const center = map.getCenter();
       lastSearchRef.current = { lat: center.lat, lng: center.lng, zoom: map.getZoom() };
       if (radiusKmRef.current === null) setShownRadiusKm(viewportRadiusKm(map));
-      if (!hasLocation) void searchThisAreaRef.current?.();
+
+      /*
+       * On cherche dès que le serveur n'a rien fourni, et non plus seulement
+       * en l'absence de lieu.
+       *
+       * Il ne fournit de résultats que pour un lieu *et* un rayon. Arriver
+       * depuis la recherche du hero donne un lieu sans rayon : la carte se
+       * posait au bon endroit sur une liste vide, faute que quiconque ait
+       * demandé le contenu du cadre.
+       */
+      if (hikes.length === 0) void searchThisAreaRef.current?.();
     });
 
     return () => {

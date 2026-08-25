@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
 import { searchPlaces, type PlaceSuggestion } from "@/lib/geocode";
 
@@ -21,7 +21,11 @@ const DEBOUNCE_MS = 250;
  */
 export default function PlaceSearch({ className = "" }: { className?: string }) {
   const router = useRouter();
-  const [query, setQuery] = useState("");
+  /* Le champ dit le lieu qu'on regarde, y compris quand on arrive d'ailleurs —
+     de la recherche de l'accueil, ou d'un lien partagé. Vide, il laisserait
+     croire qu'aucun lieu n'est en jeu. */
+  const searchParams = useSearchParams();
+  const [query, setQuery] = useState(() => searchParams.get("name") ?? "");
   const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([]);
   const [highlighted, setHighlighted] = useState(-1);
   const [isOpen, setIsOpen] = useState(false);
@@ -31,15 +35,19 @@ export default function PlaceSearch({ className = "" }: { className?: string }) 
   /* Requête en vol, abandonnée dès la frappe suivante : sans cela les réponses
      reviendraient dans le désordre et la liste clignoterait. */
   const abortRef = useRef<AbortController | null>(null);
-  /* Choisir un lieu écrit son nom dans le champ, ce qui relancerait une
-     recherche et rouvrirait le menu sur ce qu'on vient de fermer. */
-  const justChoseRef = useRef(false);
+  /*
+   * Saisie qui ne doit rien déclencher : celle qu'on a écrite soi-même, en
+   * choisissant un lieu ou en arrivant sur une adresse qui en nomme un. Sans
+   * quoi le menu se rouvrirait sur ce qu'on vient de fermer.
+   *
+   * Une valeur comparée plutôt qu'un drapeau consommé : en développement React
+   * joue les effets deux fois, et un drapeau serait épuisé par le premier
+   * passage — le second chercherait quand même.
+   */
+  const skipQueryRef = useRef<string | null>(searchParams.get("name"));
 
   useEffect(() => {
-    if (justChoseRef.current) {
-      justChoseRef.current = false;
-      return;
-    }
+    if (skipQueryRef.current === query) return;
 
     const trimmed = query.trim();
     if (trimmed.length < 2) {
@@ -78,7 +86,7 @@ export default function PlaceSearch({ className = "" }: { className?: string }) 
 
   const choose = useCallback(
     (place: PlaceSuggestion) => {
-      justChoseRef.current = true;
+      skipQueryRef.current = place.name;
       setQuery(place.name);
       setIsOpen(false);
       setSuggestions([]);
