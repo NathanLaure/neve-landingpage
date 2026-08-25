@@ -352,8 +352,14 @@ export default function ExplorerMapView({
      * clair. Le `minzoom` est porté par la couche : en deçà, Mapbox ne dessine
      * simplement pas.
      */
+    /*
+     * Pas de `isStyleLoaded()` en garde : il ne dit pas « le style est prêt »
+     * mais « le style et toutes ses tuiles sont chargés », et il est donc faux
+     * au moment même où `style.load` vient de se déclencher. Les deux
+     * évènements écoutés n'arrivent, eux, que sur un style chargé.
+     */
     const addTraceLayers = () => {
-      if (!map.isStyleLoaded() || map.getSource("hike-traces")) return;
+      if (map.getSource("hike-traces")) return;
 
       /* `promoteId` : l'état de survol se pose par identifiant de figure, et
          mapbox n'accepte que des nombres pour une source GeoJSON. Promouvoir
@@ -372,7 +378,7 @@ export default function ExplorerMapView({
         paint: {
           "line-color": "#FFFFFF",
           "line-width": ["case", ["boolean", ["feature-state", "hovered"], false], 9, 6],
-          "line-opacity": ["case", ["boolean", ["feature-state", "dimmed"], false], 0.25, 0.9],
+          "line-opacity": ["case", ["boolean", ["feature-state", "dimmed"], false], 0.2, 0.9],
         },
       });
       map.addLayer({
@@ -384,7 +390,7 @@ export default function ExplorerMapView({
         paint: {
           "line-color": ["get", "color"],
           "line-width": ["case", ["boolean", ["feature-state", "hovered"], false], 5, 3],
-          "line-opacity": ["case", ["boolean", ["feature-state", "dimmed"], false], 0.25, 1],
+          "line-opacity": ["case", ["boolean", ["feature-state", "dimmed"], false], 0.45, 1],
         },
       });
 
@@ -616,7 +622,12 @@ export default function ExplorerMapView({
     const map = mapRef.current;
     if (!map || !map.getSource("hike-traces")) return;
 
-    const highlighted = highlightedIdRef.current;
+    /* Estomper n'a de sens que si quelque chose ressort : survoler une
+       randonnée dont le tracé n'est pas dessiné ne doit pas effacer les
+       autres pour rien. */
+    const wanted = highlightedIdRef.current;
+    const highlighted = wanted !== null && drawnTraceIdsRef.current.includes(wanted) ? wanted : null;
+
     drawnTraceIdsRef.current.forEach((id) => {
       map.setFeatureState(
         { source: "hike-traces", id },
@@ -650,6 +661,20 @@ export default function ExplorerMapView({
           hike.start_lng <= bounds.getEast(),
       )
       .slice(0, MAX_TRACES_PER_REQUEST);
+
+    /*
+     * La randonnée survolée s'ajoute au-delà du plafond.
+     *
+     * Le panneau en liste bien plus que soixante : sans cette exception, le
+     * survol ne ferait rien pour l'écrasante majorité des cartes, ce qui est
+     * pire qu'un survol sans effet — les autres tracés s'estomperaient autour
+     * d'un tracé absent.
+     */
+    const wanted = highlightedIdRef.current;
+    if (wanted !== null && !visible.some((hike) => hike.id === wanted)) {
+      const extra = areaHikes.find((hike) => hike.id === wanted);
+      if (extra) visible.push(extra);
+    }
 
     const missing = visible.filter((hike) => !tracesRef.current.has(hike.id)).map((h) => h.id);
     if (missing.length > 0) {
@@ -694,6 +719,14 @@ export default function ExplorerMapView({
 
   useEffect(() => {
     highlightedIdRef.current = hoveredHikeId;
+
+    /* Tracé pas encore dessiné : c'est le rafraîchissement qui va le chercher,
+       et qui rappellera la surbrillance une fois la source à jour. */
+    if (hoveredHikeId !== null && !drawnTraceIdsRef.current.includes(hoveredHikeId)) {
+      void refreshTracesRef.current?.();
+      return;
+    }
+
     applyTraceHighlight();
   }, [hoveredHikeId, applyTraceHighlight]);
 
