@@ -14,6 +14,20 @@ const PROVIDERS: { id: OAuthProvider; label: string; icon: (className: string) =
   { id: "facebook", label: "Continuer avec Facebook", icon: (c) => <FacebookIcon className={c} /> },
 ];
 
+/**
+ * Fournisseurs momentanement retires de l'ecran de connexion.
+ *
+ * Apple y figure le temps de finaliser sa configuration. Le code du bouton,
+ * son icone et le chemin OAuth restent en place : vider ce tableau suffit a le
+ * retablir, sans rien reconstruire.
+ *
+ * A savoir si l'application arrive un jour sur l'App Store : Apple impose
+ * "Se connecter avec Apple" des lors qu'un autre service tiers est propose.
+ * Cette mise en sommeil ne peut donc pas durer cote iOS.
+ */
+const DISABLED_PROVIDERS: OAuthProvider[] = ["apple"];
+
+
 export default function OAuthButtons() {
   const [loadingProvider, setLoadingProvider] = useState<OAuthProvider | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -54,7 +68,7 @@ export default function OAuthButtons() {
       )}
 
       <div className="mt-4 space-y-3">
-        {PROVIDERS.map(({ id, label, icon }) => (
+        {PROVIDERS.filter(({ id }) => !DISABLED_PROVIDERS.includes(id)).map(({ id, label, icon }) => (
           <button
             key={id}
             type="button"

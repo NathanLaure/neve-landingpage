@@ -46,6 +46,20 @@ const OAUTH_PROVIDERS: {
   },
 ];
 
+/**
+ * Fournisseurs momentanement retires de l'ecran de connexion.
+ *
+ * Apple y figure le temps de finaliser sa configuration. Le code du bouton,
+ * son icone et le chemin OAuth restent en place : vider ce tableau suffit a le
+ * retablir, sans rien reconstruire.
+ *
+ * A savoir si l'application arrive un jour sur l'App Store : Apple impose
+ * "Se connecter avec Apple" des lors qu'un autre service tiers est propose.
+ * Cette mise en sommeil ne peut donc pas durer cote iOS.
+ */
+const DISABLED_PROVIDERS: OAuthProvider[] = ["apple"];
+
+
 export default function AuthModal() {
   const {
     isAuthModalOpen,
@@ -367,7 +381,7 @@ export default function AuthModal() {
 
             {/* OAuth Buttons */}
             <div className="flex flex-col gap-2.5">
-              {OAUTH_PROVIDERS.map(({ id, label, icon }) => (
+              {OAUTH_PROVIDERS.filter(({ id }) => !DISABLED_PROVIDERS.includes(id)).map(({ id, label, icon }) => (
                 <button
                   key={id}
                   type="button"
