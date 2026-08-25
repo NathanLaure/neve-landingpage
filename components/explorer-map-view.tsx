@@ -59,6 +59,16 @@ const TRACE_MIN_ZOOM = 9;
 const MAX_TRACES_PER_REQUEST = 60;
 
 /**
+ * Zoom auquel se pose la carte quand on cherche un lieu.
+ *
+ * Une valeur fixe et non `max(zoom courant, seuil)` : chercher un lieu est une
+ * demande explicite d'aller quelque part, et le cadre doit être le même qu'on
+ * vienne d'une vue de région ou d'un zoom de rue. Environ huit kilomètres de
+ * rayon — la ville et ce qui l'entoure, là où les randonnées commencent.
+ */
+const SEARCH_ZOOM = 11.5;
+
+/**
  * Couleur du tracé selon la difficulté, avec les jetons des étiquettes de
  * difficulté des cartes — c'est le mode retenu par l'application.
  */
@@ -982,7 +992,7 @@ export default function ExplorerMapView({
 
     map.flyTo({
       center: [centerLng, centerLat],
-      zoom: Math.max(map.getZoom(), 10),
+      zoom: SEARCH_ZOOM,
       duration: 900,
     });
 
