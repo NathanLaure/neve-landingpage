@@ -519,11 +519,22 @@ export default function ExplorerMapView({
     if (!container) return;
 
     const gained = panelWidthPx(!isCollapsed) - panelWidthPx(isCollapsed);
+
+    /*
+     * Ancré à droite le temps de l'animation, et non à gauche comme au repos.
+     *
+     * C'est le bord gauche du cadre qui se déplace, le droit ne bouge jamais.
+     * Ancré à gauche, le conteneur trop large suivait ce bord mobile et sortait
+     * de l'écran par la droite avant d'y revenir. Ancré à droite, le trop-plein
+     * pend du côté que le cadre rogne, et l'image reste immobile.
+     */
+    container.style.left = "auto";
     container.style.width = `${container.clientWidth + Math.max(0, gained)}px`;
 
     /* La transition porte sur le panneau et non sur ce conteneur : aucun
        `transitionend` ne remontera jusqu'ici, on se cale sur sa durée. */
     window.setTimeout(() => {
+      container.style.left = "";
       container.style.width = "";
     }, PANEL_TRANSITION_MS + 20);
   }, []);
@@ -1020,7 +1031,13 @@ export default function ExplorerMapView({
 
         <div className="relative flex-1 overflow-hidden rounded-xl bg-neve-surface">
           {mapboxToken ? (
-            <div ref={mapContainerRef} className="size-full" />
+            /* Hors du flux, et pas seulement rogné : pendant le repli, le
+               conteneur est plus large que son cadre, et un élément en flux de
+               cette largeur pousserait la mise en page hors de l'écran par la
+               droite. Absolu, il ne pèse plus rien et le cadre le rogne. Sa
+               largeur figée l'emporte alors sur `right-0`, qui reprend la main
+               dès qu'on la relâche. */
+            <div ref={mapContainerRef} className="absolute inset-0" />
           ) : (
             <div className="flex size-full items-center justify-center px-8 text-center">
               <p className="font-satoshi text-sm text-neve-text-muted">
