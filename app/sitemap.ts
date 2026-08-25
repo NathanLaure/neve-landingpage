@@ -55,6 +55,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/randos-sans-voiture",
     "/privacy",
     "/terms",
+    "/mentions-legales",
     // Google vérifie que la page de suppression de compte est réellement
     // atteignable : autant qu'elle soit annoncée au même titre que les autres.
     "/suppression-compte",

@@ -136,35 +136,25 @@ export default function Footer({ border = false }: { border?: boolean }) {
             {/* 2nd column: Explorer */}
             <div className="space-y-3 sm:col-span-6 md:col-span-3 lg:col-span-2">
               <h4 
-                className="text-slate-900 font-extrabold text-[12px] tracking-[0.6px] uppercase font-bricolage"
+                className="text-slate-900 font-extrabold text-[16px] tracking-[0.6px] font-bricolage"
                 style={{ fontVariationSettings: "'opsz' 14, 'wdth' 100" }}
               >
                 Explorer
               </h4>
-              <ul className="space-y-2 text-[12px] font-semibold font-bricolage tracking-[-0.4px]" style={{ fontVariationSettings: "'opsz' 14, 'wdth' 100" }}>
+              <ul className="space-y-2 text-[14px] font-semibold font-bricolage tracking-[-0.4px]" style={{ fontVariationSettings: "'opsz' 14, 'wdth' 100" }}>
                 <li>
-                  <CustomLink variant="footer" href="/#hike-explorer">
-                    Itinéraires
+                  <CustomLink variant="footer" href="/explorer">
+                    Carte intéractive
                   </CustomLink>
                 </li>
                 <li>
-                  <CustomLink variant="footer" href="/#hike-explorer">
-                    Planificateur TER
+                  <CustomLink variant="footer" href="/explorer">
+                    Planificateur
                   </CustomLink>
                 </li>
                 <li>
                   <CustomLink variant="footer" href="/#features">
                     Fonctionnalités
-                  </CustomLink>
-                </li>
-                <li>
-                  <CustomLink variant="footer" href="/randos-sans-voiture">
-                    Randonnées
-                  </CustomLink>
-                </li>
-                <li>
-                  <CustomLink variant="footer" href="/randos-sans-voiture">
-                    Gares de départ
                   </CustomLink>
                 </li>
               </ul>
@@ -182,12 +172,12 @@ export default function Footer({ border = false }: { border?: boolean }) {
               */}
             <div className="space-y-3 sm:col-span-6 md:col-span-3 lg:col-span-2">
               <h4
-                className="text-slate-900 font-extrabold text-[12px] tracking-[0.6px] uppercase font-bricolage"
+                className="text-slate-900 font-extrabold text-[16px] tracking-[0.6px] font-bricolage"
                 style={{ fontVariationSettings: "'opsz' 14, 'wdth' 100" }}
               >
                 Liens utiles
               </h4>
-              <ul className="space-y-2 text-[12px] font-semibold font-bricolage tracking-[-0.4px]" style={{ fontVariationSettings: "'opsz' 14, 'wdth' 100" }}>
+              <ul className="space-y-2 text-[14px] font-semibold font-bricolage tracking-[-0.4px]" style={{ fontVariationSettings: "'opsz' 14, 'wdth' 100" }}>
                 <li>
                   <CustomLink variant="footer" href="https://www.sncf-connect.com" target="_blank">
                     Horaires SNCF
@@ -203,78 +193,36 @@ export default function Footer({ border = false }: { border?: boolean }) {
                     Île-de-France Mobilités
                   </CustomLink>
                 </li>
-                <li>
-                  <CustomLink variant="footer" href="/terms">
-                    Absence d&apos;affiliation
-                  </CustomLink>
-                </li>
               </ul>
             </div>
 
             {/* 4th column: Entreprise */}
             <div className="space-y-3 sm:col-span-6 md:col-span-3 lg:col-span-2">
               <h4 
-                className="text-slate-900 font-extrabold text-[12px] tracking-[0.6px] uppercase font-bricolage"
+                className="text-slate-900 font-extrabold text-[16px] tracking-[0.6px] font-bricolage"
                 style={{ fontVariationSettings: "'opsz' 14, 'wdth' 100" }}
               >
                 Entreprise
               </h4>
-              <ul className="space-y-2 text-[12px] font-semibold font-bricolage tracking-[-0.4px]" style={{ fontVariationSettings: "'opsz' 14, 'wdth' 100" }}>
+              <ul className="space-y-2 text-[14px] font-semibold font-bricolage tracking-[-0.4px]" style={{ fontVariationSettings: "'opsz' 14, 'wdth' 100" }}>
                 <li>
                   <CustomLink variant="footer" href="#about">
                     À propos
                   </CustomLink>
                 </li>
                 <li>
-                  <CustomLink variant="footer" href="#0">
-                    Recrutement
-                  </CustomLink>
-                </li>
-                <li>
-                  <CustomLink variant="footer" href="#0">
-                    Presse
-                  </CustomLink>
-                </li>
-                <li>
                   <CustomLink variant="footer" href="/privacy">
-                    Politique
+                    Politique de confidentialité
                   </CustomLink>
                 </li>
                 <li>
                   <CustomLink variant="footer" href="/terms">
-                    CGU
-                  </CustomLink>
-                </li>
-              </ul>
-            </div>
-
-            {/* 5th column: Communauté */}
-            <div className="space-y-3 sm:col-span-6 md:col-span-3 lg:col-span-2">
-              <h4 
-                className="text-slate-900 font-extrabold text-[12px] tracking-[0.6px] uppercase font-bricolage"
-                style={{ fontVariationSettings: "'opsz' 14, 'wdth' 100" }}
-              >
-                Communauté
-              </h4>
-              <ul className="space-y-2 text-[12px] font-semibold font-bricolage tracking-[-0.4px]" style={{ fontVariationSettings: "'opsz' 14, 'wdth' 100" }}>
-                <li>
-                  <CustomLink variant="footer" href="#0">
-                    Guides pratiques
+                    Conditions générales d'utilisation
                   </CustomLink>
                 </li>
                 <li>
-                  <CustomLink variant="footer" href="#0">
-                    Support & Contact
-                  </CustomLink>
-                </li>
-                <li>
-                  <CustomLink variant="footer" href="#0">
-                    Outil de tracé GPX
-                  </CustomLink>
-                </li>
-                <li>
-                  <CustomLink variant="footer" href="#0">
-                    Live Tracking
+                  <CustomLink variant="footer" href="/mentions-legales">
+                    Mentions légales
                   </CustomLink>
                 </li>
               </ul>
