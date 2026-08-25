@@ -4,7 +4,9 @@ import { useState } from "react";
 import Accordion from "@/components/accordion";
 import Link from "@/components/ui/link";
 
-const faqData = [
+export type FaqItem = { id: string; question: string; answer: string };
+
+const DEFAULT_FAQ: FaqItem[] = [
   {
     id: "faq-1",
     question: "Comment réserver ses billets de train et de bus pour une randonnée avec Névé ?",
@@ -47,8 +49,30 @@ const faqData = [
   },
 ];
 
-export default function Faq() {
+/**
+ * Section « questions fréquentes ».
+ *
+ * Les questions sont paramétrables : les pages de ville posent les leurs,
+ * chiffrées sur la zone, quand l'accueil garde celles du produit. Seule la
+ * mise en forme est commune, et c'est bien la seule chose à partager.
+ *
+ * `emitSchema` permet de la taire : une page qui déclare déjà un `FAQPage`
+ * dans son propre graphe en aurait deux, et Google n'en retient aucun quand
+ * ils se contredisent.
+ */
+export default function Faq({
+  items = DEFAULT_FAQ,
+  title,
+  subtitle = "Tout ce qu'il faut savoir pour planifier votre première escapade en transports en commun.",
+  emitSchema = true,
+}: {
+  items?: FaqItem[];
+  title?: React.ReactNode;
+  subtitle?: string;
+  emitSchema?: boolean;
+} = {}) {
   const [activeIndex, setActiveIndex] = useState<number>(0);
+  const faqData = items;
 
   // Generate FAQ JSON-LD Schema Markup dynamically
   const faqSchema = {
@@ -66,10 +90,12 @@ export default function Faq() {
 
   return (
     <section id="faq" className="bg-[#fbfaf7] py-20 md:py-24 text-slate-900 w-full relative">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
+      {emitSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes faqFadeIn {
           from { opacity: 0; transform: translateY(6px); }
@@ -87,13 +113,17 @@ export default function Faq() {
             className="text-3xl md:text-[36px] font-bold text-[#292929] tracking-[-1.33px] leading-[1.2] md:leading-[46px] font-bricolage"
             style={{ fontVariationSettings: "'opsz' 14, 'wdth' 100" }}
           >
-            Des questions sur <br />
-            <span className="font-extrabold text-[#eb490b]">l'aventure sans voiture ?</span>
+            {title ?? (
+              <>
+                Des questions sur <br />
+                <span className="font-extrabold text-[#eb490b]">l&apos;aventure sans voiture ?</span>
+              </>
+            )}
           </h2>
           <p 
             className="mt-4 text-[18px] text-[#525252] font-medium leading-relaxed font-satoshi tracking-[-0.27px]"
           >
-            Tout ce qu'il faut savoir pour planifier votre première escapade en transports en commun.
+            {subtitle}
           </p>
         </div>
 

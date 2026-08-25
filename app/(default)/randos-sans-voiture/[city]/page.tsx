@@ -5,6 +5,7 @@ import CustomLink from "@/components/ui/link";
 import Button from "@/components/ui/button";
 import AppDownloadBanner from "@/components/app-download-banner";
 import HikeGrid from "@/components/hike-grid";
+import Faq from "@/components/faq";
 import EscapeCity from "@/components/escape-city";
 import { geocodePlace, slugToPlaceQuery } from "@/lib/geocode";
 import { getHikesNearby, countHikesNearby, DEFAULT_HIKE_RADIUS_KM } from "@/lib/hikes";
@@ -155,7 +156,18 @@ export default async function CityPage({ params }: Props) {
         {
           question: "Comment obtenir le tracé GPS d'une randonnée ?",
           answer:
-            "Chaque fiche affiche le tracé sur la carte. L'application mobile Névé permet de le télécharger pour l'utiliser hors connexion, y compris là où le réseau ne passe pas.",
+            "Chaque fiche affiche le tracé sur la carte. L'application mobile Névé permet de le télécharger pour l'utiliser hors connexion, y compris là où le réseau ne passe pas — la puce GPS du téléphone fonctionne sans réseau, seules les cartes ont besoin d'être téléchargées à l'avance.",
+        },
+        {
+          question: `Comment réserver son train pour une randonnée au départ de ${place.name} ?`,
+          answer: `Une fois l'itinéraire calculé, Névé vous redirige vers Trainline avec les gares de départ, de correspondance et d'arrivée ainsi que les dates pré-remplies. Vos cartes de réduction SNCF habituelles s'appliquent normalement.`,
+        },
+        {
+          question: `Ces randonnées conviennent-elles aux débutants ?`,
+          answer:
+            stats.byDifficulty.find((entry) => entry.value === "facile")?.count
+              ? `Oui : ${stats.byDifficulty.find((entry) => entry.value === "facile")?.count} des ${stats.count} itinéraires autour de ${place.name} sont classés faciles. Vous pouvez filtrer la liste par difficulté, distance et durée pour trouver ce qui vous convient.`
+              : `Les itinéraires référencés autour de ${place.name} demandent tous un minimum d'habitude. Filtrez par distance et par durée pour repérer les plus courts.`,
         },
       ]
     : [
@@ -373,22 +385,26 @@ export default async function CityPage({ params }: Props) {
         )}
       </div>
 
-      {/* Testimonials */}
-      <div className="mx-auto max-w-6xl px-6 sm:px-10 md:px-16 mb-20">
-        <EscapeCity cityName={place.name} layout="full" />
-      </div>
 
-      {/* FAQ — le même texte que la donnée structurée, mot pour mot. */}
-      <div className="mx-auto max-w-3xl px-6 sm:px-10 md:px-16 mb-20">
-        <h2 className="text-xl font-bold text-slate-900 mb-5">Randonner autour de {place.name}</h2>
-        <div className="space-y-4">
-          {faq.map((entry) => (
-            <div key={entry.question} className="bg-slate-50 p-5 rounded-xl border border-slate-100">
-              <h3 className="font-bold text-slate-900 mb-1.5 text-sm">{entry.question}</h3>
-              <p className="text-sm text-slate-600 leading-relaxed">{entry.answer}</p>
-            </div>
-          ))}
-        </div>
+      {/*
+        * Même présentation que l'accueil, questions propres à la zone.
+        *
+        * `emitSchema={false}` : le `FAQPage` est déjà déclaré plus haut dans le
+        * graphe de la page, avec ce texte mot pour mot. Deux déclarations
+        * concurrentes et Google n'en retient aucune.
+        */}
+      <div className="mb-4">
+        <Faq
+          items={faq.map((entry, index) => ({ id: `faq-${index + 1}`, ...entry }))}
+          title={
+            <>
+              Randonner autour de <br />
+              <span className="font-extrabold text-[#eb490b]">{place.name}</span>
+            </>
+          }
+          subtitle={`Ce qu'il faut savoir avant de partir marcher autour de ${place.name}, transport compris.`}
+          emitSchema={false}
+        />
       </div>
 
       {/* Bandeau de téléchargement — le même que sur la fiche randonnée. */}
