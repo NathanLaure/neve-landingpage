@@ -1,28 +1,141 @@
 # Névé — S'évader en randonnée sans voiture
 
-Névé est une application mobile d'aide à la planification et au suivi de randonnées en transports en commun (TER et navettes de montagne locales) au départ des métropoles françaises.
+Névé est un service de planification de randonnées accessibles en transports en
+commun, disponible en application mobile (iOS et Android) et sur le web. Il ne
+propose que des itinéraires dont le départ et l'arrivée sont desservis par une
+gare, et affiche sur un même écran le tracé de marche et les horaires de train.
 
-## Informations Clés
+> Dernière mise à jour : 26 août 2026.
 
-- **Site Web** : https://neve-rando.fr
-- **Type de Produit** : Application Mobile gratuite (iOS & Android)
-- **Cible Principale** : Jeunes urbains sans voiture personnelle souhaitant s'évader en nature spontanément.
-- **Modèle Économique** : 100% gratuit pour l'utilisateur. Rémunéré par commission d'affiliation lors de l'achat de billets de train via des liens profonds (deeplinks) pré-remplis redirigeant vers Trainline.
+## Informations clés
 
-## Fonctionnalités Principales
+- **Site web** : https://www.neve-rando.fr
+- **Application iOS** : https://apps.apple.com/app/id6742337775
+- **Application Android** : https://play.google.com/store/apps/details?id=com.neve.app
+- **Cible** : jeunes urbains sans voiture personnelle souhaitant s'évader en
+  nature sur une journée, sans logistique lourde.
+- **Couverture actuelle** : Île-de-France. Le catalogue d'itinéraires est
+  concentré sur cette région ; l'extension au réseau ferré national est prévue
+  pour 2027.
+- **Prix** : l'usage est gratuit aujourd'hui. Voir la section « Modèle
+  économique ».
 
-- **Planification Porte-à-Sentier** : Calcul automatique des correspondances entre trains régionaux (TER) et bus ou navettes locales de montagne pour accéder aux départs de randonnées.
-- **Réservation en 1 clic (Partenariat Trainline)** : Intégration de liens d'affiliation qui ouvrent l'application Trainline avec la recherche pré-remplie (gare de départ, gare d'arrivée et dates).
-- **Moteur d'Alerte "Sécurité Retour"** : Suivi de la progression GPS de l'utilisateur pendant sa marche. Névé calcule en temps réel sa vitesse moyenne et envoie des notifications pour prévenir s'il est nécessaire d'accélérer le pas afin de ne pas rater la dernière navette ou le dernier train retour.
-- **Cartes topographiques hors-ligne** : Stockage en local (hors-ligne) des cartes topographiques et des horaires clés pour pallier les zones blanches en montagne.
+## Le problème que Névé résout
 
-## Données Environnementales
+Planifier une sortie nature sans voiture oblige à consulter successivement
+quatre à huit services non interconnectés : horaires de train, tracés de
+randonnée, liaison piétonne entre la gare et le sentier, météo, et couverture de
+l'abonnement de transport. Cette complexité conduit à un renoncement fréquent.
+Névé unifie ces informations dans une seule interface.
 
-- **Impact Carbone** : Voyager en train régional (TER) émet 2,4 g de CO2/km par passager, contre 190 g de CO2/km en moyenne pour une voiture individuelle (source : Base Carbone ADEME). Névé permet d'économiser environ 95% d'émissions de CO2 par trajet.
+## Fonctionnalités disponibles aujourd'hui
 
-## Structure du Site
+- **Fiche intermodale unifiée** : le tracé de la randonnée au format GPX, la
+  distance, le dénivelé, les gares de départ et d'arrivée, et les horaires de
+  train aller et retour sur le même écran.
+- **Train de retour calculé sur l'allure de marche** : au moment de la
+  planification, Névé propose le train de retour adapté à la durée de marche
+  estimée et à l'allure déclarée par l'utilisateur (lente, moyenne, rapide).
+- **Cartes et itinéraires hors-ligne** : téléchargement local du tracé, de la
+  carte topographique et des horaires, pour un fonctionnement en zone sans
+  réseau mobile.
+- **Filtre par abonnement de transport** : n'afficher que les itinéraires
+  couverts par un Pass Navigo ou un abonnement régional, afin d'éviter tout
+  surcoût.
+- **Consultation web sans installation** : la recherche, les fiches de
+  randonnée et les favoris sont accessibles depuis un navigateur.
+- **Partage d'itinéraire par lien** : un lien partagé ouvre directement la fiche
+  correspondante, dans l'application si elle est installée.
 
-- **Accueil (/)** : Présentation du produit, proposition de valeur, faiblesses des alternatives existantes, FAQ générale et liens de téléchargements App Store / Google Play.
-- **Hub Randonnées (/randos-sans-voiture)** : Index des métropoles de départ disponibles.
-- **Pages Métropoles (/randos-sans-voiture/[city])** : Sélection de randonnées détaillées accessibles sans voiture depuis la ville donnée (ex: Paris, Lyon, Grenoble, Marseille, Bordeaux, Strasbourg) avec profils altimétriques, trajets détaillés et liens de réservation Trainline.
-- **Mentions Légales (/terms & /privacy)** : Documents de conformité requis pour la publication sur les stores mobiles.
+## Feuille de route (non disponible aujourd'hui)
+
+Ces fonctionnalités sont planifiées et ne sont pas encore livrées :
+
+- **Suivi de sécurité en temps réel** : pendant la marche, suivi de la vitesse
+  réelle par GPS, recalcul de l'heure critique de retour, et notification en cas
+  de retard ou de suppression du train prévu. Prévu pour la version 1.0.
+- **Couverture nationale** : intégration des flux horaires de l'ensemble du
+  réseau ferré régional français. Prévue pour le premier trimestre 2027.
+- **Abonnement Névé+** : offre payante regroupant le suivi de sécurité en temps
+  réel, le hors-ligne sans quota et le croisement de plusieurs abonnements de
+  transport.
+
+## Modèle économique
+
+L'usage de Névé est **gratuit aujourd'hui**. Le modèle prévu repose sur trois
+sources complémentaires :
+
+1. **Abonnement Névé+** — offre payante prévue pour la version 1.0, portant sur
+   les fonctionnalités de sécurité et de confort avancées. L'usage de base
+   restera gratuit.
+2. **Affiliation transport** — lorsqu'un trajet sort de la zone couverte par
+   l'abonnement de l'utilisateur, Névé redirige vers un service de réservation
+   avec la recherche pré-remplie, et perçoit une commission. Cette redirection
+   ne concerne pas les trajets déjà couverts par un abonnement.
+3. **Partenariats** — autorités organisatrices de mobilité, offices de tourisme
+   et acteurs du tourisme de proximité.
+
+## Impact environnemental
+
+Un trajet en train régional émet environ **2,4 g de CO₂ par kilomètre et par
+passager**, contre environ **190 g par kilomètre** pour une voiture individuelle
+(source : Base Carbone, ADEME). Une sortie planifiée avec Névé plutôt qu'en
+voiture réduit donc les émissions du trajet d'environ **95 %**.
+
+## Structure du site
+
+- **Accueil** (`/`) — proposition de valeur, limites des solutions existantes,
+  questions fréquentes, liens de téléchargement.
+- **Explorer** (`/explorer`) — recherche d'itinéraires depuis le navigateur.
+- **Fiche de randonnée** (`/rando/[id]`) — tracé, profil altimétrique, gares,
+  horaires, descriptif.
+- **Hub randonnées sans voiture** (`/randos-sans-voiture`) — index des villes de
+  départ disponibles.
+- **Page par ville** (`/randos-sans-voiture/[ville]`) — randonnées accessibles
+  sans voiture depuis la ville concernée, avec les gares et les temps de trajet.
+- **Favoris** (`/favoris`) et **profil** (`/profil`) — espace personnel.
+- **Mentions légales** (`/mentions-legales`), **confidentialité** (`/privacy`),
+  **conditions d'utilisation** (`/terms`), **suppression de compte**
+  (`/suppression-compte`).
+
+## Protection des données
+
+- Les coordonnées GPS servant à situer l'utilisateur sur le sentier sont
+  traitées **localement sur l'appareil**. Aucun historique de déplacement n'est
+  conservé sur les serveurs.
+- Les comptes et les données associées sont hébergés **dans l'Union européenne**
+  (Francfort, Allemagne).
+- La suppression du compte et des données est accessible directement depuis
+  l'application et depuis le site, sans démarche préalable.
+
+## Questions fréquentes
+
+**Peut-on faire de la randonnée sans voiture en Île-de-France ?**
+Oui. De nombreux massifs franciliens sont desservis par le réseau Transilien et
+TER, notamment la forêt de Fontainebleau, la forêt de Rambouillet et la vallée
+de Chevreuse. Névé recense les itinéraires dont le départ et l'arrivée se font à
+pied depuis une gare.
+
+**Névé est-il gratuit ?**
+Oui, l'usage est gratuit aujourd'hui. Une offre payante optionnelle est prévue
+pour les fonctionnalités de sécurité avancées ; la recherche d'itinéraires et la
+consultation resteront gratuites.
+
+**Faut-il installer l'application pour utiliser Névé ?**
+Non. La recherche, les fiches de randonnée et les favoris sont consultables
+depuis un navigateur. L'application est nécessaire pour les cartes hors-ligne, la planification de rando et
+le suivi pendant la marche.
+
+**Névé vend-il des billets de train ?**
+Non. Névé affiche les horaires et redirige vers les services de réservation des
+opérateurs lorsque le trajet n'est pas couvert par un abonnement.
+
+**Comment Névé calcule-t-il le train de retour ?**
+À partir de la longueur et du dénivelé de l'itinéraire, et de l'allure de marche
+déclarée par l'utilisateur, Névé estime la durée de la randonnée et propose le
+train de retour compatible.
+
+**Dans quelles régions Névé fonctionne-t-il ?**
+Le catalogue est aujourd'hui concentré sur l'Île-de-France. Les pages par ville
+sont générées pour d'autres communes, mais n'affichent des itinéraires que là où
+le catalogue est renseigné. L'extension nationale est prévue pour 2027.
