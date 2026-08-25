@@ -11,11 +11,14 @@ import Avatar04 from "@/public/images/avatar-04.jpg";
 import Avatar05 from "@/public/images/avatar-05.jpg";
 import Avatar06 from "@/public/images/avatar-06.jpg";
 import { Trees, Mountain, Waves, Compass, MapPin, Loader2 } from "lucide-react";
+import { searchPlaces } from "@/lib/geocode";
 
 type Place = {
   name: string;
   city: string;
-  type: "foret" | "sommet" | "lac" | "mer" | "plaine";
+  /* `commune` est le type des résultats du géocodeur, qui ne dit rien du
+     paysage : il retombe sur la boussole, faute de mieux. */
+  type: "foret" | "sommet" | "lac" | "mer" | "plaine" | "commune";
   typeName: string;
   icon: string;
   lat: number;
@@ -269,29 +272,87 @@ export default function HeroHome() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleSelectPlace = (place: Place) => {
-    console.log("Navigating to city page for place:", place);
+  /*
+   * Résultats du géocodeur pour la saisie en cours.
+   *
+   * L'ancienne recherche filtrait dix-sept destinations écrites en dur : taper
+   * « Annecy » ne rendait rien, alors que la carte sait s'y rendre. Elles
+   * restent la proposition d'accueil, champ vide — une liste choisie vaut mieux
+   * qu'un champ muet — mais dès qu'on tape, c'est toute la France qui répond.
+   */
+  const [geoResults, setGeoResults] = useState<Place[]>([]);
+  const abortRef = useRef<AbortController | null>(null);
+  /* Choisir écrit le nom dans le champ, ce qui relancerait une recherche. */
+  const justChoseRef = useRef(false);
+
+  useEffect(() => {
+    if (justChoseRef.current) {
+      justChoseRef.current = false;
+      return;
+    }
+
+    const trimmed = searchQuery.trim();
+    if (trimmed.length < 2) {
+      setGeoResults([]);
+      setIsLoading(false);
+      return;
+    }
+
+    /* La loupe cède la place au rouet pendant l'attente : le champ interroge un
+       service distant, et sans ce signe il paraîtrait ne rien faire. */
     setIsLoading(true);
+
+    const timer = window.setTimeout(async () => {
+      abortRef.current?.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
+
+      const found = await searchPlaces(trimmed, { limit: 6, signal: controller.signal });
+      if (controller.signal.aborted) return;
+
+      setIsLoading(false);
+      setGeoResults(
+        found.map((place) => ({
+          name: place.name,
+          city: place.name,
+          type: "commune" as const,
+          typeName: place.label,
+          icon: "",
+          lat: place.lat,
+          lng: place.lng,
+        })),
+      );
+    }, 250);
+
+    return () => window.clearTimeout(timer);
+  }, [searchQuery]);
+
+  /*
+   * La sélection ouvre la carte plutôt qu'une page de ville.
+   *
+   * L'explorateur sait se centrer sur n'importe quel point et y chercher, alors
+   * qu'une page de ville n'existe que pour les villes ; envoyer « Gorges du
+   * Verdon » vers `/randos-sans-voiture/gorges-du-verdon` ne promettait rien de
+   * tenable.
+   */
+  const handleSelectPlace = (place: Place) => {
+    justChoseRef.current = true;
     setSearchQuery(place.name);
     setIsDropdownOpen(false);
-    router.push(`/randos-sans-voiture/${place.city}?hike=${encodeURIComponent(place.name)}`);
+    setGeoResults([]);
+
+    const params = new URLSearchParams({
+      lat: String(place.lat),
+      lng: String(place.lng),
+      name: place.name,
+    });
+    router.push(`/explorer?${params.toString()}`);
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const filtered = PLACES.filter((place) =>
-      place.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    if (filtered.length > 0) {
-      const topPlace = userCoords
-        ? [...filtered].sort((a, b) => {
-            const distA = getDistance(userCoords.lat, userCoords.lng, a.lat, a.lng);
-            const distB = getDistance(userCoords.lat, userCoords.lng, b.lat, b.lng);
-            return distA - distB;
-          })[0]
-        : filtered[0];
-      handleSelectPlace(topPlace);
-    }
+    const first = searchQuery.trim() ? geoResults[0] : null;
+    if (first) handleSelectPlace(first);
   };
 
   return (
@@ -412,10 +473,13 @@ export default function HeroHome() {
                       </svg>
                     )}
                   </div>
+                  {/* Plus de `disabled` : le témoin de chargement signale
+                      désormais une requête au géocodeur, c'est-à-dire l'instant
+                      même où l'on tape. Bloquer le champ à chaque frappe le
+                      rendrait inutilisable. */}
                   <input
                     type="text"
-                    disabled={isLoading}
-                    placeholder="Rechercher une destination (ex: Fontainebleau, Vercors...)"
+                    placeholder="Rechercher un lieu (ex : Fontainebleau, Annecy...)"
                     value={searchQuery}
                     onChange={(e) => {
                       setSearchQuery(e.target.value);
@@ -424,10 +488,9 @@ export default function HeroHome() {
                     onFocus={() => setIsDropdownOpen(true)}
                     className="w-full text-brand-dark placeholder-brand-dark/95 text-base px-4 py-1.5 bg-transparent border-none focus:outline-none focus:ring-0 disabled:opacity-60"
                   />
-                  {searchQuery && !isLoading && (
+                  {searchQuery && (
                     <button
                       type="button"
-                      disabled={isLoading}
                       onClick={() => {
                         setSearchQuery("");
                         setIsDropdownOpen(true);
@@ -442,7 +505,7 @@ export default function HeroHome() {
                 </form>
 
                 {/* Autocomplete Dropdown (Teleported to document.body to avoid clipping on mobile) */}
-                {isDropdownOpen && !isLoading && mounted && createPortal(
+                {isDropdownOpen && mounted && createPortal(
                   <div 
                     data-search-dropdown
                     className="absolute bg-brand-light rounded-2xl border border-slate-900 shadow-2xl overflow-hidden z-[9999] max-h-72 overflow-y-auto no-scrollbar"
@@ -453,10 +516,14 @@ export default function HeroHome() {
                     }}
                   >
                     {(() => {
-                      const filtered = PLACES.filter((place) =>
-                        place.name.toLowerCase().includes(searchQuery.toLowerCase())
-                      );
-                      const sorted = userCoords
+                      /* Le géocodeur dès qu'on tape, la sélection d'accueil
+                         sinon. Ses résultats arrivent déjà classés par
+                         pertinence : les retrier par distance ferait remonter
+                         un homonyme proche devant le lieu demandé. */
+                      const filtered = searchQuery.trim() ? geoResults : PLACES;
+                      const sorted = searchQuery.trim()
+                        ? filtered
+                        : userCoords
                         ? [...filtered].sort((a, b) => {
                             const distA = getDistance(userCoords.lat, userCoords.lng, a.lat, a.lng);
                             const distB = getDistance(userCoords.lat, userCoords.lng, b.lat, b.lng);
@@ -501,8 +568,14 @@ export default function HeroHome() {
                                       <span className="font-bold text-brand-dark text-sm block">
                                         {place.name}
                                       </span>
+                                      {/* Le géocodeur ne connaît pas les gares :
+                                          son libellé complet situe le lieu, ce
+                                          qui est ce qu'on cherche à savoir
+                                          entre deux homonymes. */}
                                       <span className="text-xs text-brand-dark/50 block">
-                                        Gare de départ : {place.city.charAt(0).toUpperCase() + place.city.slice(1)} • {place.typeName}
+                                        {place.type === "commune"
+                                          ? place.typeName
+                                          : `Gare de départ : ${place.city.charAt(0).toUpperCase() + place.city.slice(1)} • ${place.typeName}`}
                                       </span>
                                     </div>
                                   </div>
