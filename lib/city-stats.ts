@@ -29,8 +29,6 @@ export type CityStats = {
   byDifficulty: { label: string; value: string; count: number }[];
   /** Combien tombent dans la zone couverte par un pass Navigo. */
   navigoCount: number;
-  /** Communes de départ les plus représentées, au plus cinq. */
-  topPlaces: { name: string; count: number }[];
 };
 
 const DIFFICULTY_ORDER: { value: string; label: string }[] = [
@@ -53,13 +51,6 @@ export function computeCityStats(hikes: HikeSummary[]): CityStats | null {
   const sortedDistances = [...distances].sort((a, b) => a - b);
   const durations = hikes.map((hike) => hike.duration_minutes);
 
-  const places = new Map<string, number>();
-  for (const hike of hikes) {
-    const name = hike.location_name?.trim();
-    if (!name) continue;
-    places.set(name, (places.get(name) ?? 0) + 1);
-  }
-
   return {
     count: hikes.length,
     distanceRange: [
@@ -81,12 +72,6 @@ export function computeCityStats(hikes: HikeSummary[]): CityStats | null {
         locationName: hike.location_name,
       }),
     ).length,
-    /* `Array.from` et non l'opérateur de décomposition : la cible de
-       compilation du projet ne sait pas parcourir un itérateur de `Map`. */
-    topPlaces: Array.from(places.entries())
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5)
-      .map(([name, count]) => ({ name, count })),
   };
 }
 

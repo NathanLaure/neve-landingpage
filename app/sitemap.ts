@@ -1,5 +1,7 @@
 import { MetadataRoute } from "next";
 import { supabase } from "@/lib/supabase";
+import { geocodePlace, slugToPlaceQuery } from "@/lib/geocode";
+import { countHikesNearby, DEFAULT_HIKE_RADIUS_KM } from "@/lib/hikes";
 
 const BASE_URL = "https://www.neve-rando.fr";
 
@@ -12,6 +14,32 @@ const BASE_URL = "https://www.neve-rando.fr";
  * catalogue est dense.
  */
 const FEATURED_CITIES = ["paris", "lyon", "grenoble", "marseille", "bordeaux", "strasbourg"];
+
+/**
+ * Ne garde que les villes qui ont réellement des randonnées.
+ *
+ * Cinq des six annoncées jusqu'ici rendaient une page vide : le catalogue est
+ * concentré sur l'Île-de-France. Annoncer des pages creuses dans le plan du
+ * site revient à demander leur indexation, ce qui coûte au domaine entier.
+ * Elles réapparaîtront d'elles-mêmes quand la base couvrira leur région.
+ */
+async function citiesWithHikes(): Promise<string[]> {
+  const checked = await Promise.all(
+    FEATURED_CITIES.map(async (city) => {
+      const place = await geocodePlace(slugToPlaceQuery(city));
+      if (!place) return null;
+
+      const count = await countHikesNearby({
+        lat: place.lat,
+        lng: place.lng,
+        radiusKm: DEFAULT_HIKE_RADIUS_KM,
+      });
+      return count > 0 ? city : null;
+    }),
+  );
+
+  return checked.filter((city): city is string => city !== null);
+}
 
 /**
  * Plan du site.
@@ -37,7 +65,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: route === "" ? 1.0 : 0.8,
   }));
 
-  const cityRoutes = FEATURED_CITIES.map((city) => ({
+  const cityRoutes = (await citiesWithHikes()).map((city) => ({
     url: `${BASE_URL}/randos-sans-voiture/${city}`,
     lastModified: new Date(),
     changeFrequency: "weekly" as const,

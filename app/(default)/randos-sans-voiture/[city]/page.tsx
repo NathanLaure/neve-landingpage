@@ -63,6 +63,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description,
+    /*
+     * Une page sans randonnée n'a rien à indexer.
+     *
+     * Le catalogue est aujourd'hui concentré sur l'Île-de-France : Lyon,
+     * Grenoble, Marseille, Bordeaux et Strasbourg rendent une page vide. Les
+     * laisser indexer reviendrait à peupler Google de pages creuses au nom du
+     * site entier. `follow` reste, pour que les liens qu'elles portent
+     * continuent d'être suivis.
+     */
+    ...(total === 0 ? { robots: { index: false, follow: true } } : {}),
     alternates: { canonical: url },
     openGraph: {
       title,
@@ -355,34 +365,6 @@ export default async function CityPage({ params }: Props) {
           <HikeGrid hikes={shownHikes} />
         )}
       </div>
-
-      {/* Communes de départ — du texte utile, et autant de liens internes. */}
-      {stats && stats.topPlaces.length > 1 && (
-        <div className="mx-auto max-w-6xl px-6 sm:px-10 md:px-16 mb-20">
-          <h2 className="text-xl font-bold text-slate-900 mb-3">
-            D’où partent ces randonnées ?
-          </h2>
-          <p className="font-satoshi text-[#525252] text-[15px] max-w-2xl leading-relaxed mb-5">
-            Les départs se concentrent sur {stats.topPlaces.length} communes autour de {place.name}.
-            Chacune a sa propre page, avec les itinéraires qui en partent.
-          </p>
-          <ul className="flex flex-wrap gap-2">
-            {stats.topPlaces.map((entry) => (
-              <li key={entry.name}>
-                <CustomLink
-                  href={`/randos-sans-voiture/${encodeURIComponent(
-                    entry.name.toLowerCase().replace(/\s+/g, "-"),
-                  )}`}
-                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 hover:border-slate-300 transition"
-                >
-                  {entry.name}
-                  <span className="text-xs text-slate-400">{entry.count}</span>
-                </CustomLink>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
 
       {/* Testimonials */}
       <div className="mx-auto max-w-6xl px-6 sm:px-10 md:px-16 mb-20">
