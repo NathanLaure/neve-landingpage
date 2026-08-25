@@ -63,6 +63,10 @@ export default function AuthModal() {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  /* Décoché par défaut : un consentement pré-coché n'en est pas un. Déclaré
+     ici, avec les autres états — plus bas, après le `return null` qui ferme la
+     modale, le hook n'aurait été appelé qu'une fois celle-ci ouverte. */
+  const [newsletterConsent, setNewsletterConsent] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -180,7 +184,7 @@ export default function AuthModal() {
     setIsLoading(true);
     setError(null);
 
-    const res = await signUp(email.trim().toLowerCase(), password, fullName.trim());
+    const res = await signUp(email.trim().toLowerCase(), password, fullName.trim(), newsletterConsent);
     setIsLoading(false);
 
     if (res.error) {
@@ -583,6 +587,29 @@ export default function AuthModal() {
                   </ul>
                 </div>
               )}
+
+              {/*
+                * Consentement à l'infolettre, demandé ici et non plus jamais.
+                *
+                * L'inscription du site écrivait `newsletter_consent: false` en
+                * dur : personne n'était consulté, et le réglage n'existait que
+                * sur la page profil, où il faut penser à aller. L'application
+                * le demande, elle, à son inscription.
+                *
+                * Décoché par défaut : un consentement pré-coché n'en est pas un.
+                */}
+              <label className="flex items-start gap-2.5 mt-1 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={newsletterConsent}
+                  onChange={(e) => setNewsletterConsent(e.target.checked)}
+                  className="mt-0.5 size-4 shrink-0 cursor-pointer rounded border-gray-300 text-[#EB490B] focus:ring-[#EB490B]"
+                />
+                <span className="text-xs text-gray-500 leading-relaxed">
+                  Recevoir nos plus belles idées de randonnées accessibles en train, une fois par
+                  semaine. Désinscription en un clic, à tout moment.
+                </span>
+              </label>
 
               <button
                 type="submit"

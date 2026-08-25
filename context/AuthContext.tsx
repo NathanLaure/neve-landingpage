@@ -51,7 +51,9 @@ interface AuthContextType {
   signUp: (
     email: string,
     password: string,
-    fullName?: string
+    fullName?: string,
+    /** Consentement à l'infolettre, demandé à l'inscription. Faux par défaut. */
+    newsletterConsent?: boolean
   ) => Promise<{ error: string | null; isResent?: boolean }>;
   resetPassword: (email: string) => Promise<{ error: string | null }>;
 }
@@ -240,7 +242,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUp = async (
     email: string,
     password: string,
-    fullName?: string
+    fullName?: string,
+    newsletterConsent = false
   ): Promise<{ error: string | null; isResent?: boolean }> => {
     try {
       const cleanEmail = email.trim().toLowerCase();
@@ -252,7 +255,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           data: {
             full_name: fullName?.trim(),
             default_station: "Paris Gare de Lyon",
-            newsletter_consent: false,
+            newsletter_consent: newsletterConsent,
           },
         },
       });
