@@ -6,12 +6,23 @@ import Logo from "./logo";
 import Button from "./button";
 import CustomLink from "./link";
 import AccountMenu from "./account-menu";
+import PlaceSearch from "./place-search";
 import { useAuth } from "@/context/AuthContext";
+
+/**
+ * Pages qui sont l'application web plutôt que la vitrine.
+ *
+ * Elles reçoivent la recherche de lieu et un fond plein, sans jamais l'état
+ * transparent : il n'y a pas de bandeau d'accueil derrière quoi se fondre, et
+ * une barre transparente sur une carte serait illisible.
+ */
+const APP_ROUTES = ["/explorer"];
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
   const isHome = pathname === "/";
+  const isAppPage = APP_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`));
   const { user, isLoading, openAuthModal } = useAuth();
 
   useEffect(() => {
@@ -36,23 +47,30 @@ export default function Header() {
   }, [isHome]);
 
   return (
-    <header 
+    <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled 
-          ? "bg-[#fbfaf7] shadow-xs" 
-          : "bg-transparent border-b border-transparent"
+        isAppPage
+          ? "bg-neve-surface shadow-[0px_1px_1px_rgba(0,0,0,0.05)]"
+          : isScrolled
+            ? "bg-[#fbfaf7] shadow-xs"
+            : "bg-transparent border-b border-transparent"
       }`}
     >
       <div className="w-full px-6 sm:px-10 md:px-10">
-        <div 
+        <div
           className={`flex items-center justify-between gap-3 transition-all duration-300 ${
-            isScrolled ? "h-16" : "h-20"
-          }`}
+            isScrolled || isAppPage ? "h-16" : "h-20"
+          } ${isAppPage ? "md:gap-11" : ""}`}
         >
           {/* Logo */}
           <div className="flex items-center">
-            <Logo light={!isScrolled} iconClassName="h-8 w-8 sm:h-9 sm:w-9" typoClassName="h-6 sm:h-7" />
+            <Logo light={!isScrolled && !isAppPage} iconClassName="h-8 w-8 sm:h-9 sm:w-9" typoClassName="h-6 sm:h-7" />
           </div>
+
+          {/* Recherche de lieu — au centre et extensible, elle prend la place que
+              les liens d'ancre occupent sur la vitrine. Masquée sur mobile, où
+              l'explorateur n'affiche de toute façon que la liste. */}
+          {isAppPage && <PlaceSearch className="hidden min-w-0 flex-1 md:block" />}
 
           {/* Right Group: Nav Links + Action Buttons */}
           <div className="flex items-center gap-8">

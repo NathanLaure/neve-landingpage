@@ -957,6 +957,46 @@ export default function ExplorerMapView({
     };
   }, [radiusKm, userPosition, centerLat, centerLng]);
 
+  /*
+   * Lieu demandé depuis la barre de recherche.
+   *
+   * Le centre ne sert autrement qu'à la création de la carte : sans cet effet,
+   * chercher « Annecy » changerait l'adresse sans rien déplacer.
+   *
+   * On y cherche aussitôt : qui nomme un lieu attend d'y voir des randonnées,
+   * pas d'avoir à confirmer par un second clic ce qu'il vient de demander.
+   */
+  const lastCenterRef = useRef({ lat: centerLat, lng: centerLng });
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const previous = lastCenterRef.current;
+    if (previous.lat === centerLat && previous.lng === centerLng) return;
+    lastCenterRef.current = { lat: centerLat, lng: centerLng };
+
+    /* Un rayon choisi cadre déjà, et sur ce même centre : deux animations se
+       disputeraient la carte. */
+    if (radiusKm !== null) return;
+
+    map.flyTo({
+      center: [centerLng, centerLat],
+      zoom: Math.max(map.getZoom(), 10),
+      duration: 900,
+    });
+
+    const afterFly = () => {
+      map.off("moveend", afterFly);
+      void searchThisAreaRef.current?.();
+    };
+    map.on("moveend", afterFly);
+
+    return () => {
+      map.off("moveend", afterFly);
+    };
+  }, [centerLat, centerLng, radiusKm]);
+
   const handleRadiusChange = useCallback(
     (nextRadius: number | null) => {
       const params = new URLSearchParams(searchParams.toString());
