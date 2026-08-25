@@ -139,9 +139,10 @@ export default function MapStylePicker({ options, value, onChange }: MapStylePic
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={current.preview} alt="" className="size-full object-cover" />
-        {/* Bandeau sur le tiers bas, pas un filet : le libellé doit rester
-            lisible quel que soit l'aperçu, y compris le style sombre. */}
-        <span className="absolute inset-x-0 bottom-0 bg-black/55 py-1.5 text-center font-satoshi text-sm font-bold text-white">
+        {/* Dégradé et non bandeau : le noir n'est franc que sous le libellé,
+            là où le blanc doit tenir quel que soit l'aperçu, et s'efface vers
+            le haut pour laisser voir la carte qu'on vient choisir. */}
+        <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent pt-5 pb-1.5 text-center font-satoshi text-sm font-bold text-white">
           Calques
         </span>
       </button>

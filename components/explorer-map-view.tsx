@@ -474,6 +474,28 @@ export default function ExplorerMapView({
   }, [mapboxToken, renderMarkers]);
 
   /*
+   * Redimensionnement du canevas quand son conteneur change de largeur.
+   *
+   * Le `trackResize` de mapbox ne suffit pas ici : replier le panneau élargit
+   * bien le cadre, mais le canevas garde ses anciennes dimensions et laisse
+   * une bande vide à droite. On observe donc le conteneur nous-mêmes, ce qui
+   * couvre du même coup le redimensionnement de la fenêtre.
+   *
+   * L'observateur se déclenche à chaque image de la transition de largeur, ce
+   * qui est voulu : la carte s'élargit avec le panneau plutôt que de sauter
+   * une fois l'animation finie.
+   */
+  useEffect(() => {
+    const container = mapContainerRef.current;
+    const map = mapRef.current;
+    if (!container || !map) return;
+
+    const observer = new ResizeObserver(() => map.resize());
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [mapboxToken]);
+
+  /*
    * Fond de carte déjà appliqué. Sans cette garde, l'effet rejouait au montage
    * un `setStyle` vers le style que la carte venait de recevoir : mapbox le
    * traite par diff, et le diff supprimait la source des tracés à l'instant où
