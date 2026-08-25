@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { Map } from "lucide-react";
 import CustomLink from "@/components/ui/link";
+import Button from "@/components/ui/button";
 import HikeGrid from "@/components/hike-grid";
 import EscapeCity from "@/components/escape-city";
 import { geocodePlace, slugToPlaceQuery } from "@/lib/geocode";
@@ -298,12 +300,16 @@ export default async function CityPage({ params }: Props) {
             </p>
           </div>
 
-          <CustomLink
-            href={exploreHref}
-            className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-slate-950 hover:bg-slate-800 text-white text-sm font-bold shadow-sm transition duration-150 cursor-pointer flex-shrink-0"
-          >
+          {/* Le bouton du système, et non un habillage refait à la main : la
+              page en avait un qui ne ressemblait à aucun autre du site.
+              `secondary` parce que la conversion de cette page est le
+              téléchargement de l'application, plus bas — l'orange lui reste. */}
+          <Button href={exploreHref} variant="secondary" className="flex-shrink-0 gap-2">
+            {/* `gap-2` sur le bouton : son habillage de base centre son contenu
+                sans prévoir d'écart entre une icône et un libellé. */}
+            <Map className="size-4" aria-hidden />
             Voir sur la carte interactive
-          </CustomLink>
+          </Button>
         </div>
       </div>
 
