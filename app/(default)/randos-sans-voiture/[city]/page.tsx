@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Map } from "lucide-react";
 import CustomLink from "@/components/ui/link";
 import Button from "@/components/ui/button";
+import AppDownloadBanner from "@/components/app-download-banner";
 import HikeGrid from "@/components/hike-grid";
 import EscapeCity from "@/components/escape-city";
 import { geocodePlace, slugToPlaceQuery } from "@/lib/geocode";
@@ -390,24 +391,16 @@ export default async function CityPage({ params }: Props) {
         </div>
       </div>
 
-      {/* CRO Conversion Box */}
-      <div className="mx-auto max-w-5xl px-6 sm:px-10 md:px-16 mb-24">
-        <div className="bg-slate-950 rounded-3xl p-8 md:p-12 text-white text-center relative overflow-hidden shadow-2xl">
-          <div className="absolute inset-0 bg-radial-gradient from-[color:var(--color-brand-orange)] to-transparent opacity-10 pointer-events-none" />
-          <h2 className="text-2xl font-bold md:text-3xl mb-3 relative z-10">Débloquez le tracé GPS</h2>
-          <p className="font-satoshi text-slate-300 text-[16px] mb-6 leading-relaxed font-medium max-w-xl mx-auto relative z-10">
-            Téléchargez l&apos;application Névé pour afficher les cartes 100 % hors-ligne et randonner
-            sans stress de réseau.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 relative z-10">
-            <a href="#download-ios-seo" className="px-5 py-2.5 rounded-lg bg-white hover:bg-slate-100 text-slate-900 text-sm font-bold transition duration-150">
-              Télécharger pour iOS
-            </a>
-            <a href="#download-android-seo" className="px-5 py-2.5 rounded-lg bg-white hover:bg-slate-100 text-slate-900 text-sm font-bold transition duration-150">
-              Télécharger pour Android
-            </a>
-          </div>
-        </div>
+      {/* Bandeau de téléchargement — le même que sur la fiche randonnée. */}
+      <div className="mx-auto max-w-6xl px-6 sm:px-10 md:px-16 mb-24">
+        <AppDownloadBanner
+          title={`Randonnez autour de ${place.name} sans voiture`}
+          description={
+            stats
+              ? `Horaires de train synchronisés, correspondances calculées et tracés GPS hors connexion : Névé vous emmène sur les ${stats.count} itinéraires de la région, et vous ramène.`
+              : "Horaires de train synchronisés, correspondances calculées et tracés GPS hors connexion : préparez toute votre sortie depuis l'application, transport compris."
+          }
+        />
       </div>
     </div>
   );
