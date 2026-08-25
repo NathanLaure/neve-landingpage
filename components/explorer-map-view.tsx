@@ -80,6 +80,25 @@ function distanceKm(a: { lat: number; lng: number }, b: { lat: number; lng: numb
 }
 
 /**
+ * Rayon que décrit le cadre visible : du centre au bord le plus proche.
+ *
+ * C'est la lecture inverse du cadrage sur un cercle. Le bord le plus proche et
+ * non le plus lointain : un cadre de 16/9 déborde largement le cercle en
+ * largeur, et annoncer cette moitié-là promettrait des randonnées que la
+ * hauteur ne montre pas.
+ */
+function viewportRadiusKm(map: mapboxgl.Map): number | null {
+  const bounds = map.getBounds();
+  if (!bounds) return null;
+
+  const center = { lat: map.getCenter().lat, lng: map.getCenter().lng };
+  const toNorth = distanceKm(center, { lat: bounds.getNorth(), lng: center.lng });
+  const toEast = distanceKm(center, { lat: center.lat, lng: bounds.getEast() });
+
+  return Math.max(1, Math.round(Math.min(toNorth, toEast)));
+}
+
+/**
  * Explorateur : la liste des itinéraires à gauche, la carte à droite.
  *
  * Le panneau est ancré et non posé par-dessus la carte. Un panneau flottant
@@ -171,6 +190,15 @@ export default function ExplorerMapView({
   const [hoveredHikeId, setHoveredHikeId] = useState<string | null>(null);
   const [isSearchingArea, setIsSearchingArea] = useState(false);
   const [showSearchArea, setShowSearchArea] = useState(false);
+  /* Rayon lu sur le cadre courant, que la chip affiche. Il suit la carte à
+     chaque déplacement : un rayon figé cesserait de décrire ce qu'on regarde
+     dès le premier glissement. */
+  const [shownRadiusKm, setShownRadiusKm] = useState<number | null>(null);
+  /* La carte se crée une fois, le rayon change : ses écouteurs le lisent ici. */
+  const radiusKmRef = useRef<number | null>(radiusKm);
+  useEffect(() => {
+    radiusKmRef.current = radiusKm;
+  }, [radiusKm]);
 
   /* Centre et zoom de la dernière recherche, pour mesurer ce qui a bougé
      depuis. En ref : les comparer ne doit pas provoquer de rendu. */
@@ -433,6 +461,7 @@ export default function ExplorerMapView({
     map.once("idle", () => {
       const center = map.getCenter();
       lastSearchRef.current = { lat: center.lat, lng: center.lng, zoom: map.getZoom() };
+      if (radiusKmRef.current === null) setShownRadiusKm(viewportRadiusKm(map));
       if (!hasLocation) void searchThisAreaRef.current?.();
     });
 
@@ -584,6 +613,10 @@ export default function ExplorerMapView({
     if (error) return;
 
     setAreaHikes(found);
+    /* La chip décrit la zone recherchée, et c'est ici qu'elle change. Suivre le
+       cadre à chaque frémissement la ferait mentir dans l'autre sens : le
+       nombre changerait alors que la liste, elle, n'aurait pas bougé. */
+    setShownRadiusKm(viewportRadiusKm(map));
     const center = map.getCenter();
     lastSearchRef.current = { lat: center.lat, lng: center.lng, zoom: map.getZoom() };
   }, []);
@@ -760,6 +793,56 @@ export default function ExplorerMapView({
    * qui refait la requête, et l'adresse reste partageable — « les randonnées à
    * 15 km d'Annecy » se copie et se retrouve.
    */
+  /*
+   * Le rayon choisi cadre la carte.
+   *
+   * Sans cela, choisir 100 km rechargeait la liste sans rien changer à l'écran :
+   * un rayon qu'on ne voit pas ne veut rien dire. `padding: 0` est délibéré —
+   * une marge élargirait le cadre au-delà du rayon demandé, et la chip, qui se
+   * lit sur le cadre, annoncerait aussitôt un autre nombre que celui qu'on
+   * vient de choisir.
+   */
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || radiusKm === null) return;
+
+    const center = userPosition ?? { lat: centerLat, lng: centerLng };
+    const latDelta = radiusKm / 111;
+    const lngDelta = radiusKm / (111 * Math.cos((center.lat * Math.PI) / 180));
+
+    /* Le cadrage sur les marqueurs n'a plus lieu d'être : le rayon dit déjà
+       quoi montrer, et deux cadrages successifs se disputeraient la carte. */
+    hasAutoFittedRef.current = true;
+    /* La chip redit le rayon demandé, et non ce que le recadrage donne une fois
+       mesuré : la projection décale le centre, cent kilomètres en rendent
+       quatre-vingt-dix-neuf, et voir 99 après avoir cliqué 100 passerait pour
+       une panne. */
+    setShownRadiusKm(radiusKm);
+
+    map.fitBounds(
+      [
+        [center.lng - lngDelta, center.lat - latDelta],
+        [center.lng + lngDelta, center.lat + latDelta],
+      ],
+      { padding: 0, duration: 700 },
+    );
+
+    /* Ce déplacement-là n'est pas celui de l'utilisateur : le serveur a déjà
+       chargé ce rayon, proposer de rechercher la zone n'aurait aucun sens. */
+    const afterFit = () => {
+      const next = map.getCenter();
+      lastSearchRef.current = { lat: next.lat, lng: next.lng, zoom: map.getZoom() };
+      setShowSearchArea(false);
+      map.off("moveend", afterFit);
+    };
+    map.on("moveend", afterFit);
+
+    /* Accolades : `off()` rend la carte, et un nettoyage d'effet ne rend rien. */
+    return () => {
+      map.off("moveend", afterFit);
+    };
+  }, [radiusKm, userPosition, centerLat, centerLng]);
+
   const handleRadiusChange = useCallback(
     (nextRadius: number | null) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -864,6 +947,7 @@ export default function ExplorerMapView({
             onChange={setFilters}
             onOpenAll={() => setIsFiltersOpen(true)}
             radiusKm={radiusKm}
+            shownRadiusKm={shownRadiusKm}
             hasLocation={hasLocation}
             onRadiusChange={handleRadiusChange}
             onRequestLocation={handleSearchAroundMe}

@@ -146,11 +146,14 @@ function Pill({
  */
 function RadiusPill({
   radiusKm,
+  shownRadiusKm,
   hasLocation,
   onChange,
   onRequestLocation,
 }: {
   radiusKm: number | null;
+  /** Rayon lu sur le cadre courant de la carte, quand elle en a un. */
+  shownRadiusKm: number | null;
   hasLocation: boolean;
   onChange: (radiusKm: number | null) => void;
   onRequestLocation: () => void;
@@ -158,11 +161,22 @@ function RadiusPill({
   const [isOpen, setIsOpen] = useState(false);
   const ref = useDismissOnOutside(() => setIsOpen(false));
 
+  /*
+   * Sans lieu connu, la chip appelle à l'action plutôt qu'elle ne rapporte :
+   * c'est la seule porte d'entrée vers la géolocalisation, et « Dans un rayon
+   * de 27 km » de nulle part n'apprendrait rien.
+   *
+   * Une fois un lieu posé, elle lit le cadre et non le réglage. Les deux se
+   * confondent à l'instant du choix, puis la carte bouge — et c'est le cadre,
+   * pas le dernier rayon cliqué, qui dit ce qu'on regarde.
+   */
   const label = !hasLocation
     ? "Autour de moi"
-    : radiusKm === null
-      ? "Position actuelle"
-      : `Dans un rayon de ${radiusKm} km`;
+    : shownRadiusKm !== null
+      ? `Dans un rayon de ${shownRadiusKm} km`
+      : radiusKm === null
+        ? "Position actuelle"
+        : `Dans un rayon de ${radiusKm} km`;
 
   const select = (next: number | null) => {
     setIsOpen(false);
@@ -241,6 +255,7 @@ interface MapFiltersProps {
   /** Ouvre la modale, qui porte la liste complète. */
   onOpenAll: () => void;
   radiusKm: number | null;
+  shownRadiusKm: number | null;
   hasLocation: boolean;
   onRadiusChange: (radiusKm: number | null) => void;
   onRequestLocation: () => void;
@@ -257,6 +272,7 @@ export default function MapFilters({
   onChange,
   onOpenAll,
   radiusKm,
+  shownRadiusKm,
   hasLocation,
   onRadiusChange,
   onRequestLocation,
@@ -298,6 +314,7 @@ export default function MapFilters({
 
       <RadiusPill
         radiusKm={radiusKm}
+        shownRadiusKm={shownRadiusKm}
         hasLocation={hasLocation}
         onChange={onRadiusChange}
         onRequestLocation={onRequestLocation}
