@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Logo from "./logo";
 import Button from "./button";
@@ -24,6 +24,15 @@ export default function Header() {
   const isHome = pathname === "/";
   const isAppPage = APP_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`));
   const { user, isLoading, openAuthModal } = useAuth();
+
+  /*
+   * La recherche suit le visiteur.
+   *
+   * Sur l'accueil, elle apparaît une fois le bandeau dépassé : c'est
+   * exactement là que celle du hero disparaît de l'écran, et la seule action
+   * de la page devient alors inatteignable sans remonter.
+   */
+  const showsSearch = isAppPage || (isHome && isScrolled);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -60,7 +69,7 @@ export default function Header() {
         <div
           className={`flex items-center justify-between gap-3 transition-all duration-300 ${
             isScrolled || isAppPage ? "h-16" : "h-20"
-          } ${isAppPage ? "md:gap-11" : ""}`}
+          } ${showsSearch ? "md:gap-8 lg:gap-11" : ""}`}
         >
           {/* Logo */}
           <div className="flex items-center">
@@ -70,13 +79,27 @@ export default function Header() {
           {/* Recherche de lieu — au centre et extensible, elle prend la place que
               les liens d'ancre occupent sur la vitrine. Masquée sur mobile, où
               l'explorateur n'affiche de toute façon que la liste. */}
-          {isAppPage && <PlaceSearch className="hidden min-w-0 flex-1 md:block" />}
+          {/* `Suspense` : `PlaceSearch` lit les paramètres d'adresse, et Next
+              refuse qu'un composant le fasse hors d'une frontière de
+              suspension sur une page rendue à l'avance — ce qu'est l'accueil. */}
+          {showsSearch && (
+            <Suspense fallback={<div className="hidden min-w-0 flex-1 lg:block" />}>
+              <PlaceSearch className="hidden min-w-0 flex-1 lg:block" />
+            </Suspense>
+          )}
 
           {/* Right Group: Nav Links + Action Buttons */}
           <div className="flex items-center gap-8">
             {/* Navigation Links (Anchors) - Only visible on landing page */}
             {isHome && (
-              <nav className="hidden md:flex items-center gap-8">
+              /* Les ancres ne reviennent qu'à partir de 1536 px quand la
+                 recherche est là. En dessous, logo, champ, quatre liens et deux
+                 boutons se disputent la ligne : mesuré, le champ tombait à
+                 178 px à 1280 px, soit une largeur où l'on ne lit même pas son
+                 propre texte. C'est lui qui sert le plus, il passe devant. */
+              <nav
+                className={`items-center gap-8 ${showsSearch ? "hidden 2xl:flex" : "hidden md:flex"}`}
+              >
                 <CustomLink 
                   href="#about" 
                   variant={isScrolled ? "header-scrolled" : "header"}
