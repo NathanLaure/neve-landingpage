@@ -16,7 +16,7 @@ import { useAuth } from "@/context/AuthContext";
  * transparent : il n'y a pas de bandeau d'accueil derrière quoi se fondre, et
  * une barre transparente sur une carte serait illisible.
  */
-const APP_ROUTES = ["/explorer"];
+const APP_ROUTES = ["/explorer", "/randos-sans-voiture"];
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);

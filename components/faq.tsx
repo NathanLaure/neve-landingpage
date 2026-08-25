@@ -155,7 +155,7 @@ export default function Faq({
               <button
                 key={item.id}
                 onClick={() => setActiveIndex(index)}
-                className={`w-full text-left px-5 py-4 rounded-xl border transition-all duration-300 flex items-center justify-between ${
+                className={`w-full text-left px-5 py-4 rounded-xl border transition-all duration-300 flex items-center justify-between cursor-pointer ${
                   activeIndex === index
                     ? "bg-white border-2 border-[#0f172b] shadow-[4px_4px_0px_0px_#0f172a] translate-x-1"
                     : "bg-white/70 border-gray-200/60 shadow-xs hover:bg-white/95 hover:border-gray-300 hover:translate-x-1"
