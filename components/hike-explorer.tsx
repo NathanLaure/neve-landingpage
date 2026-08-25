@@ -500,14 +500,15 @@ export default function HikeExplorer() {
                         </div>
                       )}
 
-                      {/* Trainline CTA Link */}
+                      {/* Le lien menait vers un vendeur de billets, avec un
+                          paramètre d'affiliation, alors qu'aucun accord
+                          n'existe. Il mène désormais à la carte, qui est ce que
+                          Névé sait réellement offrir. */}
                       <a
-                        href={`https://www.trainline.fr/search/${selectedCity}/${hike.destinationStation.toLowerCase()}?utm_source=neve&utm_medium=affiliate`}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        href="/explorer"
                         className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-[16px] font-bold shadow-xs hover:shadow-md transition-all duration-150 text-center cursor-pointer"
                       >
-                        Planifier sur Trainline
+                        Voir sur la carte
                         <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
                           <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
                         </svg>

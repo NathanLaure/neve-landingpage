@@ -4,6 +4,7 @@ import Image from "next/image";
 import Logo from "./logo";
 import Button from "./button";
 import CustomLink from "./link";
+import AppDownloadBanner from "@/components/app-download-banner";
 import { useState } from "react";
 
 export default function Footer({ border = false }: { border?: boolean }) {
@@ -21,6 +22,24 @@ export default function Footer({ border = false }: { border?: boolean }) {
   return (
     <footer className="w-full relative overflow-hidden flex flex-col bg-color-neve-beige text-slate-600 border-t border-slate-200/80">
       
+      {/*
+        * 0. BANDEAU DE TELECHARGEMENT
+        *
+        * En tete de pied plutôt que posé par chaque page : il concluait déjà la
+        * fiche randonnée et la page de ville, et le recopier une troisième fois
+        * garantissait qu'une des trois finirait par diverger. Il y perd la
+        * mention du lieu que portait la page de ville — le pied ne sait pas où
+        * l'on est.
+        */}
+      <div className="pt-12 md:pt-16">
+        <div className="mx-auto max-w-[1400px] px-6 sm:px-10 md:px-16">
+          <AppDownloadBanner
+            title="Planifiez vos sorties 100 % sans voiture"
+            description="Horaires de train synchronisés, correspondances calculées et guidage GPS en direct : partez à l'aventure en toute liberté avec Névé."
+          />
+        </div>
+      </div>
+
       {/* 1. PREMIUM NEWSLETTER BLOCK */}
       <div className="py-12 md:py-16">
         <div className="mx-auto max-w-[1400px] px-6 sm:px-10 md:px-16">
@@ -88,7 +107,7 @@ export default function Footer({ border = false }: { border?: boolean }) {
               <p 
                 className="text-[18px] text-[#525252] leading-[22px] font-satoshi font-medium tracking-[-0.4px]"
               >
-                Névé réinvente les sorties outdoor en combinant les TER et les navettes locales. Planifiez, réservez vos billets via Trainline et randonnez l'esprit libre grâce à la Sécurité Retour.
+                Névé réinvente les sorties outdoor en combinant les TER et les navettes locales. Planifiez votre sortie de bout en bout et randonnez l'esprit libre grâce à la Sécurité Retour.
               </p>
 
               {/* Mobile app download buttons */}
@@ -151,33 +170,42 @@ export default function Footer({ border = false }: { border?: boolean }) {
               </ul>
             </div>
 
-            {/* 3rd column: Partenaires */}
+            {/*
+              * 3e colonne : liens utiles.
+              *
+              * Elle s'intitulait « Partenaires » et nommait Trainline, SNCF
+              * Connect, les régions TER et les offices de tourisme. Aucun de
+              * ces accords n'existe, et la clause de non-affiliation des CGU
+              * l'aurait contredite sur la même page. Ce sont des références,
+              * pas des partenaires — et les liens mènent désormais vraiment
+              * quelque part, au lieu de `#0`.
+              */}
             <div className="space-y-3 sm:col-span-6 md:col-span-3 lg:col-span-2">
-              <h4 
+              <h4
                 className="text-slate-900 font-extrabold text-[12px] tracking-[0.6px] uppercase font-bricolage"
                 style={{ fontVariationSettings: "'opsz' 14, 'wdth' 100" }}
               >
-                Partenaires
+                Liens utiles
               </h4>
               <ul className="space-y-2 text-[12px] font-semibold font-bricolage tracking-[-0.4px]" style={{ fontVariationSettings: "'opsz' 14, 'wdth' 100" }}>
                 <li>
-                  <CustomLink variant="footer" href="https://www.trainline.fr" target="_blank">
-                    Trainline API
+                  <CustomLink variant="footer" href="https://www.sncf-connect.com" target="_blank">
+                    Horaires SNCF
                   </CustomLink>
                 </li>
                 <li>
-                  <CustomLink variant="footer" href="#0">
-                    Régions TER
+                  <CustomLink variant="footer" href="https://www.ter.sncf.com" target="_blank">
+                    TER par région
                   </CustomLink>
                 </li>
                 <li>
-                  <CustomLink variant="footer" href="#0">
-                    SNCF Connect
+                  <CustomLink variant="footer" href="https://www.iledefrance-mobilites.fr" target="_blank">
+                    Île-de-France Mobilités
                   </CustomLink>
                 </li>
                 <li>
-                  <CustomLink variant="footer" href="#0">
-                    Offices de Tourisme
+                  <CustomLink variant="footer" href="/terms">
+                    Absence d&apos;affiliation
                   </CustomLink>
                 </li>
               </ul>

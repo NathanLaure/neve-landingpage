@@ -48,7 +48,7 @@ export default function FeaturesNeve() {
                   {/* Route path (dashed line) */}
                   <path d="M50 150 Q 120 180 180 120 T 300 120" stroke="var(--color-brand-orange)" strokeWidth="3" strokeDasharray="6 4" className="animate-[line_6s_infinite_linear]" />
 
-                  {/* Train Trainline dot moving */}
+                  {/* Point du train en mouvement */}
                   <circle cx="50" cy="150" r="6" fill="#ffffff" stroke="var(--color-brand-orange)" strokeWidth="2">
                     <animateMotion dur="6s" repeatCount="indefinite" path="M 0 0 Q 70 30 130 -30 T 250 -30" />
                   </circle>
@@ -56,7 +56,7 @@ export default function FeaturesNeve() {
                   {/* Labels */}
                   <text x="35" y="110" fill="#94a3b8" fontSize="10" fontWeight="bold" fontFamily="sans-serif">Gare Ville</text>
                   <text x="270" y="50" fill="#f1f5f9" fontSize="10" fontWeight="bold" fontFamily="sans-serif">Sommet Névé</text>
-                  <text x="135" y="190" fill="var(--color-brand-orange)" fontSize="9" fontWeight="bold" fontFamily="sans-serif">Lien Trainline connecté</text>
+                  <text x="135" y="190" fill="var(--color-brand-orange)" fontSize="9" fontWeight="bold" fontFamily="sans-serif">Horaires synchronisés</text>
                 </svg>
 
                 {/* Micro alert badges float */}
@@ -92,10 +92,10 @@ export default function FeaturesNeve() {
                 <svg className="fill-[color:var(--color-brand-orange)]" xmlns="http://www.w3.org/2000/svg" width={16} height={16} viewBox="0 0 24 24">
                   <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z" />
                 </svg>
-                <span>Partenariat Trainline direct</span>
+                <span>Vos réductions habituelles</span>
               </h3>
               <p className="text-[14px] text-slate-400 leading-relaxed">
-                Aucun surcoût ni frais caché. Profitez de vos abonnements et cartes de réduction habituels directement sur Trainline en un clic.
+                Aucun surcoût ni frais caché : Névé ne vend pas de billets. Vos abonnements et cartes de réduction s'appliquent normalement au moment de l'achat.
               </p>
             </article>
 

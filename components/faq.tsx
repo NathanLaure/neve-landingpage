@@ -10,7 +10,7 @@ const DEFAULT_FAQ: FaqItem[] = [
   {
     id: "faq-1",
     question: "Comment réserver ses billets de train et de bus pour une randonnée avec Névé ?",
-    answer: "Névé simplifie la réservation de votre sortie nature. Une fois votre itinéraire train-to-trail calculé (combinant le train TER et les navettes de bus de montagne), cliquez sur \"Réserver\". L'application vous redirige automatiquement vers notre partenaire Trainline avec toutes les gares de départ, de correspondance et d'arrivée ainsi que les dates pré-remplies. Vous achetez vos billets en 1 clic en profitant de vos cartes de réduction SNCF habituelles (Carte Avantage, abonnements régionaux, etc.).",
+    answer: "Névé calcule votre itinéraire train-to-trail, en combinant le train TER et les navettes de bus locales, et vous indique les gares de départ, de correspondance et d'arrivée ainsi que les horaires à viser. Névé ne vend pas de billets : l'achat se fait auprès du transporteur ou du vendeur de votre choix, où vos cartes de réduction et abonnements habituels s'appliquent normalement.",
   },
   {
     id: "faq-2",

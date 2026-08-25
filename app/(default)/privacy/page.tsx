@@ -36,9 +36,9 @@ export default function PrivacyPage() {
             Nous recueillons des statistiques anonymes d'utilisation de notre site web pour améliorer l'expérience utilisateur. Aucune information nominative n'est collectée sans votre consentement.
           </p>
 
-          <h2 className="text-xl font-bold text-slate-900 mt-8 mb-2">3. Redirection et Liens Affiliés</h2>
+          <h2 className="text-xl font-bold text-slate-900 mt-8 mb-2">3. Redirection vers des sites tiers</h2>
           <p>
-            Lorsque vous achetez vos billets via notre redirection Trainline, Névé transmet uniquement les critères anonymes de recherche (gare de départ, gare d'arrivée, date, heure de train) via un lien affilié sécurisé. Aucune information personnelle (nom, moyen de paiement, compte Trainline) ne transite par Névé.
+            Lorsque vous êtes redirigé vers un site de vente de billets, Névé transmet uniquement les critères anonymes de recherche (gare de départ, gare d'arrivée, date, heure de train). Aucune information personnelle (nom, moyen de paiement, compte du vendeur) ne transite par Névé.
           </p>
 
           <h2 className="text-xl font-bold text-slate-900 mt-8 mb-2">4. Stockage et Sécurité</h2>

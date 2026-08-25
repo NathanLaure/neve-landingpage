@@ -66,7 +66,7 @@ const MAX_TRACES_PER_REQUEST = 60;
  * vienne d'une vue de région ou d'un zoom de rue. Environ huit kilomètres de
  * rayon — la ville et ce qui l'entoure, là où les randonnées commencent.
  */
-const SEARCH_ZOOM = 11.5;
+const SEARCH_ZOOM = 13;
 
 /**
  * Couleur du tracé selon la difficulté, avec les jetons des étiquettes de
@@ -383,7 +383,7 @@ export default function ExplorerMapView({
       center: located ? [located.start_lng, located.start_lat] : [centerLng, centerLat],
       /* Un lieu demande se regarde de pres : le zoom par defaut cadrait une
          region entiere. */
-      zoom: hasLocation ? SEARCH_ZOOM : 10,
+      zoom: hasLocation ? SEARCH_ZOOM : 13,
       /* Les contrôles maison remplacent ceux de mapbox : deux jeux de boutons
          pour les mêmes gestes seraient deux fois trop. */
       attributionControl: true,

@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { Map } from "lucide-react";
 import CustomLink from "@/components/ui/link";
 import Button from "@/components/ui/button";
-import AppDownloadBanner from "@/components/app-download-banner";
 import HikeGrid from "@/components/hike-grid";
 import Faq from "@/components/faq";
 import EscapeCity from "@/components/escape-city";
@@ -160,7 +159,7 @@ export default async function CityPage({ params }: Props) {
         },
         {
           question: `Comment réserver son train pour une randonnée au départ de ${place.name} ?`,
-          answer: `Une fois l'itinéraire calculé, Névé vous redirige vers Trainline avec les gares de départ, de correspondance et d'arrivée ainsi que les dates pré-remplies. Vos cartes de réduction SNCF habituelles s'appliquent normalement.`,
+          answer: `Une fois l'itinéraire calculé, Névé vous indique les gares de départ, de correspondance et d'arrivée ainsi que les horaires à viser. L'achat du billet se fait ensuite auprès du transporteur ou du vendeur de votre choix, où vos cartes de réduction et abonnements habituels s'appliquent normalement.`,
         },
         {
           question: `Ces randonnées conviennent-elles aux débutants ?`,
@@ -407,17 +406,6 @@ export default async function CityPage({ params }: Props) {
         />
       </div>
 
-      {/* Bandeau de téléchargement — le même que sur la fiche randonnée. */}
-      <div className="mx-auto max-w-6xl px-6 sm:px-10 md:px-16 mb-24">
-        <AppDownloadBanner
-          title={`Randonnez autour de ${place.name} sans voiture`}
-          description={
-            stats
-              ? `Horaires de train synchronisés, correspondances calculées et tracés GPS hors connexion : Névé vous emmène sur les ${stats.count} itinéraires de la région, et vous ramène.`
-              : "Horaires de train synchronisés, correspondances calculées et tracés GPS hors connexion : préparez toute votre sortie depuis l'application, transport compris."
-          }
-        />
-      </div>
     </div>
   );
 }

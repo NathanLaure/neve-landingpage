@@ -31,7 +31,7 @@ export default function LargeTestimonial() {
               className="font-bricolage font-bold text-2xl tracking-[-0.888px] text-[#292929] leading-[39px] text-center"
               style={{ fontVariationSettings: "'opsz' 14, 'wdth' 100" }}
             >
-              « Névé a totalement changé mes week-ends. Plus besoin de louer de voiture ni de passer des heures à synchroniser les TER et les bus. Je choisis ma rando, j'achète mes billets en 1 clic sur Trainline et je pars l'esprit tranquille grâce à l'alerte sécurité retour. »
+              « Névé a totalement changé mes week-ends. Plus besoin de louer de voiture ni de passer des heures à synchroniser les TER et les bus. Je choisis ma rando, j'achète mes billets en quelques minutes et je pars l'esprit tranquille grâce à l'alerte sécurité retour. »
             </p>
             <div 
               className="font-satoshi text-[18px] font-medium text-[#525252] tracking-[-0.4px] text-center leading-[22px]"

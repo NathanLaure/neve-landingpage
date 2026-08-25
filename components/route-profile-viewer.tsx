@@ -300,7 +300,7 @@ export default function RouteProfileViewer() {
                   <div className="text-[8px] font-bold text-slate-400 uppercase">Statut Retour</div>
                   <div className="text-xs font-bold text-emerald-700 mt-0.5 flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    Billet validé (Trainline)
+                    Billet validé
                   </div>
                 </div>
               </div>

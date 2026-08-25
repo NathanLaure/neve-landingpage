@@ -43,7 +43,7 @@ const INITIAL_ACTIVITIES: Activity[] = [
     elevation: "+120 m",
     co2Saved: 22,
     kudos: 29,
-    comment: "Déconnexion totale à moins de 45 minutes de Paris. Idéal avec les enfants pour grimper sur les rochers de Fontainebleau. Trainline a bien géré nos billets RER/Transilien.",
+    comment: "Déconnexion totale à moins de 45 minutes de Paris. Idéal avec les enfants pour grimper sur les rochers de Fontainebleau.",
     sceneryEmoji: "🌲"
   },
   {

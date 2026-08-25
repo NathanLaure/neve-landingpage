@@ -151,7 +151,7 @@ export default function EcoComparison() {
                   <span>Tarif billet TER</span>
                   <span className="font-mono text-emerald-700">~{trainCost} €</span>
                 </div>
-                <p className="text-[10px] text-slate-400 italic">Tarif pré-rempli Trainline (intégrant abonnements/cartes de réduction)</p>
+                <p className="text-[10px] text-slate-400 italic">Tarif indicatif, hors abonnements et cartes de réduction</p>
               </div>
 
               {/* Stress level / Comfort */}
