@@ -132,7 +132,10 @@ export default function MapStylePicker({ options, value, onChange }: MapStylePic
         type="button"
         onClick={() => setIsOpen((open) => !open)}
         aria-expanded={isOpen}
-        className="relative block size-[72px] cursor-pointer overflow-hidden rounded-xl shadow-lg transition hover:brightness-95"
+        /* Le liseré blanc détache le bouton du fond de carte, qui est sa
+           propre matière : sans lui, un aperçu clair se fond dans une zone
+           claire et le bouton n'a plus de contour. */
+        className="relative block size-[72px] cursor-pointer overflow-hidden rounded-xl border-2 border-white shadow-lg transition hover:brightness-95"
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={current.preview} alt="" className="size-full object-cover" />
