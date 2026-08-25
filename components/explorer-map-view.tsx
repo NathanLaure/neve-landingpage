@@ -198,6 +198,9 @@ export default function ExplorerMapView({
      chaque déplacement : un rayon figé cesserait de décrire ce qu'on regarde
      dès le premier glissement. */
   const [shownRadiusKm, setShownRadiusKm] = useState<number | null>(null);
+  /* Vrai le temps d'un recadrage dû au repli du panneau : le bouton de
+     recherche de zone ignore ce déplacement, qui n'est pas un geste. */
+  const isRecenteringRef = useRef(false);
   /* La carte se crée une fois, le rayon change : ses écouteurs le lisent ici. */
   const radiusKmRef = useRef<number | null>(radiusKm);
   useEffect(() => {
@@ -449,7 +452,7 @@ export default function ExplorerMapView({
        l'utilisateur qui l'a bougée. */
     map.on("moveend", () => {
       const last = lastSearchRef.current;
-      if (!last) return;
+      if (!last || isRecenteringRef.current) return;
 
       const center = map.getCenter();
       const moved = distanceKm(last, { lat: center.lat, lng: center.lng });
@@ -528,14 +531,59 @@ export default function ExplorerMapView({
      * de l'écran par la droite avant d'y revenir. Ancré à droite, le trop-plein
      * pend du côté que le cadre rogne, et l'image reste immobile.
      */
+    /* Mesuré avant de décrocher le bord gauche : sans largeur propre, un
+       élément absolu détaché de ses deux bords s'effondre à zéro, et c'est
+       zéro qu'on lirait. */
+    const pinned = container.clientWidth + Math.max(0, gained);
     container.style.left = "auto";
-    container.style.width = `${container.clientWidth + Math.max(0, gained)}px`;
+    container.style.width = `${pinned}px`;
 
-    /* La transition porte sur le panneau et non sur ce conteneur : aucun
-       `transitionend` ne remontera jusqu'ici, on se cale sur sa durée. */
+    /*
+     * Étale le recadrage de mapbox sur la durée du panneau.
+     *
+     * En changeant de largeur, mapbox garde le centre géographique au centre
+     * du canevas. Or ce centre s'est déplacé de la moitié de ce qu'on a gagné,
+     * tout s'étant ajouté du côté gauche : le paysage saute d'autant, d'un
+     * coup.
+     *
+     * On annule donc ce saut, puis on le refait en glissant. La carte finit
+     * exactement où mapbox l'aurait mise — le recadrage a bien lieu — mais en
+     * même temps que le panneau plutôt qu'en une image.
+     */
+    const map = mapRef.current;
+    const recentre = () => {
+      if (!map) return;
+      /* Ce déplacement n'est pas celui de l'utilisateur : le bouton de
+         recherche de zone n'a pas à s'y réveiller. */
+      isRecenteringRef.current = true;
+      map.resize();
+      map.panBy([-gained / 2, 0], { duration: 0 });
+      map.panBy([gained / 2, 0], {
+        duration: PANEL_TRANSITION_MS,
+        /* Même courbe que le panneau, qui est en `ease-out`. */
+        easing: (t) => 1 - (1 - t) ** 3,
+      });
+      window.setTimeout(() => {
+          isRecenteringRef.current = false;
+      }, PANEL_TRANSITION_MS + 40);
+    };
+
+    /* Le canevas change de taille au début quand la carte s'élargit, à la fin
+       quand elle rétrécit : la compensation suit ce moment-là. */
+    if (gained > 0) recentre();
+
+    /*
+     * La transition porte sur le panneau et non sur ce conteneur : aucun
+     * `transitionend` ne remontera jusqu'ici, on se cale sur sa durée.
+     *
+     * On rétablit des valeurs explicites plutôt que de vider les propriétés :
+     * les vider retirerait aussi le `left: 0` que React a posé, et qu'il ne
+     * reposera pas — rien n'aura changé de son point de vue.
+     */
     window.setTimeout(() => {
-      container.style.left = "";
-      container.style.width = "";
+      container.style.left = "0px";
+      container.style.width = "auto";
+      if (gained < 0) recentre();
     }, PANEL_TRANSITION_MS + 20);
   }, []);
 
@@ -1031,13 +1079,24 @@ export default function ExplorerMapView({
 
         <div className="relative flex-1 overflow-hidden rounded-xl bg-neve-surface">
           {mapboxToken ? (
-            /* Hors du flux, et pas seulement rogné : pendant le repli, le
-               conteneur est plus large que son cadre, et un élément en flux de
-               cette largeur pousserait la mise en page hors de l'écran par la
-               droite. Absolu, il ne pèse plus rien et le cadre le rogne. Sa
-               largeur figée l'emporte alors sur `right-0`, qui reprend la main
-               dès qu'on la relâche. */
-            <div ref={mapContainerRef} className="absolute inset-0" />
+            /*
+             * Hors du flux, et pas seulement rogné : pendant le repli, le
+             * conteneur est plus large que son cadre, et un élément en flux de
+             * cette largeur pousserait la mise en page hors de l'écran par la
+             * droite. Absolu, il ne pèse plus rien et le cadre le rogne. Sa
+             * largeur figée l'emporte alors sur `right`, qui reprend la main
+             * dès qu'on la relâche.
+             *
+             * En style et non en classes : `mapbox-gl.css` pose
+             * `.mapboxgl-map { position: relative }`, de même spécificité et
+             * chargé après Tailwind, donc gagnant. La classe `absolute` était
+             * ignorée, le conteneur restait dans le flux — et sans hauteur,
+             * puisque plus rien ne la lui donnait.
+             */
+            <div
+              ref={mapContainerRef}
+              style={{ position: "absolute", top: 0, right: 0, bottom: 0, left: 0 }}
+            />
           ) : (
             <div className="flex size-full items-center justify-center px-8 text-center">
               <p className="font-satoshi text-sm text-neve-text-muted">
