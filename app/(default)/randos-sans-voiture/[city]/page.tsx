@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { Map } from "lucide-react";
+/* Renomme : `Map` masquerait le constructeur `Map` de JavaScript. */
+import { Map as MapIcon } from "lucide-react";
 import CustomLink from "@/components/ui/link";
 import Button from "@/components/ui/button";
 import HikeGrid from "@/components/hike-grid";
@@ -319,7 +320,7 @@ export default async function CityPage({ params }: Props) {
           <Button href={exploreHref} variant="secondary" className="flex-shrink-0 gap-2">
             {/* `gap-2` sur le bouton : son habillage de base centre son contenu
                 sans prévoir d'écart entre une icône et un libellé. */}
-            <Map className="size-4" aria-hidden />
+            <MapIcon className="size-4" aria-hidden />
             Voir sur la carte interactive
           </Button>
         </div>

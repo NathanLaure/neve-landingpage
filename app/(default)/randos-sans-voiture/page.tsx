@@ -1,6 +1,9 @@
+/* Renomme : `Map` masquerait le constructeur `Map` de JavaScript. */
+import { Map as MapIcon } from "lucide-react";
 import CustomLink from "@/components/ui/link";
+import Button from "@/components/ui/button";
 import { HIKE_HUBS } from "@/lib/hike-hubs";
-import { countHikesNearby, DEFAULT_HIKE_RADIUS_KM } from "@/lib/hikes";
+import { countHikesNearby, getAllHikes, DEFAULT_HIKE_RADIUS_KM } from "@/lib/hikes";
 import { geocodePlace } from "@/lib/geocode";
 
 // Without this, Next prerenders the "N itinéraires" counts once at build time
@@ -9,15 +12,20 @@ import { geocodePlace } from "@/lib/geocode";
 export const revalidate = 3600;
 
 export const metadata = {
-  title: "Randonnées en Alpes-de-Haute-Provence - Névé",
+  title: "Randonnées accessibles sans voiture",
   description:
-    "Découvrez notre sélection de randonnées autour de Digne-les-Bains, Sisteron, Manosque, Castellane, Forcalquier et Barcelonnette.",
+    "Les itinéraires de randonnée référencés par Névé, classés par ville de départ. Distance, dénivelé et durée calculés sur le tracé GPS réel, pour partir en train plutôt qu'en voiture.",
   alternates: {
     canonical: "https://www.neve-rando.fr/randos-sans-voiture",
   },
 };
 
 export default async function HubPage() {
+  /* Le catalogue entier, pour le compte affiche : les colonnes de liste
+     suffisent, et la page est gardee une heure. */
+  const { hikes: all } = await getAllHikes({ limit: 2000 });
+  const totalHikes = all.length;
+
   const hubsWithCounts = await Promise.all(
     HIKE_HUBS.map(async (hub) => {
       const place = await geocodePlace(hub.name);
@@ -28,32 +36,56 @@ export default async function HubPage() {
     })
   );
 
+  /* Regroupement par région, dans l'ordre où les villes sont déclarées : c'est
+     l'ordre éditorial, et il vaut mieux qu'un tri alphabétique. */
+  const regions = Array.from(
+    hubsWithCounts.reduce((acc, hub) => {
+      acc.set(hub.region, [...(acc.get(hub.region) ?? []), hub]);
+      return acc;
+    }, new Map<string, typeof hubsWithCounts>()),
+  );
+
   return (
     <div className="bg-white min-h-screen pt-24 md:pt-32">
       {/* Hero Header */}
       <div className="mx-auto max-w-6xl px-6 sm:px-10 md:px-16 mb-16 text-center">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[color:var(--color-brand-orange-light)] text-[color:var(--color-brand-orange)] text-xs font-bold uppercase tracking-wider mb-4">
-          🌲 Rando Zéro Carbone
+          Randonner sans voiture
         </div>
         <h1 className="text-4xl font-extrabold text-slate-900 md:text-5xl tracking-tight mb-6 leading-tight">
           Trouvez votre prochaine <br className="max-md:hidden" />
-          <span className="text-[color:var(--color-brand-orange)] font-black">randonnée en Haute-Provence</span>
+          <span className="text-[color:var(--color-brand-orange)] font-black">randonnée sans voiture</span>
         </h1>
+        {/* Le chapeau porte le compte réel du catalogue plutôt qu'une région :
+            c'est un fait vérifiable, et il vaut mieux que la promesse qu'il
+            remplaçait. */}
         <p className="font-satoshi text-[#525252] text-[18px] max-w-2xl mx-auto leading-relaxed font-medium">
-          Sélectionnez votre zone de départ et découvrez des sentiers planifiés par Névé, entre Préalpes, Gorges du Verdon et vallée de l'Ubaye.
+          Névé référence <strong>{totalHikes} itinéraires</strong> dont le départ est atteignable
+          en train ou en transports. Distance, dénivelé et durée sont calculés sur le tracé GPS
+          réel de chaque sentier. Choisissez une ville de départ, ou ouvrez la carte.
         </p>
-        <CustomLink
-          href="/explorer"
-          className="inline-flex items-center justify-center gap-2 mt-6 px-5 py-3 rounded-xl bg-slate-950 hover:bg-slate-800 text-white text-sm font-bold shadow-sm transition duration-150 cursor-pointer"
-        >
-          🗺️ Explorer toutes les randonnées sur la carte
-        </CustomLink>
+
+        <div className="mt-6 flex justify-center">
+          <Button href="/explorer" variant="secondary" className="gap-2">
+            <MapIcon className="size-4" aria-hidden />
+            Explorer sur la carte
+          </Button>
+        </div>
       </div>
 
-      {/* Hubs Grid */}
-      <div className="mx-auto max-w-6xl px-6 sm:px-10 md:px-16 mb-24">
+      {/*
+        * Groupé par région.
+        *
+        * Le catalogue tient sur deux ensembles nets — l'Île-de-France et les
+        * Alpes-du-Sud — et les aligner sans distinction laissait croire à une
+        * couverture uniforme du territoire. Dire où l'on est dense est plus
+        * utile que de le taire.
+        */}
+      {regions.map(([region, hubs]) => (
+      <div key={region} className="mx-auto max-w-6xl px-6 sm:px-10 md:px-16 mb-16">
+        <h2 className="text-xl font-bold text-slate-900 mb-6">{region}</h2>
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {hubsWithCounts.map((hub) => (
+          {hubs.map((hub) => (
             <CustomLink
               key={hub.slug}
               href={`/randos-sans-voiture/${hub.slug}`}
@@ -100,6 +132,7 @@ export default async function HubPage() {
           ))}
         </div>
       </div>
+      ))}
 
       {/* Global Benefit Banner */}
       <div className="mx-auto max-w-5xl px-6 sm:px-10 md:px-16 mb-24">
